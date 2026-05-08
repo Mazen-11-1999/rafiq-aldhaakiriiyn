@@ -77,10 +77,26 @@ export default function NasheedView() {
         <div className="absolute inset-0 bg-linear-to-b from-[#fbf9f6]/90 via-transparent to-[#fbf9f6]/90" />
       </div>
 
-      <div className="flex flex-col lg:flex-row gap-12">
+      {/* Studio Frame with Glow Effect */}
+      <div className="relative group/studio">
+        {/* Animated Glow Border */}
+        <div className={cn(
+          "absolute -inset-1 blur-2xl opacity-40 transition-all duration-1000",
+          isPlaying ? "opacity-70 scale-[1.03]" : "opacity-30 scale-100"
+        )}>
+          <div className="absolute inset-0 bg-linear-to-r from-[#4e635a] via-[#8da399] via-[#6d8a7d] via-[#4e635a] via-[#94b1a4] to-[#4e635a] animate-border-flow rounded-[4rem]" />
+        </div>
         
-        {/* Left Side: Player Container */}
-        <div className="w-full lg:w-2/5 space-y-6">
+        {/* The Frame Itself - Colored Border */}
+        <div className="absolute -inset-[2px] rounded-[3.7rem] bg-linear-to-r from-[#4e635a] via-[#8da399] via-emerald-400 via-[#4e635a] via-teal-400 to-[#4e635a] animate-border-flow z-0 opacity-80" />
+        
+        <div className="relative z-10 bg-white/70 backdrop-blur-3xl rounded-[3.5rem] p-6 md:p-10 border border-white/80 shadow-[0_32px_64px_-16px_rgba(78,99,90,0.2)] overflow-hidden">
+          {/* Subtle flowing light inside the frame */}
+          <div className="absolute inset-0 -z-10 bg-linear-to-tr from-[#4e635a]/5 via-transparent to-[#4e635a]/5 opacity-50" />
+          
+          <div className="flex flex-col lg:flex-row gap-12 relative z-20">
+            {/* Left Side: Player Container */}
+            <div className="w-full lg:w-2/5 space-y-6">
           <div className="relative group perspective-1000">
             <motion.div 
               animate={isPlaying ? { 
@@ -225,7 +241,7 @@ export default function NasheedView() {
                 )}
               >
                 <Sparkles size={16} />
-                شبكة الصور
+                وضع الشبكة
               </button>
               <button 
                 onClick={() => setViewMode('list')}
@@ -235,7 +251,7 @@ export default function NasheedView() {
                 )}
               >
                 <Music size={16} />
-                قائمة
+                وضع القائمة
               </button>
             </div>
           </div>
@@ -364,5 +380,7 @@ export default function NasheedView() {
         </div>
       </div>
     </div>
-  );
+  </div>
+</div>
+);
 }

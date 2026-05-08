@@ -608,5 +608,47 @@ export const NASHEEDS = [
     artist: 'الشفاء',
     url: 'https://www.ashefaa.com/enshad/files/ashefaa/Nasheed-Ashefaa.mp3',
     cover: 'https://images.unsplash.com/photo-1507615811603-347cf74e1019?q=80&w=200&auto=format&fit=crop'
+  },
+  {
+    id: 'nasheed-78',
+    title: 'رقت عيناي شوقاً',
+    artist: 'ماهر زين',
+    url: 'https://archive.org/download/MaherZainFullAlbum_201612/Maher%20Zain%20-%20Raqqat%20Aynaya%20Shawqan.mp3',
+    cover: 'https://images.unsplash.com/photo-1509062522246-3755977927d7?q=80&w=200&auto=format&fit=crop'
+  },
+  {
+    id: 'nasheed-79',
+    title: 'رحمة للعالمين',
+    artist: 'ماهر زين',
+    url: 'https://archive.org/download/MaherZainFullAlbum_201612/Maher%20Zain%20-%20Rahmatun%20Lil%27Alameen.mp3',
+    cover: 'https://images.unsplash.com/photo-1542810634-71277d95dcbb?q=80&w=200&auto=format&fit=crop'
+  },
+  {
+    id: 'nasheed-80',
+    title: 'يا نبي سلام عليك',
+    artist: 'ماهر زين',
+    url: 'https://archive.org/download/MaherZainFullAlbum_201612/Maher%20Zain%20-%20Ya%20Nabi%20Salam%20Alayka.mp3',
+    cover: 'https://images.unsplash.com/photo-1499209974431-9dac345f862e?q=80&w=200&auto=format&fit=crop'
+  },
+  {
+    id: 'nasheed-81',
+    title: 'بارك الله لكما',
+    artist: 'ماهر زين',
+    url: 'https://archive.org/download/MaherZainFullAlbum_201612/Maher%20Zain%20-%20Baraka%20Allahu%20Lakuma.mp3',
+    cover: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?q=80&w=200&auto=format&fit=crop'
+  },
+  {
+    id: 'nasheed-82',
+    title: 'هو القرآن',
+    artist: 'ماهر زين',
+    url: 'https://archive.org/download/MaherZainFullAlbum_201612/Maher%20Zain%20-%20Huwa%20Alquran.mp3',
+    cover: 'https://images.unsplash.com/photo-1507615811603-347cf74e1019?q=80&w=200&auto=format&fit=crop'
+  },
+  {
+    id: 'nasheed-83',
+    title: 'الصبح بدا',
+    artist: 'ماهر زين',
+    url: 'https://archive.org/download/MaherZainFullAlbum_201612/Maher%20Zain%20-%20Assubhu%20Bada.mp3',
+    cover: 'https://images.unsplash.com/photo-1470252649358-96957cef6f0c?q=80&w=200&auto=format&fit=crop'
   }
 ];
