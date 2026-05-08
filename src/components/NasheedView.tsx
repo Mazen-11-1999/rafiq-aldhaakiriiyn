@@ -11,6 +11,7 @@ export default function NasheedView() {
   const [duration, setDuration] = useState(0);
   const [volume, setVolume] = useState(0.8);
   const [searchQuery, setSearchQuery] = useState('');
+  const [viewMode, setViewMode] = useState<'list' | 'grid'>('grid');
   
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const currentTrack = NASHEEDS[currentTrackIndex];
@@ -64,7 +65,7 @@ export default function NasheedView() {
   );
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8 pb-32 relative">
+    <div className="max-w-6xl mx-auto px-4 py-8 pb-32 relative">
       {/* Tab Specific Background */}
       <div className="fixed inset-0 z-[-1] pointer-events-none overflow-hidden">
         <motion.div 
@@ -76,76 +77,66 @@ export default function NasheedView() {
         <div className="absolute inset-0 bg-linear-to-b from-[#fbf9f6]/90 via-transparent to-[#fbf9f6]/90" />
       </div>
 
-      <div className="flex flex-col md:flex-row gap-8">
+      <div className="flex flex-col lg:flex-row gap-12">
         
         {/* Left Side: Player Container */}
-        <div className="w-full md:w-1/2 space-y-6">
+        <div className="w-full lg:w-2/5 space-y-6">
           <div className="relative group perspective-1000">
             <motion.div 
               animate={isPlaying ? { 
-                scale: [1, 1.03, 1],
+                scale: [1, 1.02, 1],
                 boxShadow: [
                   "0 25px 50px -12px rgba(0, 0, 0, 0.25)",
-                  "0 25px 50px -12px rgba(78, 99, 90, 0.4)",
+                  "0 25px 50px -12px rgba(78, 99, 90, 0.3)",
                   "0 25px 50px -12px rgba(0, 0, 0, 0.25)"
                 ]
               } : { scale: 1 }}
               whileTap={{ scale: 0.98 }}
               transition={isPlaying ? { 
-                scale: { duration: 2, repeat: Infinity, ease: "easeInOut" },
-                boxShadow: { duration: 2, repeat: Infinity, ease: "easeInOut" }
+                scale: { duration: 3, repeat: Infinity, ease: "easeInOut" },
+                boxShadow: { duration: 3, repeat: Infinity, ease: "easeInOut" }
               } : { duration: 0.3 }}
-              className="relative aspect-square rounded-[3rem] overflow-hidden shadow-2xl border-4 border-white/50 preserve-3d cursor-pointer z-10"
+              className="relative aspect-square rounded-[3rem] overflow-hidden shadow-2xl border-4 border-white preserve-3d cursor-pointer z-10"
             >
               <img 
                 src={currentTrack.cover} 
                 alt={currentTrack.title}
                 className="w-full h-full object-cover"
               />
-              <div className="absolute inset-0 bg-linear-to-t from-black/60 to-transparent flex items-end p-8">
-                <div className="text-white">
-                  <p className="text-sm font-medium opacity-80 mb-1 flex items-center gap-1">
-                    <Sparkles size={12} className="text-yellow-400" />
-                    الآن تستمع إلى
-                  </p>
-                  <h2 className="text-3xl font-black font-serif leading-tight">{currentTrack.title}</h2>
-                  <p className="text-lg opacity-90">{currentTrack.artist}</p>
+              <div className="absolute inset-0 bg-linear-to-t from-black/70 via-black/20 to-transparent flex items-end p-8">
+                <div className="text-white w-full">
+                  <motion.div 
+                    initial={{ y: 20, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    key={currentTrack.id}
+                  >
+                    <p className="text-xs font-bold tracking-widest opacity-80 mb-2 flex items-center gap-2 uppercase">
+                      <Sparkles size={14} className="text-yellow-400" />
+                      الآن تستمع إلى
+                    </p>
+                    <h2 className="text-3xl font-black font-serif leading-tight drop-shadow-lg">{currentTrack.title}</h2>
+                    <p className="text-lg opacity-90 font-medium">{currentTrack.artist}</p>
+                  </motion.div>
                 </div>
               </div>
             </motion.div>
             
-            {/* Visual Pulse Rings behind the cover */}
-            {isPlaying && (
-              <div className="absolute inset-0 -z-10 flex items-center justify-center">
-                {[1, 2, 3].map((i) => (
-                  <motion.div
-                    key={i}
-                    initial={{ opacity: 0.3, scale: 1 }}
-                    animate={{ opacity: 0, scale: 1.5 }}
-                    transition={{ 
-                      duration: 3, 
-                      repeat: Infinity, 
-                      delay: i * 1,
-                      ease: "easeOut" 
-                    }}
-                    className="absolute inset-0 border-2 border-[#4e635a]/20 rounded-[3rem]"
-                  />
-                ))}
-              </div>
-            )}
-            
             {/* Ambient Record Visual */}
             <motion.div 
-               animate={isPlaying ? { scale: [1, 1.05, 1], rotate: [0, 5, 0] } : { scale: 1, rotate: 0 }}
-               className="absolute top-1/2 -translate-y-1/2 -right-4 w-[95%] h-[90%] bg-[#1b1c1a] rounded-full -z-20 shadow-xl flex items-center justify-center p-4 border-8 border-white/5"
+               animate={isPlaying ? { rotate: [0, 360] } : { rotate: 0 }}
+               transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
+               className="absolute top-1/2 -translate-y-1/2 -right-6 w-[95%] h-[95%] bg-[#1b1c1a] rounded-full -z-20 shadow-2xl flex items-center justify-center p-8 border-12 border-white/5 opacity-40 lg:opacity-100"
             >
-               <div className="w-full h-full rounded-full border-4 border-white/10 flex items-center justify-center">
-                  <Disc size={60} className="text-white/20" />
+               <div className="w-full h-full rounded-full border-2 border-white/10 flex items-center justify-center relative">
+                  <div className="absolute inset-2 border border-white/5 rounded-full" />
+                  <div className="absolute inset-4 border border-white/5 rounded-full" />
+                  <div className="absolute inset-6 border border-white/5 rounded-full" />
+                  <Disc size={40} className="text-white/20" />
                </div>
             </motion.div>
           </div>
 
-          <div className="glass-3d p-8 rounded-[2rem] space-y-6">
+          <div className="glass-3d p-8 rounded-[2.5rem] space-y-6">
             <audio 
               ref={audioRef}
               src={currentTrack.url}
@@ -155,7 +146,7 @@ export default function NasheedView() {
             />
 
             {/* Slider */}
-            <div className="space-y-2">
+            <div className="space-y-3">
               <input 
                 type="range"
                 min="0"
@@ -164,7 +155,7 @@ export default function NasheedView() {
                 onChange={handleProgressChange}
                 className="w-full accent-[#4e635a] h-1.5 rounded-full cursor-pointer bg-[#4e635a]/10"
               />
-              <div className="flex justify-between text-xs font-bold text-[#4e635a]/60 font-mono">
+              <div className="flex justify-between text-xs font-bold text-[#4e635a]/60 font-mono tracking-tighter">
                 <span>{formatTime(progress)}</span>
                 <span>{formatTime(duration)}</span>
               </div>
@@ -177,15 +168,16 @@ export default function NasheedView() {
                 onClick={handlePrev}
                 className="p-3 text-[#4e635a] hover:bg-[#4e635a]/10 rounded-full transition-all"
               >
-                <SkipBack size={28} fill="currentColor" />
+                <SkipBack size={32} fill="currentColor" />
               </motion.button>
 
               <motion.button 
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.9 }}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
                 onClick={togglePlay}
-                className="w-20 h-20 bg-[#4e635a] text-white rounded-full flex items-center justify-center shadow-xl shadow-[#4e635a]/30"
+                className="w-20 h-20 bg-[#4e635a] text-white rounded-3xl flex items-center justify-center shadow-2xl shadow-[#4e635a]/40 group overflow-hidden relative"
               >
+                <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />
                 {isPlaying ? <Pause size={36} fill="white" /> : <Play size={36} fill="white" className="ml-1" />}
               </motion.button>
 
@@ -194,11 +186,11 @@ export default function NasheedView() {
                 onClick={handleNext}
                 className="p-3 text-[#4e635a] hover:bg-[#4e635a]/10 rounded-full transition-all"
               >
-                <SkipForward size={28} fill="currentColor" />
+                <SkipForward size={32} fill="currentColor" />
               </motion.button>
             </div>
 
-            <div className="flex items-center gap-4 pt-4 border-t border-[#4e635a]/10">
+            <div className="flex items-center gap-4 pt-4 border-t border-[#4e635a]/5">
               <Volume2 size={18} className="text-[#4e635a]/60" />
               <input 
                 type="range"
@@ -216,66 +208,160 @@ export default function NasheedView() {
           </div>
         </div>
 
-        {/* Right Side: Playlist */}
-        <div className="w-full md:w-1/2 space-y-6">
-          <div className="flex items-center justify-between">
-            <h3 className="text-2xl font-black font-serif text-[#1b1c1a]">قائمة الأناشيد</h3>
-            <div className="w-10 h-10 bg-white shadow-md rounded-xl flex items-center justify-center text-[#4e635a]">
-              <Music size={20} />
+        {/* Right Side: Playlist / Grid */}
+        <div className="w-full lg:w-3/5 space-y-6">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div>
+              <h3 className="text-3xl font-black font-serif text-[#1b1c1a]">مكتبة الأناشيد</h3>
+              <p className="text-[#4e635a]/60 text-sm font-medium mt-1">تصفح {NASHEEDS.length} نشيد مختار بعناية</p>
+            </div>
+            
+            <div className="flex items-center gap-2 bg-white/80 backdrop-blur-xl p-1.5 rounded-2xl border border-[#4e635a]/10 shadow-sm">
+              <button 
+                onClick={() => setViewMode('grid')}
+                className={cn(
+                  "px-4 py-2 rounded-xl transition-all text-sm font-bold flex items-center gap-2",
+                  viewMode === 'grid' ? "bg-[#4e635a] text-white shadow-lg" : "text-[#4e635a] hover:bg-[#4e635a]/5"
+                )}
+              >
+                <Sparkles size={16} />
+                شبكة الصور
+              </button>
+              <button 
+                onClick={() => setViewMode('list')}
+                className={cn(
+                  "px-4 py-2 rounded-xl transition-all text-sm font-bold flex items-center gap-2",
+                  viewMode === 'list' ? "bg-[#4e635a] text-white shadow-lg" : "text-[#4e635a] hover:bg-[#4e635a]/5"
+                )}
+              >
+                <Music size={16} />
+                قائمة
+              </button>
             </div>
           </div>
 
-          <div className="relative">
-            <Search className="absolute right-4 top-1/2 -translate-y-1/2 text-[#4e635a]/40" size={18} />
+          <div className="relative group">
+            <Search className="absolute right-4 top-1/2 -translate-y-1/2 text-[#4e635a]/40 group-focus-within:text-[#4e635a] transition-colors" size={20} />
             <input 
               type="text"
-              placeholder="ابحث عن نشيد أو منشد..."
+              placeholder="ابحث عن نشيد أو منشد أو ألبوم..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-white border border-[#4e635a]/10 rounded-2xl py-4 pr-12 pl-4 text-sm font-bold focus:ring-2 focus:ring-[#4e635a]/50 outline-none shadow-sm"
+              className="w-full bg-white border-2 border-transparent rounded-[1.5rem] py-5 pr-14 pl-6 text-base font-bold focus:border-[#4e635a]/20 focus:ring-8 focus:ring-[#4e635a]/5 outline-none shadow-xl shadow-[#4e635a]/5 transition-all text-right"
             />
           </div>
 
-          <div className="space-y-3 max-h-[600px] overflow-y-auto pr-2 custom-scrollbar">
-            {filteredNasheeds.map((nasheed, index) => (
-              <motion.button
-                key={nasheed.id}
-                whileHover={{ x: -4 }}
-                onClick={() => {
-                  setCurrentTrackIndex(NASHEEDS.indexOf(nasheed));
-                  setIsPlaying(true);
-                }}
-                className={cn(
-                  "w-full flex items-center gap-4 p-4 rounded-2xl transition-all border border-transparent text-right",
-                  currentTrackIndex === NASHEEDS.indexOf(nasheed) 
-                    ? "bg-[#4e635a] text-white shadow-lg translate-x-1" 
-                    : "bg-white hover:bg-[#4e635a]/5 text-[#1b1c1a] shadow-sm hover:border-[#4e635a]/10"
-                )}
-              >
-                <div className="w-12 h-12 rounded-xl overflow-hidden shrink-0 shadow-md">
-                   <img src={nasheed.cover} alt={nasheed.title} className="w-full h-full object-cover" />
+          <div className="custom-scrollbar pr-2 max-h-[750px] overflow-y-auto">
+            {filteredNasheeds.length > 0 ? (
+              viewMode === 'grid' ? (
+                <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-3 gap-6 pt-2">
+                  {filteredNasheeds.map((nasheed) => (
+                    <motion.button
+                      key={nasheed.id}
+                      layoutId={nasheed.id}
+                      whileHover={{ y: -8, scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={() => {
+                        setCurrentTrackIndex(NASHEEDS.indexOf(nasheed));
+                        setIsPlaying(true);
+                      }}
+                      className={cn(
+                        "group relative flex flex-col items-start gap-3 p-4 rounded-[2.5rem] transition-all border-2",
+                        currentTrackIndex === NASHEEDS.indexOf(nasheed)
+                          ? "bg-[#4e635a] border-[#4e635a] shadow-2xl z-10"
+                          : "bg-white border-transparent shadow-sm hover:shadow-2xl"
+                      )}
+                    >
+                      <div className="relative aspect-square w-full rounded-[1.8rem] overflow-hidden shadow-lg mb-1">
+                        <img 
+                          src={nasheed.cover} 
+                          alt={nasheed.title} 
+                          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" 
+                        />
+                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors" />
+                        
+                        {currentTrackIndex === NASHEEDS.indexOf(nasheed) && isPlaying && (
+                          <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px] flex items-center justify-center">
+                            <div className="flex gap-1.5 h-8 items-end">
+                              {[1, 2, 3].map(i => (
+                                <motion.div 
+                                  key={i}
+                                  animate={{ height: ['40%', '100%', '60%'] }}
+                                  transition={{ duration: 0.6, repeat: Infinity, delay: i * 0.1 }}
+                                  className="w-1.5 bg-white rounded-full shadow-sm"
+                                />
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                      <div className="px-1 w-full text-right overflow-hidden">
+                        <p className={cn(
+                          "font-black text-sm truncate",
+                          currentTrackIndex === NASHEEDS.indexOf(nasheed) ? "text-white" : "text-[#1b1c1a]"
+                        )}>
+                          {nasheed.title}
+                        </p>
+                        <p className={cn(
+                          "text-xs font-bold opacity-60 truncate mt-0.5",
+                          currentTrackIndex === NASHEEDS.indexOf(nasheed) ? "text-white/80" : "text-[#4e635a]"
+                        )}>
+                          {nasheed.artist}
+                        </p>
+                      </div>
+                    </motion.button>
+                  ))}
                 </div>
-                <div className="flex-grow">
-                  <p className="font-bold text-sm">{nasheed.title}</p>
-                  <p className={cn("text-xs opacity-60", currentTrackIndex === NASHEEDS.indexOf(nasheed) ? "text-white/80" : "text-[#4e635a]")}>{nasheed.artist}</p>
+              ) : (
+                <div className="space-y-3 pt-2">
+                  {filteredNasheeds.map((nasheed) => (
+                    <motion.button
+                      key={nasheed.id}
+                      layoutId={`list-${nasheed.id}`}
+                      whileHover={{ x: -4, backgroundColor: currentTrackIndex === NASHEEDS.indexOf(nasheed) ? '' : 'rgba(78, 99, 90, 0.08)' }}
+                      onClick={() => {
+                        setCurrentTrackIndex(NASHEEDS.indexOf(nasheed));
+                        setIsPlaying(true);
+                      }}
+                      className={cn(
+                        "w-full flex items-center gap-4 p-4 rounded-[1.8rem] transition-all border-2 text-right",
+                        currentTrackIndex === NASHEEDS.indexOf(nasheed) 
+                          ? "bg-[#4e635a] border-[#4e635a] text-white shadow-xl translate-x-1" 
+                          : "bg-white border-transparent text-[#1b1c1a] shadow-sm"
+                      )}
+                    >
+                      <div className="w-16 h-16 rounded-[1.2rem] overflow-hidden shrink-0 shadow-md">
+                         <img src={nasheed.cover} alt={nasheed.title} className="w-full h-full object-cover" />
+                      </div>
+                      <div className="flex-grow">
+                        <p className="font-black text-base">{nasheed.title}</p>
+                        <p className={cn("text-sm font-bold opacity-60", currentTrackIndex === NASHEEDS.indexOf(nasheed) ? "text-white/80" : "text-[#4e635a]")}>{nasheed.artist}</p>
+                      </div>
+                      {currentTrackIndex === NASHEEDS.indexOf(nasheed) && isPlaying && (
+                        <div className="flex gap-1 h-5 items-end px-2">
+                          {[1, 2, 3, 4].map(i => (
+                            <motion.div 
+                              key={i}
+                              animate={{ height: ['40%', '100%', '60%', '80%', '40%'] }}
+                              transition={{ duration: 1, repeat: Infinity, delay: i * 0.1 }}
+                              className="w-1.5 bg-white rounded-full"
+                            />
+                          ))}
+                        </div>
+                      )}
+                    </motion.button>
+                  ))}
                 </div>
-                {currentTrackIndex === NASHEEDS.indexOf(nasheed) && isPlaying && (
-                  <div className="flex gap-0.5 h-4 items-end">
-                    {[1, 2, 3, 4].map(i => (
-                      <motion.div 
-                        key={i}
-                        animate={{ height: ['40%', '100%', '60%', '80%', '40%'] }}
-                        transition={{ duration: 1, repeat: Infinity, delay: i * 0.1 }}
-                        className="w-1 bg-white rounded-full"
-                      />
-                    ))}
-                  </div>
-                )}
-              </motion.button>
-            ))}
+              )
+            ) : (
+              <div className="text-center py-20 px-8 bg-white/30 rounded-[3rem] border-2 border-dashed border-[#4e635a]/20">
+                <Music size={48} className="mx-auto text-[#4e635a]/20 mb-4" />
+                <p className="text-[#4e635a] font-black text-xl mb-2">لم نجد أي نشيد يطابق بحثك</p>
+                <p className="text-[#4e635a]/60 font-medium">حاول البحث بكلمات أخرى أو تصفح الكل</p>
+              </div>
+            )}
           </div>
         </div>
-
       </div>
     </div>
   );

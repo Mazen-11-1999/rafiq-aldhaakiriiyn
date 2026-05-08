@@ -159,7 +159,7 @@ export const NASHEEDS = [
     title: 'لبيك (2)',
     artist: 'منوعات',
     url: 'https://www.ashefaa.com/enshad/files/monaw3at/labaik/02_labaik.mp3',
-    cover: 'https://images.unsplash.com/photo-1482933220138-16cb3a702b85?q=80&w=200&auto=format&fit=crop'
+    cover: 'https://images.unsplash.com/photo-1542810634-71277d95dcbb?q=80&w=200&auto=format&fit=crop'
   },
   {
     id: 'nasheed-14',
@@ -194,7 +194,7 @@ export const NASHEEDS = [
     title: 'الحاسم',
     artist: 'منوعات (تركي)',
     url: 'https://www.ashefaa.com/enshad/files/Turkish/Al7asem.mp3',
-    cover: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?q=80&w=200&auto=format&fit=crop'
+    cover: 'https://images.unsplash.com/photo-1518005020480-28564f8606e9?q=80&w=200&auto=format&fit=crop'
   },
   {
     id: 'nasheed-19',
@@ -243,7 +243,7 @@ export const NASHEEDS = [
     title: 'لحن العودة',
     artist: 'فرقة الوعد',
     url: 'https://www.ashefaa.com/enshad/files/alw3d/Lahn-Alawda.mp3',
-    cover: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?q=80&w=200&auto=format&fit=crop'
+    cover: 'https://images.unsplash.com/photo-1469474968028-56623f02e42e?q=80&w=200&auto=format&fit=crop'
   },
   {
     id: 'nasheed-26',
@@ -356,5 +356,257 @@ export const NASHEEDS = [
     artist: 'إبراهيم العزاوي',
     url: 'https://www.ashefaa.com/enshad/files/3azawi/7ar-fekri.mp3',
     cover: 'https://images.unsplash.com/photo-1509062522246-3755977927d7?q=80&w=200&auto=format&fit=crop'
+  },
+  {
+    id: 'nasheed-42',
+    title: 'يا كاتب الحور',
+    artist: 'أبو عبد الملك',
+    url: 'https://www.ashefaa.com/enshad/files/Abel-Mallek/ya-katebal7our.mp3',
+    cover: 'https://images.unsplash.com/photo-1502012652162-6221bab362e6?q=80&w=200&auto=format&fit=crop'
+  },
+  {
+    id: 'nasheed-43',
+    title: 'يا طيبة (تراث)',
+    artist: 'أبو عبد الملك',
+    url: 'https://www.ashefaa.com/enshad/files/Abel-Mallek/770001.mp3',
+    cover: 'https://images.unsplash.com/photo-1493225255756-d9584f8606e9?q=80&w=200&auto=format&fit=crop'
+  },
+  {
+    id: 'nasheed-44',
+    title: 'فرشي التراب',
+    artist: 'أبو عبد الملك',
+    url: 'https://www.ashefaa.com/enshad/files/Abel-Mallek/600002.mp3',
+    cover: 'https://images.unsplash.com/photo-1507615811603-347cf74e1019?q=80&w=200&auto=format&fit=crop'
+  },
+  {
+    id: 'nasheed-45',
+    title: 'يا نور قلبي',
+    artist: 'أيمن الحلاق',
+    url: 'https://www.ashefaa.com/enshad/files/Ayman-Alhallaq/Ya-Nour-Qalbi.mp3',
+    cover: 'https://images.unsplash.com/photo-1516062423079-7ca13cdc7f5a?q=80&w=200&auto=format&fit=crop'
+  },
+  {
+    id: 'nasheed-46',
+    title: 'أنا مالي',
+    artist: 'أيمن الحلاق',
+    url: 'https://www.ashefaa.com/enshad/files/Ayman-Alhallaq/Ana-Maly.mp3',
+    cover: 'https://images.unsplash.com/photo-1502012652162-6221bab362e6?q=80&w=200&auto=format&fit=crop'
+  },
+  {
+    id: 'nasheed-47',
+    title: 'صلاة الله',
+    artist: 'أيمن الحلاق',
+    url: 'https://www.ashefaa.com/enshad/files/Ayman-Alhallaq/Salat-Allah.mp3',
+    cover: 'https://images.unsplash.com/photo-1542810634-71277d95dcbb?q=80&w=200&auto=format&fit=crop'
+  },
+  {
+    id: 'nasheed-48',
+    title: 'صبراً',
+    artist: 'أيمن الحلاق',
+    url: 'https://www.ashefaa.com/enshad/files/Ayman-Alhallaq/Sabran.mp3',
+    cover: 'https://images.unsplash.com/photo-1499209974431-9dac345f862e?q=80&w=200&auto=format&fit=crop'
+  },
+  {
+    id: 'nasheed-49',
+    title: 'أيها البلبل',
+    artist: 'أيمن الحلاق',
+    url: 'https://www.ashefaa.com/enshad/files/Ayman-Alhallaq/Ayoha-Albolbol.mp3',
+    cover: 'https://images.unsplash.com/photo-1444703686981-a3abbc4d4fe3?q=80&w=200&auto=format&fit=crop'
+  },
+  {
+    id: 'nasheed-50',
+    title: 'أشتات',
+    artist: 'أيمن الحلاق',
+    url: 'https://www.ashefaa.com/enshad/files/Ayman-Alhallaq/Ashtat.mp3',
+    cover: 'https://images.unsplash.com/photo-1507615811603-347cf74e1019?q=80&w=200&auto=format&fit=crop'
+  },
+  {
+    id: 'nasheed-51',
+    title: 'اعرف',
+    artist: 'يحيى حوى',
+    url: 'https://www.ashefaa.com/enshad/files/Yahya-Hawaa/e3ref.mp3',
+    cover: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?q=80&w=200&auto=format&fit=crop'
+  },
+  {
+    id: 'nasheed-52',
+    title: 'أتيتني (You Came To Me)',
+    artist: 'سامي يوسف',
+    url: 'https://www.ashefaa.com/enshad/files/sami_yusuf/You-Came-To-Me.mp3',
+    cover: 'https://images.unsplash.com/photo-1493225255756-d9584f8606e9?q=80&w=200&auto=format&fit=crop'
+  },
+  {
+    id: 'nasheed-53',
+    title: 'الله (Allah)',
+    artist: 'سامي يوسف',
+    url: 'https://www.ashefaa.com/enshad/files/sami_yusuf/allah.mp3',
+    cover: 'https://images.unsplash.com/photo-1518005020480-28564f8606e9?q=80&w=200&auto=format&fit=crop'
+  },
+  {
+    id: 'nasheed-54',
+    title: 'أسماء الله الحسنى',
+    artist: 'سامي يوسف',
+    url: 'https://www.ashefaa.com/enshad/files/sami_yusuf/Asmaa_Allah.mp3',
+    cover: 'https://images.unsplash.com/photo-1509062522246-3755977927d7?q=80&w=200&auto=format&fit=crop'
+  },
+  {
+    id: 'nasheed-55',
+    title: 'أغنية العيد',
+    artist: 'سامي يوسف',
+    url: 'https://www.ashefaa.com/enshad/files/sami_yusuf/Eid_Song.mp3',
+    cover: 'https://images.unsplash.com/photo-1514525253344-991422c7a0c5?q=80&w=200&auto=format&fit=crop'
+  },
+  {
+    id: 'nasheed-56',
+    title: 'يا مصطفى',
+    artist: 'سامي يوسف',
+    url: 'https://www.ashefaa.com/enshad/files/sami_yusuf/Ya-moustafa.mp3',
+    cover: 'https://images.unsplash.com/photo-1516062423079-7ca13cdc7f5a?q=80&w=200&auto=format&fit=crop'
+  },
+  {
+    id: 'nasheed-57',
+    title: 'تحية (Salutation)',
+    artist: 'سامي يوسف',
+    url: 'https://www.ashefaa.com/enshad/files/sami_yusuf/SALUTATION.mp3',
+    cover: 'https://images.unsplash.com/photo-1502012652162-6221bab362e6?q=80&w=200&auto=format&fit=crop'
+  },
+  {
+    id: 'nasheed-58',
+    title: 'أنشودة مختارة',
+    artist: 'موسى مصطفى',
+    url: 'https://www.ashefaa.com/enshad/files/Mousa-Moustafa/Ashefaa.Com-3.mp3',
+    cover: 'https://images.unsplash.com/photo-1542810634-71277d95dcbb?q=80&w=200&auto=format&fit=crop'
+  },
+  {
+    id: 'nasheed-59',
+    title: 'هو الله',
+    artist: 'إبراهيم العزاوي',
+    url: 'https://www.ashefaa.com/enshad/files/3azawi/hwa-allah.mp3',
+    cover: 'https://images.unsplash.com/photo-1499209974431-9dac345f862e?q=80&w=200&auto=format&fit=crop'
+  },
+  {
+    id: 'nasheed-60',
+    title: 'لبيك',
+    artist: 'موسى مصطفى',
+    url: 'https://www.ashefaa.com/enshad/files/Mousa-Moustafa/labik.mp3',
+    cover: 'https://images.unsplash.com/photo-1444703686981-a3abbc4d4fe3?q=80&w=200&auto=format&fit=crop'
+  },
+  {
+    id: 'nasheed-61',
+    title: 'حوار الحجاب',
+    artist: 'أيمن رمضان',
+    url: 'https://www.ashefaa.com/enshad/files/ayman-ramadan/7ewar-al7ejab.mp3',
+    cover: 'https://images.unsplash.com/photo-1507615811603-347cf74e1019?q=80&w=200&auto=format&fit=crop'
+  },
+  {
+    id: 'nasheed-62',
+    title: 'عنور',
+    artist: 'فرقة الصعيد',
+    url: 'https://www.ashefaa.com/enshad/files/Sa3idi/3anour.mp3',
+    cover: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?q=80&w=200&auto=format&fit=crop'
+  },
+  {
+    id: 'nasheed-63',
+    title: 'هوى اليمن',
+    artist: 'فرقة الصعيد',
+    url: 'https://www.ashefaa.com/enshad/files/Sa3idi/hawa-alyaman.mp3',
+    cover: 'https://images.unsplash.com/photo-1493225255756-d9584f8606e9?q=80&w=200&auto=format&fit=crop'
+  },
+  {
+    id: 'nasheed-64',
+    title: 'أحد أحد',
+    artist: 'أبو راتب',
+    url: 'https://www.ashefaa.com/enshad/files/abo-rateb/a7ad-a7ad.mp3',
+    cover: 'https://images.unsplash.com/photo-1518005020480-28564f8606e9?q=80&w=200&auto=format&fit=crop'
+  },
+  {
+    id: 'nasheed-65',
+    title: 'شباب الهدى',
+    artist: 'أبو راتب',
+    url: 'https://www.ashefaa.com/enshad/files/abo-rateb/4/shabab-alhoda.mp3',
+    cover: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?q=80&w=200&auto=format&fit=crop'
+  },
+  {
+    id: 'nasheed-66',
+    title: 'أبو راتب - مختارات 1',
+    artist: 'أبو راتب',
+    url: 'https://www.ashefaa.com/enshad/files/abo-rateb/11/2.mp3',
+    cover: 'https://images.unsplash.com/photo-1509062522246-3755977927d7?q=80&w=200&auto=format&fit=crop'
+  },
+  {
+    id: 'nasheed-67',
+    title: 'أبو راتب - مختارات 2',
+    artist: 'أبو راتب',
+    url: 'https://www.ashefaa.com/enshad/files/abo-rateb/11/5.mp3',
+    cover: 'https://images.unsplash.com/photo-1516062423079-7ca13cdc7f5a?q=80&w=200&auto=format&fit=crop'
+  },
+  {
+    id: 'nasheed-68',
+    title: 'يتيم',
+    artist: 'أبو راتب',
+    url: 'https://www.ashefaa.com/enshad/files/abo-rateb/11/yatim.mp3',
+    cover: 'https://images.unsplash.com/photo-1507615811603-347cf74e1019?q=80&w=200&auto=format&fit=crop'
+  },
+  {
+    id: 'nasheed-69',
+    title: 'أنوار الدعوة',
+    artist: 'أبو راتب',
+    url: 'https://www.ashefaa.com/enshad/files/abo-rateb/Anwaar-Al-dawa.mp3',
+    cover: 'https://images.unsplash.com/photo-1499209974431-9dac345f862e?q=80&w=200&auto=format&fit=crop'
+  },
+  {
+    id: 'nasheed-70',
+    title: 'أعتز بإسلامي',
+    artist: 'أبو راتب',
+    url: 'https://www.ashefaa.com/enshad/files/abo-rateb/A3taz-bi-islami.mp3',
+    cover: 'https://images.unsplash.com/photo-1542810634-71277d95dcbb?q=80&w=200&auto=format&fit=crop'
+  },
+  {
+    id: 'nasheed-71',
+    title: 'قاصد',
+    artist: 'منوعات',
+    url: 'https://www.ashefaa.com/enshad/files/monaw3at/Kaser/07_Kaser.mp3',
+    cover: 'https://images.unsplash.com/photo-1518005020480-28564f8606e9?q=80&w=200&auto=format&fit=crop'
+  },
+  {
+    id: 'nasheed-72',
+    title: 'من عرف الله',
+    artist: 'أبو راتب',
+    url: 'https://www.ashefaa.com/enshad/files/abo-rateb/Man-Arafa-Allah.mp3',
+    cover: 'https://images.unsplash.com/photo-1509062522246-3755977927d7?q=80&w=200&auto=format&fit=crop'
+  },
+  {
+    id: 'nasheed-73',
+    title: 'مدين لك',
+    artist: 'أبو راتب',
+    url: 'https://www.ashefaa.com/enshad/files/abo-rateb/Madinun-Laka.mp3',
+    cover: 'https://images.unsplash.com/photo-1516062423079-7ca13cdc7f5a?q=80&w=200&auto=format&fit=crop'
+  },
+  {
+    id: 'nasheed-74',
+    title: 'وقفت',
+    artist: 'أبو راتب',
+    url: 'https://www.ashefaa.com/enshad/files/abo-rateb/wakafet.mp3',
+    cover: 'https://images.unsplash.com/photo-1526218626217-dc65a29bb444?q=80&w=200&auto=format&fit=crop'
+  },
+  {
+    id: 'nasheed-75',
+    title: 'لنا مصعب',
+    artist: 'أبو راتب',
+    url: 'https://www.ashefaa.com/enshad/files/abo-rateb/lana-mosab.mp3',
+    cover: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?q=80&w=200&auto=format&fit=crop'
+  },
+  {
+    id: 'nasheed-76',
+    title: 'الأيام',
+    artist: 'أبو راتب',
+    url: 'https://www.ashefaa.com/enshad/files/abo-rateb/Al-ayam.mp3',
+    cover: 'https://images.unsplash.com/photo-1470252649358-96957cef6f0c?q=80&w=200&auto=format&fit=crop'
+  },
+  {
+    id: 'nasheed-77',
+    title: 'أنشودة الشفاء',
+    artist: 'الشفاء',
+    url: 'https://www.ashefaa.com/enshad/files/ashefaa/Nasheed-Ashefaa.mp3',
+    cover: 'https://images.unsplash.com/photo-1507615811603-347cf74e1019?q=80&w=200&auto=format&fit=crop'
   }
 ];
