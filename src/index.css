@@ -1,0 +1,39 @@
+@import url('https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400;1,700&family=Noto+Sans+Arabic:wght@100..900&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Noto Sans Arabic", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Amiri", serif;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: #fbf9f6;
+  overscroll-behavior: none;
+}
+
+@layer utilities {
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-linear-to-r from-[#4e635a] to-[#8da399];
+  }
+  
+  .glass-3d {
+    @apply bg-white/70 backdrop-blur-2xl border border-white/40 shadow-[0_20px_50px_rgba(78,99,90,0.15)] ring-1 ring-white/20;
+  }
+  
+  .perspective-1000 {
+    perspective: 1000px;
+  }
+  
+  .preserve-3d {
+    transform-style: preserve-3d;
+  }
+  
+  .depth-card {
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+  
+  .depth-card:hover {
+    transform: translateZ(20px) rotateX(2deg) rotateY(-2deg);
+  }
+}

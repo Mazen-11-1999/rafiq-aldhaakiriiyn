@@ -1,0 +1,70 @@
+export enum SessionType {
+  SILENCE = 'silence',
+  DHIKR = 'dhikr',
+  RETREAT = 'retreat'
+}
+
+export interface UserSettings {
+  notifications: {
+    enabled: boolean;
+    dhikrReminders: boolean;
+    retreatReminders: boolean;
+    prayerTimes: boolean;
+    ringtone: string;
+  };
+  privacy: {
+    publicProfile: boolean;
+    shareInsights: boolean;
+  };
+  appearance: {
+    language: 'ar' | 'en';
+    dateFormat: 'western' | 'arabic';
+  };
+}
+
+export interface UserProfile {
+  uid: string;
+  email: string;
+  displayName: string;
+  photoURL: string;
+  createdAt: any;
+  totalMinutes: number;
+  totalSessions: number;
+  currentStreak: number;
+  lastSessionAt?: any;
+  lastActiveDate?: any;
+  settings?: UserSettings;
+}
+
+export interface Session {
+  id?: string;
+  userId: string;
+  type: SessionType;
+  duration: number;
+  dhikrText?: string;
+  dhikrCount?: number;
+  moodBefore?: string;
+  moodAfter?: string;
+  createdAt: any;
+}
+
+export enum OperationType {
+  CREATE = 'create',
+  UPDATE = 'update',
+  DELETE = 'delete',
+  LIST = 'list',
+  GET = 'get',
+  WRITE = 'write',
+}
+
+export interface FirestoreErrorInfo {
+  error: string;
+  operationType: OperationType;
+  path: string | null;
+  authInfo: {
+    userId?: string | null;
+    email?: string | null;
+    emailVerified?: boolean | null;
+    isAnonymous?: boolean | null;
+  }
+}

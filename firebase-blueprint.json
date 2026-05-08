@@ -1,0 +1,65 @@
+{
+  "entities": {
+    "User": {
+      "title": "User Profile",
+      "description": "Stores user profile and aggregate meditation stats.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "email": { "type": "string" },
+        "displayName": { "type": "string" },
+        "photoURL": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "totalMinutes": { "type": "integer" },
+        "totalSessions": { "type": "integer" },
+        "currentStreak": { "type": "integer" },
+        "lastSessionAt": { "type": "string", "format": "date-time" },
+        "lastActiveDate": { "type": "string", "format": "date-time" },
+        "settings": { "type": "object" }
+      },
+      "required": ["uid", "email", "createdAt"]
+    },
+    "Reflection": {
+      "title": "Journal Reflection",
+      "description": "User journal entries for gratitude and contemplation.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "text": { "type": "string" },
+        "mood": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "text", "createdAt"]
+    },
+    "Session": {
+      "title": "Meditation Session",
+      "description": "Records individual sessions of silence, dhikr, or retreat.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "type": { "type": "string", "enum": ["silence", "dhikr", "retreat"] },
+        "duration": { "type": "integer" },
+        "dhikrText": { "type": "string" },
+        "dhikrCount": { "type": "integer" },
+        "moodBefore": { "type": "string" },
+        "moodAfter": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "type", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "Private user profiles and stats."
+    },
+    "/users/{userId}/sessions/{sessionId}": {
+      "schema": "Session",
+      "description": "User specific meditation history."
+    },
+    "/users/{userId}/reflections/{reflectionId}": {
+      "schema": "Reflection",
+      "description": "User specific journal reflections."
+    }
+  }
+}
