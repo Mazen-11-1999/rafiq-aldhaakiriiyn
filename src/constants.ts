@@ -96,14 +96,14 @@ export const NASHEEDS = [
     title: 'أبو راتب - البداية',
     artist: 'أبو راتب',
     url: 'https://www.ashefaa.com/enshad/files/abo-rateb/Awal/01_Awl.mp3',
-    cover: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?q=80&w=200&auto=format&fit=crop'
+    cover: 'https://www.ashefaa.com/enshad/images/msert_alkhlod.jpg'
   },
   {
     id: 'nasheed-5',
     title: 'نداء الخير',
     artist: 'أبو راتب',
     url: 'https://www.ashefaa.com/enshad/files/abo-rateb/Awal/04_Awl.mp3',
-    cover: 'https://images.unsplash.com/photo-1493225255756-d9584f8606e9?q=80&w=200&auto=format&fit=crop'
+    cover: 'https://www.ashefaa.com/enshad/images/msert_alkhlod.jpg'
   },
   {
     id: 'nasheed-6',
@@ -432,42 +432,42 @@ export const NASHEEDS = [
     title: 'أتيتني (You Came To Me)',
     artist: 'سامي يوسف',
     url: 'https://www.ashefaa.com/enshad/files/sami_yusuf/You-Came-To-Me.mp3',
-    cover: 'https://images.unsplash.com/photo-1493225255756-d9584f8606e9?q=80&w=200&auto=format&fit=crop'
+    cover: 'https://i1.sndcdn.com/artworks-000009906912-548wa5-t500x500.jpg'
   },
   {
     id: 'nasheed-53',
     title: 'الله (Allah)',
     artist: 'سامي يوسف',
     url: 'https://www.ashefaa.com/enshad/files/sami_yusuf/allah.mp3',
-    cover: 'https://images.unsplash.com/photo-1518005020480-28564f8606e9?q=80&w=200&auto=format&fit=crop'
+    cover: 'https://i1.sndcdn.com/artworks-000009906912-548wa5-t500x500.jpg'
   },
   {
     id: 'nasheed-54',
     title: 'أسماء الله الحسنى',
     artist: 'سامي يوسف',
     url: 'https://www.ashefaa.com/enshad/files/sami_yusuf/Asmaa_Allah.mp3',
-    cover: 'https://images.unsplash.com/photo-1509062522246-3755977927d7?q=80&w=200&auto=format&fit=crop'
+    cover: 'https://i1.sndcdn.com/artworks-000009906912-548wa5-t500x500.jpg'
   },
   {
     id: 'nasheed-55',
     title: 'أغنية العيد',
     artist: 'سامي يوسف',
     url: 'https://www.ashefaa.com/enshad/files/sami_yusuf/Eid_Song.mp3',
-    cover: 'https://images.unsplash.com/photo-1514525253344-991422c7a0c5?q=80&w=200&auto=format&fit=crop'
+    cover: 'https://i1.sndcdn.com/artworks-000009906912-548wa5-t500x500.jpg'
   },
   {
     id: 'nasheed-56',
     title: 'يا مصطفى',
     artist: 'سامي يوسف',
     url: 'https://www.ashefaa.com/enshad/files/sami_yusuf/Ya-moustafa.mp3',
-    cover: 'https://images.unsplash.com/photo-1516062423079-7ca13cdc7f5a?q=80&w=200&auto=format&fit=crop'
+    cover: 'https://i1.sndcdn.com/artworks-000009906912-548wa5-t500x500.jpg'
   },
   {
     id: 'nasheed-57',
     title: 'تحية (Salutation)',
     artist: 'سامي يوسف',
     url: 'https://www.ashefaa.com/enshad/files/sami_yusuf/SALUTATION.mp3',
-    cover: 'https://images.unsplash.com/photo-1502012652162-6221bab362e6?q=80&w=200&auto=format&fit=crop'
+    cover: 'https://i1.sndcdn.com/artworks-000009906912-548wa5-t500x500.jpg'
   },
   {
     id: 'nasheed-58',
@@ -516,49 +516,49 @@ export const NASHEEDS = [
     title: 'أحد أحد',
     artist: 'أبو راتب',
     url: 'https://www.ashefaa.com/enshad/files/abo-rateb/a7ad-a7ad.mp3',
-    cover: 'https://images.unsplash.com/photo-1518005020480-28564f8606e9?q=80&w=200&auto=format&fit=crop'
+    cover: 'https://www.ashefaa.com/enshad/images/msert_alkhlod.jpg'
   },
   {
     id: 'nasheed-65',
     title: 'شباب الهدى',
     artist: 'أبو راتب',
     url: 'https://www.ashefaa.com/enshad/files/abo-rateb/4/shabab-alhoda.mp3',
-    cover: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?q=80&w=200&auto=format&fit=crop'
+    cover: 'https://www.ashefaa.com/enshad/images/msert_alkhlod.jpg'
   },
   {
     id: 'nasheed-66',
     title: 'أبو راتب - مختارات 1',
     artist: 'أبو راتب',
     url: 'https://www.ashefaa.com/enshad/files/abo-rateb/11/2.mp3',
-    cover: 'https://images.unsplash.com/photo-1509062522246-3755977927d7?q=80&w=200&auto=format&fit=crop'
+    cover: 'https://www.ashefaa.com/enshad/images/msert_alkhlod.jpg'
   },
   {
     id: 'nasheed-67',
     title: 'أبو راتب - مختارات 2',
     artist: 'أبو راتب',
     url: 'https://www.ashefaa.com/enshad/files/abo-rateb/11/5.mp3',
-    cover: 'https://images.unsplash.com/photo-1516062423079-7ca13cdc7f5a?q=80&w=200&auto=format&fit=crop'
+    cover: 'https://www.ashefaa.com/enshad/images/msert_alkhlod.jpg'
   },
   {
     id: 'nasheed-68',
     title: 'يتيم',
     artist: 'أبو راتب',
     url: 'https://www.ashefaa.com/enshad/files/abo-rateb/11/yatim.mp3',
-    cover: 'https://images.unsplash.com/photo-1507615811603-347cf74e1019?q=80&w=200&auto=format&fit=crop'
+    cover: 'https://www.ashefaa.com/enshad/images/msert_alkhlod.jpg'
   },
   {
     id: 'nasheed-69',
     title: 'أنوار الدعوة',
     artist: 'أبو راتب',
     url: 'https://www.ashefaa.com/enshad/files/abo-rateb/Anwaar-Al-dawa.mp3',
-    cover: 'https://images.unsplash.com/photo-1499209974431-9dac345f862e?q=80&w=200&auto=format&fit=crop'
+    cover: 'https://www.ashefaa.com/enshad/images/msert_alkhlod.jpg'
   },
   {
     id: 'nasheed-70',
     title: 'أعتز بإسلامي',
     artist: 'أبو راتب',
     url: 'https://www.ashefaa.com/enshad/files/abo-rateb/A3taz-bi-islami.mp3',
-    cover: 'https://images.unsplash.com/photo-1542810634-71277d95dcbb?q=80&w=200&auto=format&fit=crop'
+    cover: 'https://www.ashefaa.com/enshad/images/msert_alkhlod.jpg'
   },
   {
     id: 'nasheed-71',
@@ -572,35 +572,35 @@ export const NASHEEDS = [
     title: 'من عرف الله',
     artist: 'أبو راتب',
     url: 'https://www.ashefaa.com/enshad/files/abo-rateb/Man-Arafa-Allah.mp3',
-    cover: 'https://images.unsplash.com/photo-1509062522246-3755977927d7?q=80&w=200&auto=format&fit=crop'
+    cover: 'https://www.ashefaa.com/enshad/images/msert_alkhlod.jpg'
   },
   {
     id: 'nasheed-73',
     title: 'مدين لك',
     artist: 'أبو راتب',
     url: 'https://www.ashefaa.com/enshad/files/abo-rateb/Madinun-Laka.mp3',
-    cover: 'https://images.unsplash.com/photo-1516062423079-7ca13cdc7f5a?q=80&w=200&auto=format&fit=crop'
+    cover: 'https://www.ashefaa.com/enshad/images/msert_alkhlod.jpg'
   },
   {
     id: 'nasheed-74',
     title: 'وقفت',
     artist: 'أبو راتب',
     url: 'https://www.ashefaa.com/enshad/files/abo-rateb/wakafet.mp3',
-    cover: 'https://images.unsplash.com/photo-1526218626217-dc65a29bb444?q=80&w=200&auto=format&fit=crop'
+    cover: 'https://www.ashefaa.com/enshad/images/msert_alkhlod.jpg'
   },
   {
     id: 'nasheed-75',
     title: 'لنا مصعب',
     artist: 'أبو راتب',
     url: 'https://www.ashefaa.com/enshad/files/abo-rateb/lana-mosab.mp3',
-    cover: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?q=80&w=200&auto=format&fit=crop'
+    cover: 'https://www.ashefaa.com/enshad/images/msert_alkhlod.jpg'
   },
   {
     id: 'nasheed-76',
     title: 'الأيام',
     artist: 'أبو راتب',
     url: 'https://www.ashefaa.com/enshad/files/abo-rateb/Al-ayam.mp3',
-    cover: 'https://images.unsplash.com/photo-1470252649358-96957cef6f0c?q=80&w=200&auto=format&fit=crop'
+    cover: 'https://www.ashefaa.com/enshad/images/msert_alkhlod.jpg'
   },
   {
     id: 'nasheed-77',
@@ -614,41 +614,489 @@ export const NASHEEDS = [
     title: 'رقت عيناي شوقاً',
     artist: 'ماهر زين',
     url: 'https://archive.org/download/MaherZainFullAlbum_201612/Maher%20Zain%20-%20Raqqat%20Aynaya%20Shawqan.mp3',
-    cover: 'https://images.unsplash.com/photo-1509062522246-3755977927d7?q=80&w=200&auto=format&fit=crop'
+    cover: 'https://i1.sndcdn.com/artworks-000110795835-whurr8-t500x500.jpg'
   },
   {
     id: 'nasheed-79',
     title: 'رحمة للعالمين',
     artist: 'ماهر زين',
     url: 'https://archive.org/download/MaherZainFullAlbum_201612/Maher%20Zain%20-%20Rahmatun%20Lil%27Alameen.mp3',
-    cover: 'https://images.unsplash.com/photo-1542810634-71277d95dcbb?q=80&w=200&auto=format&fit=crop'
+    cover: 'https://i1.sndcdn.com/artworks-000110795835-whurr8-t500x500.jpg'
   },
   {
     id: 'nasheed-80',
     title: 'يا نبي سلام عليك',
     artist: 'ماهر زين',
     url: 'https://archive.org/download/MaherZainFullAlbum_201612/Maher%20Zain%20-%20Ya%20Nabi%20Salam%20Alayka.mp3',
-    cover: 'https://images.unsplash.com/photo-1499209974431-9dac345f862e?q=80&w=200&auto=format&fit=crop'
+    cover: 'https://i1.sndcdn.com/artworks-000110795835-whurr8-t500x500.jpg'
   },
   {
     id: 'nasheed-81',
     title: 'بارك الله لكما',
     artist: 'ماهر زين',
     url: 'https://archive.org/download/MaherZainFullAlbum_201612/Maher%20Zain%20-%20Baraka%20Allahu%20Lakuma.mp3',
-    cover: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?q=80&w=200&auto=format&fit=crop'
+    cover: 'https://i1.sndcdn.com/artworks-000110795835-whurr8-t500x500.jpg'
   },
   {
     id: 'nasheed-82',
     title: 'هو القرآن',
     artist: 'ماهر زين',
     url: 'https://archive.org/download/MaherZainFullAlbum_201612/Maher%20Zain%20-%20Huwa%20Alquran.mp3',
-    cover: 'https://images.unsplash.com/photo-1507615811603-347cf74e1019?q=80&w=200&auto=format&fit=crop'
+    cover: 'https://i1.sndcdn.com/artworks-000110795835-whurr8-t500x500.jpg'
   },
   {
     id: 'nasheed-83',
     title: 'الصبح بدا',
     artist: 'ماهر زين',
     url: 'https://archive.org/download/MaherZainFullAlbum_201612/Maher%20Zain%20-%20Assubhu%20Bada.mp3',
-    cover: 'https://images.unsplash.com/photo-1470252649358-96957cef6f0c?q=80&w=200&auto=format&fit=crop'
+    cover: 'https://i1.sndcdn.com/artworks-000110795835-whurr8-t500x500.jpg'
+  },
+  {
+    id: 'nasheed-84',
+    title: 'أبو راتب - مختارات 3',
+    artist: 'أبو راتب',
+    url: 'https://www.ashefaa.com/enshad/files/abo-rateb/5/3.mp3',
+    cover: 'https://www.ashefaa.com/enshad/images/msert_alkhlod.jpg'
+  },
+  {
+    id: 'nasheed-85',
+    title: 'فارس الإسلام',
+    artist: 'أبو راتب',
+    url: 'https://www.ashefaa.com/enshad/files/abo-rateb/fares-aleslam.mp3',
+    cover: 'https://www.ashefaa.com/enshad/images/msert_alkhlod.jpg'
+  },
+  {
+    id: 'nasheed-86',
+    title: 'لا تحزن',
+    artist: 'ماهر زين',
+    url: 'https://serv100.albumaty.com/2024/Albumaty.Com_mahr_zyn_la_thzn.mp3',
+    cover: 'https://i1.sndcdn.com/artworks-000110795835-whurr8-t500x500.jpg'
+  },
+  {
+    id: 'nasheed-87',
+    title: 'لولاك',
+    artist: 'ماهر زين',
+    url: 'https://serv100.albumaty.com/dl/mem/maher-zain/singles/Albumaty.Com.Maher.Zain.Lawlaka.mp3',
+    cover: 'https://i1.sndcdn.com/artworks-000110795835-whurr8-t500x500.jpg'
+  },
+  {
+    id: 'nasheed-88',
+    title: 'صلى عليك الرحمن',
+    artist: 'ماهر زين',
+    url: 'https://serv100.albumaty.com/song2022/Albumaty.Com_mahr_zyn_sli_alyk_alrhmn.mp3',
+    cover: 'https://i1.sndcdn.com/artworks-000110795835-whurr8-t500x500.jpg'
+  },
+  {
+    id: 'nasheed-89',
+    title: 'قلبي في المدينة',
+    artist: 'ماهر زين',
+    url: 'https://serv100.albumaty.com/2025/Albumaty.Com_mahr_zyn_klby_fy_almdynt.mp3',
+    cover: 'https://i1.sndcdn.com/artworks-000110795835-whurr8-t500x500.jpg'
+  },
+  {
+    id: 'nasheed-90',
+    title: 'سلام الله',
+    artist: 'ماهر زين',
+    url: 'https://serv100.albumaty.com/song2022/Albumaty.Com_mahr_zyn_slam_allh.mp3',
+    cover: 'https://i1.sndcdn.com/artworks-000110795835-whurr8-t500x500.jpg'
+  },
+  {
+    id: 'nasheed-91',
+    title: 'ناس تشبه لنا',
+    artist: 'ماهر زين',
+    url: 'https://serv100.albumaty.com/songs_2020/Albumaty.Com_mahr_zyn_nas_tshbhlna.mp3',
+    cover: 'https://i1.sndcdn.com/artworks-000110795835-whurr8-t500x500.jpg'
+  },
+  {
+    id: 'nasheed-92',
+    title: 'رحمة للعالمين (نسخة أخرى)',
+    artist: 'ماهر زين',
+    url: 'https://serv100.albumaty.com/songs_2020/Albumaty.Com_mahr_zyn_rhmt_llaalmyn.mp3',
+    cover: 'https://i1.sndcdn.com/artworks-000110795835-whurr8-t500x500.jpg'
+  },
+  {
+    id: 'nasheed-93',
+    title: 'إن شاء الله',
+    artist: 'ماهر زين',
+    url: 'https://serv100.albumaty.com/songs_2020/Albumaty.Com_mahr_zyn_an_shaa_allh.mp3',
+    cover: 'https://i1.sndcdn.com/artworks-000110795835-whurr8-t500x500.jpg'
+  },
+  {
+    id: 'nasheed-94',
+    title: 'محمد وحشنا',
+    artist: 'ماهر زين',
+    url: 'https://serv100.albumaty.com/songs_2020/Albumaty.Com_mahr_zyn_mhmd_(s)_whshna.mp3',
+    cover: 'https://i1.sndcdn.com/artworks-000110795835-whurr8-t500x500.jpg'
+  },
+  {
+    id: 'nasheed-95',
+    title: 'رضيت بالله رباً',
+    artist: 'ماهر زين',
+    url: 'https://serv100.albumaty.com/songs_2020/Albumaty.Com_mahr_zyn__rdyt_ballh_rba.mp3',
+    cover: 'https://i1.sndcdn.com/artworks-000110795835-whurr8-t500x500.jpg'
+  },
+  {
+    id: 'nasheed-96',
+    title: 'حب النبي',
+    artist: 'ماهر زين',
+    url: 'https://serv100.albumaty.com/songs_2020/Albumaty.Com_mahr_zyn_hb_alnby.mp3',
+    cover: 'https://i1.sndcdn.com/artworks-000110795835-whurr8-t500x500.jpg'
+  },
+  {
+    id: 'nasheed-97',
+    title: 'نور على نور',
+    artist: 'ماهر زين',
+    url: 'https://serv100.albumaty.com/songs_2020/Albumaty.Com_mahr_zyn_nwr_ali_nwr.mp3',
+    cover: 'https://i1.sndcdn.com/artworks-000110795835-whurr8-t500x500.jpg'
+  },
+  {
+    id: 'nasheed-98',
+    title: 'على نهجك مشيت',
+    artist: 'ماهر زين',
+    url: 'https://serv100.albumaty.com/dl/mem/maher-zain/singles/Albumaty.Com.Maher.Zain.Ala.Nahjik.Mashayt.mp3',
+    cover: 'https://i1.sndcdn.com/artworks-000110795835-whurr8-t500x500.jpg'
+  },
+  {
+    id: 'nasheed-99',
+    title: 'هو القرآن (أخرى)',
+    artist: 'ماهر زين',
+    url: 'https://serv100.albumaty.com/dl/mem/maher-zain/singles/Albumaty.Com.Maher.Zain.Howa.Elquran.mp3',
+    cover: 'https://i1.sndcdn.com/artworks-000110795835-whurr8-t500x500.jpg'
+  },
+  {
+    id: 'nasheed-100',
+    title: 'كن رحمة',
+    artist: 'ماهر زين',
+    url: 'https://serv100.albumaty.com/dl/mem/maher-zain/singles/Albumaty.Com.Maher.Zain.Kun.Rahma.mp3',
+    cover: 'https://i1.sndcdn.com/artworks-000110795835-whurr8-t500x500.jpg'
+  },
+  {
+    id: 'nasheed-101',
+    title: 'مولاي',
+    artist: 'ماهر زين',
+    url: 'https://serv100.albumaty.com/dl/mem/maher-zain/singles/Albumaty.Com.Maher.Zain.Mawlaya.mp3',
+    cover: 'https://i1.sndcdn.com/artworks-000110795835-whurr8-t500x500.jpg'
+  },
+  {
+    id: 'nasheed-102',
+    title: 'بذكر ملهمي',
+    artist: 'ماهر زين',
+    url: 'https://serv100.albumaty.com/dl/mem/maher-zain/albums/one/10.Bika_Molhmi.mp3',
+    cover: 'https://i1.sndcdn.com/artworks-000110795835-whurr8-t500x500.jpg'
+  },
+  {
+    id: 'nasheed-103',
+    title: 'تدرون',
+    artist: 'ماهر زين',
+    url: 'https://serv100.albumaty.com/dl/mem/maher-zain/albums/one/08.Tadroon.mp3',
+    cover: 'https://i1.sndcdn.com/artworks-000110795835-whurr8-t500x500.jpg'
+  },
+  {
+    id: 'nasheed-104',
+    title: 'جنة',
+    artist: 'ماهر زين',
+    url: 'https://serv100.albumaty.com/dl/mem/maher-zain/albums/one/06.Jannah.mp3',
+    cover: 'https://i1.sndcdn.com/artworks-000110795835-whurr8-t500x500.jpg'
+  },
+  {
+    id: 'nasheed-105',
+    title: 'أمتي (Ummati)',
+    artist: 'ماهر زين',
+    url: 'https://serv100.albumaty.com/dl/mem/maher-zain/albums/one/09.Ummati.mp3',
+    cover: 'https://i1.sndcdn.com/artworks-000110795835-whurr8-t500x500.jpg'
+  },
+  {
+    id: 'nasheed-106',
+    title: 'بالذكر (Bilzikr)',
+    artist: 'ماهر زين',
+    url: 'https://serv100.albumaty.com/dl/mem/maher-zain/albums/one/05.Bilzikr.mp3',
+    cover: 'https://i1.sndcdn.com/artworks-000110795835-whurr8-t500x500.jpg'
+  },
+  {
+    id: 'nasheed-107',
+    title: 'الله يناديك',
+    artist: 'أناشيد إسلامية',
+    url: 'https://serv2.albumaty.com/2025/Albumaty.Com_anashyd_aslamyt_allh_ynadyk_shyra.mp3',
+    cover: 'https://images.unsplash.com/photo-1590076202213-90d65b938f31?q=80&w=200&auto=format&fit=crop'
+  },
+  {
+    id: 'nasheed-108',
+    title: 'أشواقي',
+    artist: 'عبدالله المهداوي',
+    url: 'https://serv2.albumaty.com/2025/Albumaty.Com_anashyd_aslamyt_ashwaky_-_abdallh_almhdawy_.mp3',
+    cover: 'https://images.unsplash.com/photo-1542810634-71277d95dcbb?q=80&w=200&auto=format&fit=crop'
+  },
+  {
+    id: 'nasheed-109',
+    title: 'أحياناً نبحر',
+    artist: 'أناشيد',
+    url: 'https://abd.albumaty.com/uploads/songs/06--a7yanan_nob7er(samaa_network).mp3',
+    cover: 'https://images.unsplash.com/photo-1507615811603-347cf74e1019?q=80&w=200&auto=format&fit=crop'
+  },
+  {
+    id: 'nasheed-110',
+    title: 'حياة',
+    artist: 'أناشيد',
+    url: 'https://abd.albumaty.com/uploads/songs/02--hayah(samaa_network)_174.mp3',
+    cover: 'https://images.unsplash.com/photo-1516062423079-7ca13cdc7f5a?q=80&w=200&auto=format&fit=crop'
+  },
+  {
+    id: 'nasheed-111',
+    title: 'البردة - مولاي صلي وسلم',
+    artist: 'مسعود كرتس',
+    url: 'https://abd.albumaty.com/files/mp3/abdwap2.Com_msawd_krts_albrdt_mwlay_sly_wslm.mp3',
+    cover: 'https://www.albumaty.com/a/uploads/singers/3784-797.jpg'
+  },
+  {
+    id: 'nasheed-112',
+    title: 'بلغ العلى',
+    artist: 'مسعود كرتس',
+    url: 'https://abd.albumaty.com/files/mp3/abdwap2.Com_msawd_krts_blgh_alala.mp3',
+    cover: 'https://www.albumaty.com/a/uploads/singers/3784-797.jpg'
+  },
+  {
+    id: 'nasheed-113',
+    title: 'صلى الله على محمد',
+    artist: 'مسعود كرتس',
+    url: 'https://abd.albumaty.com/files/mp3/abdwap2.Com_msawd_krts_sla_allh_ala_m7md.mp3',
+    cover: 'https://www.albumaty.com/a/uploads/singers/3784-797.jpg'
+  },
+  {
+    id: 'nasheed-114',
+    title: 'أحمد يا حبيبي',
+    artist: 'مسعود كرتس',
+    url: 'https://abd.albumaty.com/files/mp3/abdwap2.Com_msawd_krts_a7md_ya_7byby_-_ma_malk_nwr.mp3',
+    cover: 'https://www.albumaty.com/a/uploads/singers/3784-797.jpg'
+  },
+  {
+    id: 'nasheed-115',
+    title: 'يمم نحو المدينة',
+    artist: 'مسعود كرتس',
+    url: 'https://abd.albumaty.com/files/mp3/abdwap2.Com_msawd_krts_ymm_n7w_almdynt.mp3',
+    cover: 'https://www.albumaty.com/a/uploads/singers/3784-797.jpg'
+  },
+  {
+    id: 'nasheed-116',
+    title: 'ل طه أغني',
+    artist: 'مسعود كرتس',
+    url: 'https://abd.albumaty.com/files/mp3/abdwap2.Com_msawd_krts_l6h_aghny.mp3',
+    cover: 'https://www.albumaty.com/a/uploads/singers/3784-797.jpg'
+  },
+  {
+    id: 'nasheed-117',
+    title: 'محمداً',
+    artist: 'مسعود كرتس',
+    url: 'https://abd.albumaty.com/files/mp3/abdwap2.Com_msawd_krts_m7mda.mp3',
+    cover: 'https://www.albumaty.com/a/uploads/singers/3784-797.jpg'
+  },
+  {
+    id: 'nasheed-118',
+    title: 'يا من يرى',
+    artist: 'مسعود كرتس',
+    url: 'https://abd.albumaty.com/uploads/songs/abdwap2.com_631558.mp3',
+    cover: 'https://www.albumaty.com/a/uploads/singers/3784-797.jpg'
+  },
+  {
+    id: 'nasheed-119',
+    title: 'أنت رحماني',
+    artist: 'مسعود كرتس',
+    url: 'https://abd.albumaty.com/uploads/songs/01y49cg.mp3',
+    cover: 'https://www.albumaty.com/a/uploads/singers/3784-797.jpg'
+  },
+  {
+    id: 'nasheed-120',
+    title: 'عليك',
+    artist: 'مسعود كرتس',
+    url: 'https://abd.albumaty.com/uploads/songs/msawd_krts_alyk.mp3',
+    cover: 'https://www.albumaty.com/a/uploads/singers/3784-797.jpg'
+  },
+  {
+    id: 'nasheed-121',
+    title: 'يا الله',
+    artist: 'مسعود كرتس',
+    url: 'https://abd.albumaty.com/uploads/songs/msawd_krts_ya_allh_841.mp3',
+    cover: 'https://www.albumaty.com/a/uploads/singers/3784-797.jpg'
+  },
+  {
+    id: 'nasheed-122',
+    title: 'سورة يوسف',
+    artist: 'عادل القاسمي',
+    url: 'https://server14.mp3quran.net/ad_qasimi/012.mp3',
+    cover: 'https://ar.assabile.com/media/person/200x256/adil-al-kassimi.png'
+  },
+  {
+    id: 'nasheed-123',
+    title: 'سورة إبراهيم',
+    artist: 'عادل القاسمي',
+    url: 'https://server14.mp3quran.net/ad_qasimi/014.mp3',
+    cover: 'https://ar.assabile.com/media/person/200x256/adil-al-kassimi.png'
+  },
+  {
+    id: 'nasheed-124',
+    title: 'سورة الحجر',
+    artist: 'عادل القاسمي',
+    url: 'https://server14.mp3quran.net/ad_qasimi/015.mp3',
+    cover: 'https://ar.assabile.com/media/person/200x256/adil-al-kassimi.png'
+  },
+  {
+    id: 'nasheed-125',
+    title: 'سورة النحل',
+    artist: 'عادل القاسمي',
+    url: 'https://server14.mp3quran.net/ad_qasimi/016.mp3',
+    cover: 'https://ar.assabile.com/media/person/200x256/adil-al-kassimi.png'
+  },
+  {
+    id: 'nasheed-126',
+    title: 'سورة الكهف',
+    artist: 'عادل القاسمي',
+    url: 'https://server14.mp3quran.net/ad_qasimi/018.mp3',
+    cover: 'https://ar.assabile.com/media/person/200x256/adil-al-kassimi.png'
+  },
+  {
+    id: 'nasheed-127',
+    title: 'سورة مريم',
+    artist: 'عادل القاسمي',
+    url: 'https://server14.mp3quran.net/ad_qasimi/019.mp3',
+    cover: 'https://ar.assabile.com/media/person/200x256/adil-al-kassimi.png'
+  },
+  {
+    id: 'nasheed-128',
+    title: 'سورة الشعراء',
+    artist: 'عادل القاسمي',
+    url: 'https://server14.mp3quran.net/ad_qasimi/026.mp3',
+    cover: 'https://ar.assabile.com/media/person/200x256/adil-al-kassimi.png'
+  },
+  {
+    id: 'nasheed-129',
+    title: 'سورة النمل',
+    artist: 'عادل القاسمي',
+    url: 'https://server14.mp3quran.net/ad_qasimi/027.mp3',
+    cover: 'https://ar.assabile.com/media/person/200x256/adil-al-kassimi.png'
+  },
+  {
+    id: 'nasheed-130',
+    title: 'سورة القصص',
+    artist: 'عادل القاسمي',
+    url: 'https://server14.mp3quran.net/ad_qasimi/028.mp3',
+    cover: 'https://ar.assabile.com/media/person/200x256/adil-al-kassimi.png'
+  },
+  {
+    id: 'nasheed-131',
+    title: 'سورة الصافات',
+    artist: 'عادل القاسمي',
+    url: 'https://server14.mp3quran.net/ad_qasimi/037.mp3',
+    cover: 'https://ar.assabile.com/media/person/200x256/adil-al-kassimi.png'
+  },
+  {
+    id: 'nasheed-132',
+    title: 'سورة ص',
+    artist: 'عادل القاسمي',
+    url: 'https://server14.mp3quran.net/ad_qasimi/038.mp3',
+    cover: 'https://ar.assabile.com/media/person/200x256/adil-al-kassimi.png'
+  },
+  {
+    id: 'nasheed-133',
+    title: 'سورة فصلت',
+    artist: 'عادل القاسمي',
+    url: 'https://server14.mp3quran.net/ad_qasimi/041.mp3',
+    cover: 'https://ar.assabile.com/media/person/200x256/adil-al-kassimi.png'
+  },
+  {
+    id: 'nasheed-134',
+    title: 'سورة مريم',
+    artist: 'خالد بناني',
+    url: 'https://server14.mp3quran.net/k_bennani/019.mp3',
+    cover: 'https://ar.assabile.com/media/person/200x256/khalid-bennani.png'
+  },
+  {
+    id: 'nasheed-135',
+    title: 'سورة طه',
+    artist: 'خالد بناني',
+    url: 'https://server14.mp3quran.net/k_bennani/020.mp3',
+    cover: 'https://ar.assabile.com/media/person/200x256/khalid-bennani.png'
+  },
+  {
+    id: 'nasheed-136',
+    title: 'نور بعبادتنا',
+    artist: 'عبد القادر قوزع',
+    url: 'https://download.assabile.com/mp3/nasheed/mp3s/abdulqader-qawza/abdulqader-qawza-223.mp3',
+    cover: 'https://ar.assabile.com/media/person/200x256/abdulqader-qawza.png'
+  },
+  {
+    id: 'nasheed-137',
+    title: 'صلوا على أحمد',
+    artist: 'عبد القادر قوزع',
+    url: 'https://download.assabile.com/mp3/nasheed/mp3s/abdulqader-qawza/abdulqader-qawza-211.mp3',
+    cover: 'https://ar.assabile.com/media/person/200x256/abdulqader-qawza.png'
+  },
+  {
+    id: 'nasheed-138',
+    title: 'يا رب (يا من يرى)',
+    artist: 'عبد القادر قوزع',
+    url: 'https://download.assabile.com/mp3/nasheed/mp3s/abdulqader-qawza/abdulqader-qawza-216.mp3',
+    cover: 'https://ar.assabile.com/media/person/200x256/abdulqader-qawza.png'
+  },
+  {
+    id: 'nasheed-139',
+    title: 'يا رسول الله',
+    artist: 'عبد القادر قوزع',
+    url: 'https://download.assabile.com/mp3/nasheed/mp3s/abdulqader-qawza/abdulqader-qawza-209.mp3',
+    cover: 'https://ar.assabile.com/media/person/200x256/abdulqader-qawza.png'
+  },
+  {
+    id: 'nasheed-140',
+    title: 'يا سر الهوى',
+    artist: 'عبد القادر قوزع',
+    url: 'https://download.assabile.com/mp3/nasheed/mp3s/abdulqader-qawza/abdulqader-qawza-224.mp3',
+    cover: 'https://ar.assabile.com/media/person/200x256/abdulqader-qawza.png'
+  },
+  {
+    id: 'nasheed-141',
+    title: 'قف بالخضوع',
+    artist: 'عبد القادر قوزع',
+    url: 'https://download.assabile.com/mp3/nasheed/mp3s/abdulqader-qawza/abdulqader-qawza-208.mp3',
+    cover: 'https://ar.assabile.com/media/person/200x256/abdulqader-qawza.png'
+  },
+  {
+    id: 'nasheed-142',
+    title: 'نور عيني',
+    artist: 'عبد القادر قوزع',
+    url: 'https://download.assabile.com/mp3/nasheed/mp3s/abdulqader-qawza/abdulqader-qawza-212.mp3',
+    cover: 'https://ar.assabile.com/media/person/200x256/abdulqader-qawza.png'
+  },
+  {
+    id: 'nasheed-143',
+    title: 'إلهي',
+    artist: 'عبد القادر قوزع',
+    url: 'https://download.assabile.com/mp3/nasheed/mp3s/abdulqader-qawza/abdulqader-qawza-214.mp3',
+    cover: 'https://ar.assabile.com/media/person/200x256/abdulqader-qawza.png'
+  },
+  {
+    id: 'nasheed-144',
+    title: 'لبيك',
+    artist: 'عبد القادر قوزع',
+    url: 'https://download.assabile.com/mp3/nasheed/mp3s/abdulqader-qawza/abdulqader-qawza-213.mp3',
+    cover: 'https://ar.assabile.com/media/person/200x256/abdulqader-qawza.png'
+  },
+  {
+    id: 'nasheed-145',
+    title: 'قمري',
+    artist: 'عبد القادر قوزع',
+    url: 'https://download.assabile.com/mp3/nasheed/mp3s/abdulqader-qawza/abdulqader-qawza-218.mp3',
+    cover: 'https://ar.assabile.com/media/person/200x256/abdulqader-qawza.png'
+  },
+  {
+    id: 'nasheed-146',
+    title: 'فداك',
+    artist: 'عبد القادر قوزع',
+    url: 'https://download.assabile.com/mp3/nasheed/mp3s/abdulqader-qawza/abdulqader-qawza-217.mp3',
+    cover: 'https://ar.assabile.com/media/person/200x256/abdulqader-qawza.png'
+  },
+  {
+    id: 'nasheed-147',
+    title: 'يا من تحب',
+    artist: 'عبد القادر قوزع',
+    url: 'https://download.assabile.com/mp3/nasheed/mp3s/abdulqader-qawza/abdulqader-qawza-210.mp3',
+    cover: 'https://ar.assabile.com/media/person/200x256/abdulqader-qawza.png'
   }
 ];

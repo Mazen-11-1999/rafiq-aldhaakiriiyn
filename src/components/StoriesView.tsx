@@ -1,7 +1,8 @@
 import React, { useState, useMemo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Book, ChevronLeft, Star, Quote, History, Search, Users, Play } from 'lucide-react';
+import { Book, ChevronLeft, Star, Quote, History, Search, Users, Play, Lightbulb, Heart } from 'lucide-react';
 import { prophetStories, type Story } from '../data/stories';
+import InsightPanel from './InsightPanel';
 
 const StoryCard = React.memo(({ story, onClick }: { story: Story; onClick: (s: Story) => void }) => (
   <motion.button
@@ -38,6 +39,7 @@ StoryCard.displayName = 'StoryCard';
 export default function StoriesView() {
   const [selectedStory, setSelectedStory] = useState<Story | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [isInsightOpen, setIsInsightOpen] = useState(false);
 
   const filteredStories = useMemo(() => 
     prophetStories.filter(s => 
@@ -132,19 +134,44 @@ export default function StoriesView() {
             </button>
 
             <div className="space-y-2">
-               <div className="flex items-center justify-between">
+               <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
                  <h3 className="text-4xl font-serif font-bold text-[#4e635a]">{selectedStory.name}</h3>
-                 {selectedStory.youtubeUrl && (
-                   <a 
-                     href={selectedStory.youtubeUrl} 
-                     target="_blank" 
-                     rel="noreferrer"
-                     className="flex items-center gap-2 bg-red-600 text-white px-6 py-3 rounded-2xl font-bold text-sm hover:bg-red-700 transition-all shadow-lg hover:scale-105"
+                 <div className="flex flex-wrap gap-3">
+                   <motion.button
+                     whileHover={{ scale: 1.05 }}
+                     whileTap={{ scale: 0.95 }}
+                     onClick={() => setIsInsightOpen(true)}
+                     className="flex items-center gap-2 bg-[#4e635a] text-white px-6 py-3 rounded-2xl font-bold text-sm shadow-lg hover:bg-[#3d4d46] transition-all"
                    >
-                     <Play size={18} fill="white" />
-                     <span>شاهد القصة فيديو</span>
-                   </a>
-                 )}
+                     <Heart size={18} className="text-red-400" fill="currentColor" />
+                     <span>نـصيحة مـحب</span>
+                   </motion.button>
+
+                   {selectedStory.videoLinks && selectedStory.videoLinks.length > 0 ? (
+                     selectedStory.videoLinks.map((link, idx) => (
+                       <a 
+                         key={idx}
+                         href={link.url} 
+                         target="_blank" 
+                         rel="noreferrer"
+                         className="flex items-center gap-2 bg-red-600 text-white px-6 py-3 rounded-2xl font-bold text-sm hover:bg-red-700 transition-all shadow-lg hover:scale-105"
+                       >
+                         <Play size={18} fill="white" />
+                         <span>{link.label}</span>
+                       </a>
+                     ))
+                   ) : selectedStory.youtubeUrl && (
+                     <a 
+                       href={selectedStory.youtubeUrl} 
+                       target="_blank" 
+                       rel="noreferrer"
+                       className="flex items-center gap-2 bg-red-600 text-white px-6 py-3 rounded-2xl font-bold text-sm hover:bg-red-700 transition-all shadow-lg hover:scale-105"
+                     >
+                       <Play size={18} fill="white" />
+                       <span>شاهد القصة فيديو</span>
+                     </a>
+                   )}
+                 </div>
                </div>
                <p className="text-[#8da399] font-bold tracking-widest uppercase text-xs">{selectedStory.title}</p>
             </div>
@@ -203,7 +230,64 @@ export default function StoriesView() {
                </div>
             </div>
 
-            <div className="p-8 rounded-[2.5rem] bg-[#4e635a] text-white space-y-4 shadow-2xl relative overflow-hidden text-right">
+            {/* Reflective Questions */}
+            {selectedStory.reflectiveQuestions && selectedStory.reflectiveQuestions.length > 0 && (
+              <div className="space-y-4 pt-6 mt-6 border-t border-[#4e635a]/10">
+                <div className="flex items-center gap-2 text-[#4e635a]/60">
+                  <Search size={18} />
+                  <h4 className="font-bold uppercase tracking-widest text-xs">توقف وتأمل: أسئلة لقلبك</h4>
+                </div>
+                <div className="grid gap-4">
+                  {selectedStory.reflectiveQuestions.map((q, i) => (
+                    <motion.div 
+                      key={i} 
+                      whileHover={{ scale: 1.01 }}
+                      className="bg-[#fbf9f6] p-6 rounded-[2.5rem] border border-[#4e635a]/5 relative overflow-hidden"
+                    >
+                      <div className="absolute top-0 right-0 w-1 bg-[#4e635a] h-full" />
+                      <p className="text-lg font-serif text-[#1b1c1a] leading-relaxed italic pr-4">
+                        " {q} "
+                      </p>
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Daily Challenge Section */}
+            {selectedStory.dailyChallenge && (
+              <div className="space-y-4 pt-6 mt-6 border-t border-[#4e635a]/10">
+                <div className="flex items-center gap-2 text-[#4e635a]/60">
+                  <Play size={18} className="text-[#4e635a]" />
+                  <h4 className="font-bold uppercase tracking-widest text-xs">تحدي اليوم: لا تخرج إلا بعمل</h4>
+                </div>
+                <motion.div 
+                  initial={{ scale: 0.95, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  className="bg-gradient-to-br from-[#4e635a] to-[#3d4d46] p-8 rounded-[3rem] text-white shadow-2xl relative overflow-hidden"
+                >
+                  <div className="absolute -left-10 -bottom-10 w-40 h-40 bg-white/5 rounded-full blur-3xl" />
+                  <div className="flex items-start gap-4 flex-row-reverse text-right">
+                    <div className="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center shrink-0">
+                      <Star size={24} className="text-yellow-400" />
+                    </div>
+                    <div className="space-y-4">
+                      <p className="text-2xl font-bold font-serif leading-tight">
+                        {selectedStory.dailyChallenge}
+                      </p>
+                      <button 
+                        onClick={() => setIsInsightOpen(true)}
+                        className="bg-white text-[#4e635a] px-8 py-3 rounded-2xl font-black text-sm hover:bg-[#d1e8dd] transition-colors shadow-lg"
+                      >
+                        سأحاول الهداية بهذا العمل
+                      </button>
+                    </div>
+                  </div>
+                </motion.div>
+              </div>
+            )}
+
+            <div className="p-8 rounded-[2.5rem] bg-[#4e635a]/5 text-[#4e635a] space-y-4 border border-[#4e635a]/10 relative overflow-hidden text-right">
                <div className="absolute top-0 left-0 w-32 h-32 bg-white/5 rounded-full -translate-y-1/2 -translate-x-1/2" />
                <div className="flex items-center gap-3 flex-row-reverse">
                  <Quote className="text-white/40 rotate-180" size={24} />
@@ -217,6 +301,13 @@ export default function StoriesView() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      <InsightPanel 
+        isOpen={isInsightOpen} 
+        onClose={() => setIsInsightOpen(false)} 
+        trackTitle={selectedStory?.name || ''} 
+        trackArtist="قصص الأنبياء"
+      />
     </div>
   );
 }

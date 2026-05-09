@@ -1,8 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Play, Pause, SkipBack, SkipForward, Volume2, Music, Search, Heart, Sparkles, Disc } from 'lucide-react';
+import { Play, Pause, SkipBack, SkipForward, Volume2, Music, Search, Heart, Sparkles, Disc, Lightbulb, AlertCircle } from 'lucide-react';
 import { NASHEEDS } from '../constants';
 import { cn } from '../lib/utils';
+import InsightPanel from './InsightPanel';
 
 export default function NasheedView() {
   const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
@@ -12,6 +13,8 @@ export default function NasheedView() {
   const [volume, setVolume] = useState(0.8);
   const [searchQuery, setSearchQuery] = useState('');
   const [viewMode, setViewMode] = useState<'list' | 'grid'>('grid');
+  const [isInsightOpen, setIsInsightOpen] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
   
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const currentTrack = NASHEEDS[currentTrackIndex];
@@ -26,14 +29,25 @@ export default function NasheedView() {
     }
   }, [isPlaying, currentTrackIndex]);
 
-  const togglePlay = () => setIsPlaying(!isPlaying);
+  const togglePlay = () => {
+    if (loadError) {
+      // Clear error and try again
+      setLoadError(null);
+      if (audioRef.current) {
+        audioRef.current.load();
+      }
+    }
+    setIsPlaying(!isPlaying);
+  };
 
   const handleNext = () => {
+    setLoadError(null);
     setCurrentTrackIndex((prev) => (prev + 1) % NASHEEDS.length);
     setIsPlaying(true);
   };
 
   const handlePrev = () => {
+    setLoadError(null);
     setCurrentTrackIndex((prev) => (prev - 1 + NASHEEDS.length) % NASHEEDS.length);
     setIsPlaying(true);
   };
@@ -159,7 +173,42 @@ export default function NasheedView() {
               onTimeUpdate={onTimeUpdate}
               onEnded={handleNext}
               onLoadedMetadata={() => setDuration(audioRef.current?.duration || 0)}
+              onError={(e) => {
+                console.error("Audio Load Error:", e);
+                setLoadError("عذراً، تعذر تحميل هذا النشيد من المصدر الأصلي.");
+                setIsPlaying(false);
+              }}
             />
+
+            {loadError && (
+              <motion.div 
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="bg-red-500/10 border border-red-500/20 p-4 rounded-2xl flex items-center gap-3 text-red-600 text-sm font-bold"
+                dir="rtl"
+              >
+                <AlertCircle size={18} />
+                <p className="flex-1">{loadError}</p>
+                <div className="flex gap-2">
+                  <button 
+                    onClick={() => {
+                      setLoadError(null);
+                      audioRef.current?.load();
+                      setIsPlaying(true);
+                    }}
+                    className="bg-red-600 text-white px-3 py-1 rounded-lg text-xs"
+                  >
+                    إعادة محاولة
+                  </button>
+                  <button 
+                    onClick={handleNext}
+                    className="bg-white/20 text-red-700 px-3 py-1 rounded-lg text-xs border border-red-200"
+                  >
+                    تخطي
+                  </button>
+                </div>
+              </motion.div>
+            )}
 
             {/* Slider */}
             <div className="space-y-3">
@@ -178,7 +227,17 @@ export default function NasheedView() {
             </div>
 
             {/* Controls */}
-            <div className="flex items-center justify-center gap-8">
+            <div className="flex items-center justify-center gap-6">
+              <motion.button 
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+                onClick={() => setIsInsightOpen(true)}
+                className="p-3 text-[#4e635a] bg-[#4e635a]/5 hover:bg-[#4e635a]/10 rounded-2xl transition-all group"
+                title="نـصيحة مـحب"
+              >
+                <Heart size={24} className="group-hover:text-red-500 transition-colors" />
+              </motion.button>
+
               <motion.button 
                 whileTap={{ scale: 0.9 }}
                 onClick={handlePrev}
@@ -379,6 +438,13 @@ export default function NasheedView() {
           </div>
         </div>
       </div>
+      
+      <InsightPanel 
+        isOpen={isInsightOpen} 
+        onClose={() => setIsInsightOpen(false)} 
+        trackTitle={currentTrack.title}
+        trackArtist={currentTrack.artist}
+      />
     </div>
   </div>
 </div>
