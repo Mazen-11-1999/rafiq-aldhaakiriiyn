@@ -2,68 +2,43 @@
 export const RINGTONES = [
   { 
     id: 'official-prayer', 
-    name: 'المنبه الرسمي (مختار)', 
-    url: 'https://www.ashefaa.com/jawal/2.mp3'
+    name: 'تنبيه الأذان (رنين)', 
+    url: 'https://archive.org/download/IslamicRingtones_201306/01.mp3'
   },
   { 
     id: 'spiritual-call', 
-    name: 'نداء الروح', 
-    url: 'https://www.ashefaa.com/upload/upload1598286926182.mp3'
+    name: 'نداء الروح (هادئ)', 
+    url: 'https://archive.org/download/IslamicRingtones_201306/Spirit.mp3'
   },
   { 
     id: 'faith-alert', 
     name: 'تنبيه إيماني', 
-    url: 'https://www.ashefaa.com/jawal/5.mp3'
-  },
-  { 
-    id: 'abo-rateb-1', 
-    name: 'أبو راتب - البداية', 
-    url: 'https://www.ashefaa.com/enshad/files/abo-rateb/Awal/01_Awl.mp3'
-  },
-  { 
-    id: 'abo-rateb-2', 
-    name: 'أبو راتب - نداء الخير', 
-    url: 'https://www.ashefaa.com/enshad/files/abo-rateb/Awal/04_Awl.mp3'
-  },
-  { 
-    id: 'bukhatir-jud', 
-    name: 'أحمد بو خاطر - جد بلطفك', 
-    url: 'https://www.ashefaa.com/enshad/files/Ahmed-Bukhatir/Jud.Belutfik.mp3'
-  },
-  { 
-    id: 'bukhatir-sajadto', 
-    name: 'أحمد بو خاطر - سجدت لك', 
-    url: 'https://www.ashefaa.com/enshad/files/Ahmed-Bukhatir/Sejadto.mp3'
-  },
-  { 
-    id: 'bukhatir-nasim', 
-    name: 'بو خاطر - نسيم الشوق', 
-    url: 'https://www.ashefaa.com/enshad/files/Bu7ater/Nasim.mp3'
+    url: 'https://archive.org/download/IslamicRingtones_201306/05.mp3'
   },
   { 
     id: 'deep-meditation', 
-    name: 'تأمل عميق (هادئ)', 
-    url: 'https://cdn.pixabay.com/download/audio/2022/03/24/audio_3862413e61.mp3?filename=meditation-bowl-6571.mp3'
+    name: 'تأمل عميق', 
+    url: 'https://archive.org/download/IslamicRingtones_201306/02.mp3'
   },
   { 
     id: 'morning-sun', 
     name: 'ضحى الصباح', 
-    url: 'https://cdn.pixabay.com/download/audio/2023/10/24/audio_98fb91d09f.mp3?filename=morning-bird-song-171816.mp3'
+    url: 'https://archive.org/download/IslamicRingtones_201306/03.mp3'
   },
   { 
     id: 'sacred-echo', 
     name: 'صدى الخلود', 
-    url: 'https://cdn.pixabay.com/download/audio/2022/01/18/audio_277341e411.mp3?filename=zen-bell-14001.mp3'
+    url: 'https://archive.org/download/IslamicRingtones_201306/04.mp3'
   },
   { 
     id: 'spiritual-calm', 
     name: 'سكينة روحية', 
-    url: 'https://cdn.pixabay.com/download/audio/2021/11/25/audio_91b32eecf3.mp3?filename=soft-ambient-music-1403.mp3'
+    url: 'https://archive.org/download/nasheed_adel/Salawat.mp3'
   },
   {
     id: 'classic-beep',
-    name: 'منبه كلاسيكي (فعال)',
-    url: 'https://www.soundjay.com/buttons/beep-07.mp3'
+    name: 'منبه كلاسيكي',
+    url: 'https://archive.org/download/nasheed_adel/Beep.mp3'
   }
 ];
 
@@ -74,84 +49,84 @@ export const NASHEEDS = [
     id: 'nasheed-1',
     title: 'جد بلطفك',
     artist: 'أحمد بو خاطر',
-    url: 'https://www.ashefaa.com/enshad/files/Ahmed-Bukhatir/Jud.Belutfik.mp3',
+    url: 'https://archive.org/download/Jud.Belutfik/Jud.Belutfik.mp3',
     cover: 'https://images.unsplash.com/photo-1590076202213-90d65b938f31?q=80&w=200&auto=format&fit=crop'
   },
   {
     id: 'nasheed-2',
     title: 'سجدت لك',
     artist: 'أحمد بو خاطر',
-    url: 'https://www.ashefaa.com/enshad/files/Ahmed-Bukhatir/Sejadto.mp3',
+    url: 'https://archive.org/download/Sejadto/Sejadto.mp3',
     cover: 'https://images.unsplash.com/photo-1542810634-71277d95dcbb?q=80&w=200&auto=format&fit=crop'
   },
   {
     id: 'nasheed-3',
-    title: 'نسيم الشوق',
-    artist: 'بو خاطر',
-    url: 'https://www.ashefaa.com/enshad/files/Bu7ater/Nasim.mp3',
+    title: 'يا حامل القرآن',
+    artist: 'أحمد بو خاطر',
+    url: 'https://archive.org/download/nasheed_adel/Ya_Hamel_Al_Quran.mp3',
     cover: 'https://images.unsplash.com/photo-1507615811603-347cf74e1019?q=80&w=200&auto=format&fit=crop'
   },
   {
     id: 'nasheed-4',
-    title: 'أبو راتب - البداية',
-    artist: 'أبو راتب',
-    url: 'https://www.ashefaa.com/enshad/files/abo-rateb/Awal/01_Awl.mp3',
-    cover: 'https://www.ashefaa.com/enshad/images/msert_alkhlod.jpg'
+    title: 'يا نبي سلام عليك',
+    artist: 'ماهر زين',
+    url: 'https://archive.org/download/nasheed_adel/Maher%20Zain%20-%20Ya%20Nabi%20Salam%20Alayka.mp3',
+    cover: 'https://i1.sndcdn.com/artworks-000110795835-whurr8-t500x500.jpg'
   },
   {
     id: 'nasheed-5',
-    title: 'نداء الخير',
-    artist: 'أبو راتب',
-    url: 'https://www.ashefaa.com/enshad/files/abo-rateb/Awal/04_Awl.mp3',
-    cover: 'https://www.ashefaa.com/enshad/images/msert_alkhlod.jpg'
+    title: 'رقت عيناي شوقاً',
+    artist: 'ماهر زين',
+    url: 'https://archive.org/download/nasheed_adel/Maher%20Zain%20-%20Raqqat%20Aynaya%20Shawqan.mp3',
+    cover: 'https://i1.sndcdn.com/artworks-000110795835-whurr8-t500x500.jpg'
   },
   {
     id: 'nasheed-6',
     title: 'تنبيه إيماني',
     artist: 'منوعات',
-    url: 'https://www.ashefaa.com/jawal/5.mp3',
+    url: 'https://archive.org/download/IslamicRingtones_201306/05.mp3',
     cover: 'https://images.unsplash.com/photo-1516062423079-7ca13cdc7f5a?q=80&w=200&auto=format&fit=crop'
   },
   {
     id: 'nasheed-7',
     title: 'نداء الروح',
     artist: 'منوعات',
-    url: 'https://www.ashefaa.com/upload/upload1598286926182.mp3',
+    url: 'https://archive.org/download/IslamicRingtones_201306/Spirit.mp3',
     cover: 'https://images.unsplash.com/photo-1469474968028-56623f02e42e?q=80&w=200&auto=format&fit=crop'
   },
   {
     id: 'nasheed-8',
     title: 'سدد',
     artist: 'فرقة الوعد',
-    url: 'https://www.ashefaa.com/enshad/files/alw3d/Sadded.mp3',
+    url: 'https://archive.org/download/alw3d-nasheeds/Sadded.mp3',
     cover: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?q=80&w=200&auto=format&fit=crop'
   },
   {
     id: 'nasheed-9',
     title: 'مآسي (5)',
     artist: 'منوعات',
-    url: 'https://www.ashefaa.com/enshad/files/monaw3at/maasy/05_masy.mp3',
+    url: 'https://archive.org/download/IslamicRingtones_201306/07.mp3',
     cover: 'https://images.unsplash.com/photo-1470252649358-96957cef6f0c?q=80&w=200&auto=format&fit=crop'
   },
   {
     id: 'nasheed-10',
     title: 'مآسي (4)',
     artist: 'منوعات',
-    url: 'https://www.ashefaa.com/enshad/files/monaw3at/maasy/04_masy.mp3',
+    url: 'https://archive.org/download/IslamicRingtones_201306/08.mp3',
     cover: 'https://images.unsplash.com/photo-1502012652162-6221bab362e6?q=80&w=200&auto=format&fit=crop'
   },
   {
     id: 'nasheed-11',
     title: 'دنيا (8)',
     artist: 'منوعات',
-    url: 'https://www.ashefaa.com/enshad/files/monaw3at/Donea/08_Dnea.mp3',
+    url: 'https://archive.org/download/IslamicRingtones_201306/09.mp3',
     cover: 'https://images.unsplash.com/photo-1444703686981-a3abbc4d4fe3?q=80&w=200&auto=format&fit=crop'
   },
   {
     id: 'nasheed-12',
     title: 'دنيا (5)',
     artist: 'منوعات',
-    url: 'https://www.ashefaa.com/enshad/files/monaw3at/Donea/05_Dnea.mp3',
+    url: 'https://archive.org/download/IslamicRingtones_201306/10.mp3',
     cover: 'https://images.unsplash.com/photo-1465447142348-e9952c393450?q=80&w=200&auto=format&fit=crop'
   },
   {
@@ -613,14 +588,14 @@ export const NASHEEDS = [
     id: 'nasheed-78',
     title: 'رقت عيناي شوقاً',
     artist: 'ماهر زين',
-    url: 'https://archive.org/download/MaherZainFullAlbum_201612/Maher%20Zain%20-%20Raqqat%20Aynaya%20Shawqan.mp3',
+    url: 'https://archive.org/download/nasheed_adel/Maher%20Zain%20-%20Raqqat%20Aynaya%20Shawqan.mp3',
     cover: 'https://i1.sndcdn.com/artworks-000110795835-whurr8-t500x500.jpg'
   },
   {
     id: 'nasheed-79',
     title: 'رحمة للعالمين',
     artist: 'ماهر زين',
-    url: 'https://archive.org/download/MaherZainFullAlbum_201612/Maher%20Zain%20-%20Rahmatun%20Lil%27Alameen.mp3',
+    url: 'https://archive.org/download/nasheed_adel/Maher%20Zain%20-%20Rahmatun%20Lil%27Alameen.mp3',
     cover: 'https://i1.sndcdn.com/artworks-000110795835-whurr8-t500x500.jpg'
   },
   {
@@ -669,21 +644,21 @@ export const NASHEEDS = [
     id: 'nasheed-86',
     title: 'لا تحزن',
     artist: 'ماهر زين',
-    url: 'https://serv100.albumaty.com/2024/Albumaty.Com_mahr_zyn_la_thzn.mp3',
+    url: 'https://archive.org/download/MaherZainFullAlbum_201612/Maher%20Zain%20-%20La%20Tahzan.mp3',
     cover: 'https://i1.sndcdn.com/artworks-000110795835-whurr8-t500x500.jpg'
   },
   {
     id: 'nasheed-87',
     title: 'لولاك',
     artist: 'ماهر زين',
-    url: 'https://serv100.albumaty.com/dl/mem/maher-zain/singles/Albumaty.Com.Maher.Zain.Lawlaka.mp3',
+    url: 'https://archive.org/download/MaherZainFullAlbum_201612/Maher%20Zain%20-%20Lawlaka.mp3',
     cover: 'https://i1.sndcdn.com/artworks-000110795835-whurr8-t500x500.jpg'
   },
   {
     id: 'nasheed-88',
     title: 'صلى عليك الرحمن',
     artist: 'ماهر زين',
-    url: 'https://serv100.albumaty.com/song2022/Albumaty.Com_mahr_zyn_sli_alyk_alrhmn.mp3',
+    url: 'https://archive.org/download/MaherZainFullAlbum_201612/Maher%20Zain%20-%20Salla%20Alayka%20Ar%20Rahman.mp3',
     cover: 'https://i1.sndcdn.com/artworks-000110795835-whurr8-t500x500.jpg'
   },
   {
@@ -918,104 +893,6 @@ export const NASHEEDS = [
     cover: 'https://www.albumaty.com/a/uploads/singers/3784-797.jpg'
   },
   {
-    id: 'nasheed-122',
-    title: 'سورة يوسف',
-    artist: 'عادل القاسمي',
-    url: 'https://server14.mp3quran.net/ad_qasimi/012.mp3',
-    cover: 'https://ar.assabile.com/media/person/200x256/adil-al-kassimi.png'
-  },
-  {
-    id: 'nasheed-123',
-    title: 'سورة إبراهيم',
-    artist: 'عادل القاسمي',
-    url: 'https://server14.mp3quran.net/ad_qasimi/014.mp3',
-    cover: 'https://ar.assabile.com/media/person/200x256/adil-al-kassimi.png'
-  },
-  {
-    id: 'nasheed-124',
-    title: 'سورة الحجر',
-    artist: 'عادل القاسمي',
-    url: 'https://server14.mp3quran.net/ad_qasimi/015.mp3',
-    cover: 'https://ar.assabile.com/media/person/200x256/adil-al-kassimi.png'
-  },
-  {
-    id: 'nasheed-125',
-    title: 'سورة النحل',
-    artist: 'عادل القاسمي',
-    url: 'https://server14.mp3quran.net/ad_qasimi/016.mp3',
-    cover: 'https://ar.assabile.com/media/person/200x256/adil-al-kassimi.png'
-  },
-  {
-    id: 'nasheed-126',
-    title: 'سورة الكهف',
-    artist: 'عادل القاسمي',
-    url: 'https://server14.mp3quran.net/ad_qasimi/018.mp3',
-    cover: 'https://ar.assabile.com/media/person/200x256/adil-al-kassimi.png'
-  },
-  {
-    id: 'nasheed-127',
-    title: 'سورة مريم',
-    artist: 'عادل القاسمي',
-    url: 'https://server14.mp3quran.net/ad_qasimi/019.mp3',
-    cover: 'https://ar.assabile.com/media/person/200x256/adil-al-kassimi.png'
-  },
-  {
-    id: 'nasheed-128',
-    title: 'سورة الشعراء',
-    artist: 'عادل القاسمي',
-    url: 'https://server14.mp3quran.net/ad_qasimi/026.mp3',
-    cover: 'https://ar.assabile.com/media/person/200x256/adil-al-kassimi.png'
-  },
-  {
-    id: 'nasheed-129',
-    title: 'سورة النمل',
-    artist: 'عادل القاسمي',
-    url: 'https://server14.mp3quran.net/ad_qasimi/027.mp3',
-    cover: 'https://ar.assabile.com/media/person/200x256/adil-al-kassimi.png'
-  },
-  {
-    id: 'nasheed-130',
-    title: 'سورة القصص',
-    artist: 'عادل القاسمي',
-    url: 'https://server14.mp3quran.net/ad_qasimi/028.mp3',
-    cover: 'https://ar.assabile.com/media/person/200x256/adil-al-kassimi.png'
-  },
-  {
-    id: 'nasheed-131',
-    title: 'سورة الصافات',
-    artist: 'عادل القاسمي',
-    url: 'https://server14.mp3quran.net/ad_qasimi/037.mp3',
-    cover: 'https://ar.assabile.com/media/person/200x256/adil-al-kassimi.png'
-  },
-  {
-    id: 'nasheed-132',
-    title: 'سورة ص',
-    artist: 'عادل القاسمي',
-    url: 'https://server14.mp3quran.net/ad_qasimi/038.mp3',
-    cover: 'https://ar.assabile.com/media/person/200x256/adil-al-kassimi.png'
-  },
-  {
-    id: 'nasheed-133',
-    title: 'سورة فصلت',
-    artist: 'عادل القاسمي',
-    url: 'https://server14.mp3quran.net/ad_qasimi/041.mp3',
-    cover: 'https://ar.assabile.com/media/person/200x256/adil-al-kassimi.png'
-  },
-  {
-    id: 'nasheed-134',
-    title: 'سورة مريم',
-    artist: 'خالد بناني',
-    url: 'https://server14.mp3quran.net/k_bennani/019.mp3',
-    cover: 'https://ar.assabile.com/media/person/200x256/khalid-bennani.png'
-  },
-  {
-    id: 'nasheed-135',
-    title: 'سورة طه',
-    artist: 'خالد بناني',
-    url: 'https://server14.mp3quran.net/k_bennani/020.mp3',
-    cover: 'https://ar.assabile.com/media/person/200x256/khalid-bennani.png'
-  },
-  {
     id: 'nasheed-136',
     title: 'نور بعبادتنا',
     artist: 'عبد القادر قوزع',
@@ -1098,5 +975,12 @@ export const NASHEEDS = [
     artist: 'عبد القادر قوزع',
     url: 'https://download.assabile.com/mp3/nasheed/mp3s/abdulqader-qawza/abdulqader-qawza-210.mp3',
     cover: 'https://ar.assabile.com/media/person/200x256/abdulqader-qawza.png'
+  },
+  {
+    id: 'nasheed-148',
+    title: 'هو الحب',
+    artist: 'عبد الرحمن الخضر',
+    url: 'https://www.ashefaa.com/enshad/files/monaw3at/%D8%B9%D8%A8%D8%AF-%D8%A7%D9%84%D8%B1%D8%AD%D9%85%D9%86-%D8%A7%D9%84%D8%AE%D8%B6%D8%B1-%D9%87%D9%88-%D8%A7%D9%84%D8%AD%D8%A8.mp3',
+    cover: 'https://www.ashefaa.com/enshad/Sound-images/new1.jpg'
   }
 ];

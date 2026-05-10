@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { auth, signInWithGoogle, db, getRedirectResult } from './lib/firebase';
 import { doc, getDoc, setDoc, updateDoc, serverTimestamp } from 'firebase/firestore';
-import { UserProfile, OperationType } from './types';
+import { UserProfile, OperationType, ChatMessage } from './types';
 import { handleFirestoreError } from './lib/firestore-errors';
 import RetreatView from './components/RetreatView';
 import DhikrView from './components/DhikrView';
@@ -15,17 +15,27 @@ import JourneyMapView from './components/JourneyMapView';
 import DailyInspiration from './components/DailyInspiration';
 import ProfileView from './components/ProfileView';
 import NasheedView from './components/NasheedView';
+import HabitTracker from './components/HabitTracker';
 import NotificationManager from './components/NotificationManager';
 import Background3D from './components/Background3D';
+import ChallengeWidget from './components/ChallengeWidget';
 import { motion, AnimatePresence } from 'motion/react';
 import { LogIn, Compass, ListChecks, PieChart, VolumeX, Settings, User, BookOpen, Book, Map, HelpCircle, Music } from 'lucide-react';
 import { cn } from './lib/utils';
 
 export default function App() {
   const [user, loading, error] = useAuthState(auth);
-  const [activeTab, setActiveTab] = useState<'retreat' | 'dhikr' | 'stories' | 'nasheeds' | 'history' | 'journey' | 'quiz' | 'journal' | 'insights' | 'profile'>('retreat');
+  const [activeTab, setActiveTab] = useState<'retreat' | 'dhikr' | 'stories' | 'habits' | 'nasheeds' | 'history' | 'journey' | 'quiz' | 'journal' | 'insights' | 'profile'>('retreat');
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [coords, setCoords] = useState<{lat: number, lng: number} | null>(null);
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>(() => {
+    const saved = localStorage.getItem('sanad_chat');
+    return saved ? JSON.parse(saved) : [];
+  });
+
+  useEffect(() => {
+    localStorage.setItem('sanad_chat', JSON.stringify(chatMessages));
+  }, [chatMessages]);
 
   useEffect(() => {
     if (navigator.geolocation) {
@@ -392,7 +402,11 @@ export default function App() {
               transition={{ type: "spring", stiffness: 100, damping: 20 }}
               className="h-full"
             >
-              <RetreatView userProfile={userProfile} />
+              <RetreatView 
+                userProfile={userProfile} 
+                chatMessages={chatMessages} 
+                setChatMessages={setChatMessages} 
+              />
             </motion.div>
           )}
           {activeTab === 'dhikr' && (
@@ -425,6 +439,16 @@ export default function App() {
               exit={{ opacity: 0, scale: 1.1 }}
             >
               <StoriesView />
+            </motion.div>
+          )}
+          {activeTab === 'habits' && (
+            <motion.div
+              key="habits"
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 1.1 }}
+            >
+              <HabitTracker />
             </motion.div>
           )}
           {activeTab === 'quiz' && (
@@ -492,6 +516,7 @@ export default function App() {
           )}
         </AnimatePresence>
         <DailyInspiration userProfile={userProfile} />
+        <ChallengeWidget />
       </main>
 
       {/* Bottom Nav */}
@@ -514,6 +539,12 @@ export default function App() {
             onClick={() => setActiveTab('stories')} 
             icon={<BookOpen size={20} />} 
             label="قصص" 
+          />
+          <NavItem 
+            active={activeTab === 'habits'} 
+            onClick={() => setActiveTab('habits')} 
+            icon={<ListChecks size={22} />} 
+            label="المنهج" 
           />
           <NavItem 
             active={activeTab === 'history'} 

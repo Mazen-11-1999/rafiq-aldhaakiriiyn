@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Heart, CheckCircle2, Target, X, Loader2, Sparkles, AlertCircle, Quote } from 'lucide-react';
+import { Heart, CheckCircle2, Target, X, Loader2, Sparkles, AlertCircle, Quote, Scale } from 'lucide-react';
 import { getTrackInsight, Insight } from '../services/insightService';
 import { cn } from '../lib/utils';
+import { useChallenges } from '../context/ChallengeContext';
 
 interface InsightPanelProps {
   isOpen: boolean;
@@ -15,6 +16,7 @@ export default function InsightPanel({ isOpen, onClose, trackTitle, trackArtist 
   const [insight, setInsight] = useState<Insight | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
+  const { acceptChallenge } = useChallenges();
 
   useEffect(() => {
     if (isOpen && trackTitle) {
@@ -119,6 +121,21 @@ export default function InsightPanel({ isOpen, onClose, trackTitle, trackArtist 
                     </p>
                   </motion.div>
 
+                  {/* Universal Law */}
+                  <motion.div
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    className="bg-[#4e635a]/5 p-6 rounded-[25px] border-r-4 border-[#4e635a] shadow-sm"
+                  >
+                    <div className="flex items-center gap-2 mb-2 text-[#4e635a]">
+                      <Scale size={18} />
+                      <span className="font-bold text-xs uppercase tracking-wider">القانون الكوني (سنة الله)</span>
+                    </div>
+                    <p className="text-[#4e635a] font-bold leading-relaxed">
+                      {insight.universalLaw}
+                    </p>
+                  </motion.div>
+
                   {/* Modern Lessons */}
                   <div className="space-y-4">
                     <div className="flex items-center gap-3 text-[#4e635a]">
@@ -157,7 +174,10 @@ export default function InsightPanel({ isOpen, onClose, trackTitle, trackArtist 
                       {insight.practicalChallenge}
                     </p>
                     <button 
-                      onClick={onClose}
+                      onClick={() => {
+                        acceptChallenge(insight.practicalChallenge, 'ai');
+                        onClose();
+                      }}
                       className="w-full bg-white text-[#4e635a] py-4 rounded-2xl font-black text-lg hover:bg-white/90 transition-colors shadow-lg"
                     >
                       سأقوم بذلك بإذن الله

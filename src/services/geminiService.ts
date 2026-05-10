@@ -1,4 +1,4 @@
-import { GoogleGenAI } from "@google/genai";
+import { GoogleGenAI, Type } from "@google/genai";
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
@@ -19,15 +19,48 @@ export async function getSpiritualGuidance(userInput: string, previousContext: s
       3. أَرِدَّ عَلى المُسْتَخْدِمِ بِما يَمْلأُ قَلْبَهُ طُمَأْنِينَةً، وذَكِّرْهُ بِاللهِ تَعالَى وبِلُطْفِهِ المَخْفِيِّ.
       4. ضَمِّنْ في كَلامِكِ "حديثاً نبوياً" أَوْ "آية قرآنية" أَوْ "حكمة روحانية" تُلامِسُ عُمْقَ صَدْرِهِ.
       5. حافِظْ عَلى التَّشْكيلِ الكامِلِ لِضَمانِ النُّطْقِ الصَّحيح.
-      6. اطْرَحْ سُؤالاً بَسِيطاً في آخِرِ كَلامِكَ لِتُشَجِّعَهُ عَلى مُواصَلَةِ الحَديثِ لِيُفْرِغَ ما في قَلْبِهِ.
-      
-      يجب أن يكون الرد بصيغة JSON حصراً: { "message": "...", "suggestedDhikr": "...", "dhikrExplanation": "..." }`,
+      6. **خُطَّةُ العَمَلِ والتَّحَدِّي (Psychological & Behavioral Recovery)**: 
+         - إذا كَانَ المُسْتَخْدِمُ يُعاني مِنْ مُشْكِلَةٍ سُلوكيَّةٍ (كالسَّرِقَةِ، أو الغَضَب) أو عاداتٍ مُزْمِنَة (مِثْلَ عادَةِ 'القات' في اليَمَن)، قَدِّمْ لَهُ "خُطواتٍ عَمَليَّةً تَدْريجِيَّة" (Micro-steps).
+         - اسْتَخْدِمْ نَهْجَ "التَّفْريغِ اليَوْمِي"؛ اطْلُبْ مِنْهُ أَنْ يَلْتَزِمَ بِفِعْلٍ واحِدٍ بَسيطٍ اليَوْم.
+         - إذا كانَ السِّياقُ يَمَنِيّاً (مِثْلَ القات)، تَحَدَّثْ عَنْ بَدائِلَ مِثْلَ الرِّياضَةِ، القِراءَةِ، أو جَلَساتِ الذِّكْرِ البَديلَة، وعالِجْ الجانِبَ النَّفْسِيَّ والاجْتِماعِيَّ بِرِفْق.
+         - اسْتَفْسِرْ دَوْماً: "هَلْ طَبَّقْتَ خُطْوَةَ الأَمْسِ؟" لِتَحْفيزِ صِدْقِ التَّوْبَةِ والإِصْلاح.
+      7. اطْرَحْ سُؤالاً بَسِيطاً في آخِرِ كَلامِكَ لِتُشَجِّعَهُ عَلى مُواصَلَةِ الحَديثِ لِيُفْرِغَ ما في قَلْبِهِ.`,
       config: {
         responseMimeType: "application/json",
+        responseSchema: {
+          type: Type.OBJECT,
+          properties: {
+            message: { type: Type.STRING, description: "الرسالة الروحية الكاملة والمشكلة" },
+            suggestedDhikr: { type: Type.STRING, description: "الذكر المقترح" },
+            dhikrExplanation: { type: Type.STRING, description: "شرح فضل الذكر" },
+            actionPlan: { 
+              type: Type.ARRAY, 
+              items: { type: Type.STRING }, 
+              description: "خطوات عملية محددة لحل المشكلة (اختياري)" 
+            },
+            dailyChallenge: { type: Type.STRING, description: "تحدي اليوم (اختياري)" }
+          },
+          required: ["message", "suggestedDhikr", "dhikrExplanation"]
+        }
       }
     });
 
-    const text = response.text || "{}";
+    let text = response.text || "{}";
+    
+    // Clean up potential markdown formatting or trailing text
+    text = text.trim();
+    if (text.includes("```")) {
+      const match = text.match(/```(?:json)?\s*([\s\S]*?)\s*```/);
+      if (match) text = match[1];
+    }
+    
+    // Robust search for the JSON object if there's still trailing garbage
+    const firstBrace = text.indexOf('{');
+    const lastBrace = text.lastIndexOf('}');
+    if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+      text = text.substring(firstBrace, lastBrace + 1);
+    }
+
     const result = JSON.parse(text);
     return result;
   } catch (error) {

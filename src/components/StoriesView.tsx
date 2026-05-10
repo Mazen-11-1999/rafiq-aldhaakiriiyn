@@ -1,8 +1,9 @@
 import React, { useState, useMemo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Book, ChevronLeft, Star, Quote, History, Search, Users, Play, Lightbulb, Heart } from 'lucide-react';
+import { Book, ChevronLeft, Star, Quote, History, Search, Users, Play, Lightbulb, Heart, Scale, Brain, MessageSquareQuote, Target, Sparkles, CheckCircle2 } from 'lucide-react';
 import { prophetStories, type Story } from '../data/stories';
 import InsightPanel from './InsightPanel';
+import { useChallenges } from '../context/ChallengeContext';
 
 const StoryCard = React.memo(({ story, onClick }: { story: Story; onClick: (s: Story) => void }) => (
   <motion.button
@@ -40,6 +41,7 @@ export default function StoriesView() {
   const [selectedStory, setSelectedStory] = useState<Story | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [isInsightOpen, setIsInsightOpen] = useState(false);
+  const { acceptChallenge } = useChallenges();
 
   const filteredStories = useMemo(() => 
     prophetStories.filter(s => 
@@ -195,6 +197,81 @@ export default function StoriesView() {
               </p>
             </div>
 
+            {/* --- New Conceptual Sections --- */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-8">
+              {selectedStory.divineWisdom && (
+                <motion.div 
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="bg-[#fbf9f6] p-8 rounded-[3rem] border border-[#4e635a]/10 relative overflow-hidden group"
+                >
+                  <div className="absolute top-0 left-0 w-24 h-24 bg-[#4e635a]/5 rounded-full -translate-x-12 -translate-y-12 group-hover:scale-110 transition-transform" />
+                  <div className="flex items-center gap-3 mb-4 flex-row-reverse">
+                    <Brain className="text-[#4e635a]" size={24} />
+                    <h4 className="text-xl font-serif font-bold text-[#4e635a]">مفاهيم الأمور: لماذا حدث هذا؟</h4>
+                  </div>
+                  <p className="text-[#655d51] leading-relaxed font-medium text-right">
+                    {selectedStory.divineWisdom}
+                  </p>
+                </motion.div>
+              )}
+
+              {selectedStory.universalLaw && (
+                <motion.div 
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="bg-[#4e635a]/5 p-8 rounded-[3rem] border border-[#4e635a]/10 relative overflow-hidden group"
+                >
+                  <div className="absolute top-0 left-0 w-24 h-24 bg-white/40 rounded-full -translate-x-12 -translate-y-12 group-hover:scale-110 transition-transform" />
+                  <div className="flex items-center gap-3 mb-4 flex-row-reverse">
+                    <Scale className="text-[#4e635a]" size={24} />
+                    <h4 className="text-xl font-serif font-bold text-[#4e635a]">القانون الكوني: كيف تسير الأمور؟</h4>
+                  </div>
+                  <p className="text-[#655d51] leading-relaxed font-medium text-right">
+                    {selectedStory.universalLaw}
+                  </p>
+                </motion.div>
+              )}
+
+              {selectedStory.modernContext && (
+                <motion.div 
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="bg-white p-8 rounded-[3rem] border border-[#d1e8dd] shadow-sm relative overflow-hidden group col-span-1 md:col-span-2"
+                >
+                  <div className="absolute top-0 left-0 w-32 h-32 bg-[#8da399]/5 rounded-full -translate-x-16 -translate-y-16 group-hover:scale-110 transition-transform" />
+                  <div className="flex items-center gap-3 mb-4 flex-row-reverse">
+                    <Lightbulb className="text-yellow-500" size={24} />
+                    <h4 className="text-xl font-serif font-bold text-[#4e635a]">ماذا لو كنت مكانه؟ طبقها في حياتك اليومية</h4>
+                  </div>
+                  <p className="text-[#1b1c1a] text-lg leading-relaxed font-serif text-right border-r-4 border-[#8da399] pr-4">
+                    {selectedStory.modernContext}
+                  </p>
+                </motion.div>
+              )}
+
+              {selectedStory.divineDialogue && (
+                <motion.div 
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="bg-[#fbf9f6] p-8 rounded-[3rem] border border-[#d1e8dd] relative overflow-hidden group col-span-1 md:col-span-2"
+                >
+                  <div className="absolute top-0 left-0 w-32 h-32 bg-[#4e635a]/5 rounded-full -translate-x-16 -translate-y-16 group-hover:scale-110 transition-transform" />
+                  <div className="flex items-center gap-3 mb-4 flex-row-reverse">
+                    <MessageSquareQuote className="text-[#4e635a]" size={24} />
+                    <h4 className="text-xl font-serif font-bold text-[#4e635a]">أدب الحوار مع الله</h4>
+                  </div>
+                  <div className="bg-white p-6 rounded-2xl italic text-[#4e635a] font-serif text-center relative">
+                    <Quote className="absolute top-1 right-1 opacity-10" size={40} />
+                    <p className="text-xl leading-relaxed">
+                      {selectedStory.divineDialogue}
+                    </p>
+                  </div>
+                </motion.div>
+              )}
+            </div>
+            {/* ----------------------------- */}
+
             {selectedStory.chapters && (
               <div className="space-y-6">
                 <div className="flex items-center gap-2 text-[#4e635a]/60">
@@ -258,29 +335,46 @@ export default function StoriesView() {
             {selectedStory.dailyChallenge && (
               <div className="space-y-4 pt-6 mt-6 border-t border-[#4e635a]/10">
                 <div className="flex items-center gap-2 text-[#4e635a]/60">
-                  <Play size={18} className="text-[#4e635a]" />
-                  <h4 className="font-bold uppercase tracking-widest text-xs">تحدي اليوم: لا تخرج إلا بعمل</h4>
+                  <Target size={18} className="text-[#4e635a]" />
+                  <h4 className="font-bold uppercase tracking-widest text-xs">التحدي العملي: لا تخرج إلا بعمل</h4>
                 </div>
                 <motion.div 
                   initial={{ scale: 0.95, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
-                  className="bg-gradient-to-br from-[#4e635a] to-[#3d4d46] p-8 rounded-[3rem] text-white shadow-2xl relative overflow-hidden"
+                  className="bg-gradient-to-br from-[#4e635a] to-[#3d4d46] p-8 rounded-[3rem] text-white shadow-2xl relative overflow-hidden group"
                 >
-                  <div className="absolute -left-10 -bottom-10 w-40 h-40 bg-white/5 rounded-full blur-3xl" />
-                  <div className="flex items-start gap-4 flex-row-reverse text-right">
-                    <div className="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center shrink-0">
-                      <Star size={24} className="text-yellow-400" />
+                  <div className="absolute -left-10 -bottom-10 w-40 h-40 bg-white/5 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-1000" />
+                  <div className="flex flex-col md:flex-row items-center gap-6 text-right relative z-10 font-serif">
+                    <div className="w-16 h-16 bg-white/10 backdrop-blur-md rounded-[2rem] flex items-center justify-center shrink-0 border border-white/20 shadow-inner">
+                      <Sparkles size={32} className="text-yellow-300 animate-pulse" />
                     </div>
-                    <div className="space-y-4">
-                      <p className="text-2xl font-bold font-serif leading-tight">
-                        {selectedStory.dailyChallenge}
-                      </p>
-                      <button 
-                        onClick={() => setIsInsightOpen(true)}
-                        className="bg-white text-[#4e635a] px-8 py-3 rounded-2xl font-black text-sm hover:bg-[#d1e8dd] transition-colors shadow-lg"
-                      >
-                        سأحاول الهداية بهذا العمل
-                      </button>
+                    <div className="space-y-6 flex-1">
+                      <div className="space-y-2">
+                        <span className="text-xs font-bold text-white/60 tracking-widest uppercase">مهمتك اليوم:</span>
+                        <p className="text-2xl font-bold leading-tight">
+                          {selectedStory.dailyChallenge}
+                        </p>
+                      </div>
+                      
+                      <div className="flex flex-wrap gap-4">
+                        <button 
+                          onClick={() => {
+                            if (selectedStory.dailyChallenge) {
+                              acceptChallenge(selectedStory.dailyChallenge, 'story', selectedStory.id);
+                            }
+                            setIsInsightOpen(true);
+                          }}
+                          className="bg-white text-[#4e635a] px-10 py-4 rounded-2xl font-black text-lg hover:bg-[#d1e8dd] transition-all shadow-xl hover:-translate-y-1 active:scale-95 flex items-center gap-3"
+                        >
+                          <CheckCircle2 size={24} />
+                          سأقوم بهذا التحدي
+                        </button>
+                        
+                        <div className="flex items-center gap-2 text-white/60 text-sm font-medium">
+                          <Brain size={16} />
+                          <span>التطبيق العملي هو جوهر العبرة</span>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </motion.div>
@@ -294,7 +388,7 @@ export default function StoriesView() {
                  <h4 className="text-xl font-serif font-bold">المنهج العملي: تعلم وامشِ على هذا النهج</h4>
                </div>
                <p className="text-white/80 font-medium leading-relaxed">
-                 هذه القصة ليست مجرد سرد تاريخي، بل هي محطة في طريقك إلى الله. انظر كيف واجه {selectedStory.name} الصعاب، وكيف كان يقينه بالمنهج الإلهي. 
+                 هذه القصة ليست مجرد حكاية من الماضي، بل هي أثر ملموس لمَن ساروا على النهج ووصلوا بالصدق. انظر كيف واجه {selectedStory.name} الصعاب، وكيف كان يقينه بالمنهج الإلهي. 
                  اجعل من صبره وشكره نموذجاً تطبقه اليوم في حياتك، فكل نبوة هي نبراس يضيء لك درب التزكية.
                </p>
             </div>

@@ -1,20 +1,21 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { getSpiritualGuidance } from '../services/geminiService';
-import { Leaf, Mic, Plus, MessageCircle } from 'lucide-react';
+import { Leaf, Mic, Plus, CheckCircle, Rocket, Target } from 'lucide-react';
 import { cn } from '../lib/utils';
-import { UserProfile } from '../types';
+import { UserProfile, ChatMessage } from '../types';
 
 interface RetreatViewProps {
   userProfile: UserProfile | null;
+  chatMessages: ChatMessage[];
+  setChatMessages: React.Dispatch<React.SetStateAction<ChatMessage[]>>;
 }
 
-export default function RetreatView({ userProfile }: RetreatViewProps) {
+export default function RetreatView({ userProfile, chatMessages, setChatMessages }: RetreatViewProps) {
   const [mood, setMood] = useState<string>('');
   const [loadingAi, setLoadingAi] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [question, setQuestion] = useState('');
-  const [chatMessages, setChatMessages] = useState<{ role: 'user' | 'ai', message: string, suggestedDhikr?: string, dhikrExplanation?: string }[]>([]);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -46,20 +47,32 @@ export default function RetreatView({ userProfile }: RetreatViewProps) {
   };
 
   const processResponse = (userInput: string, guidance: any) => {
-    const newMessage = { 
-        role: 'ai' as const, 
+    const newMessage: ChatMessage = { 
+        role: 'ai', 
         message: guidance.message, 
         suggestedDhikr: guidance.suggestedDhikr, 
-        dhikrExplanation: guidance.dhikrExplanation 
+        dhikrExplanation: guidance.dhikrExplanation,
+        actionPlan: guidance.actionPlan,
+        dailyChallenge: guidance.dailyChallenge
     };
     setChatMessages(prev => [...prev, { role: 'user', message: userInput }, newMessage]);
     if (guidance.message) speakMessage(guidance.message);
   };
 
+  const buildContext = () => {
+    return chatMessages.map(m => {
+      let content = `${m.role === 'user' ? 'المستخدم' : 'سند'}: ${m.message}`;
+      if (m.suggestedDhikr) content += ` | الذكر: ${m.suggestedDhikr}`;
+      if (m.dailyChallenge) content += ` | التحدي: ${m.dailyChallenge}`;
+      if (m.actionPlan) content += ` | الخطة: ${m.actionPlan.join(', ')}`;
+      return content;
+    }).slice(-10).join("\n");
+  };
+
   const handleMoodSelect = async (moodLabel: string) => {
     setMood(moodLabel);
     setLoadingAi(true);
-    const context = chatMessages.map(m => m.message).join(" | ");
+    const context = buildContext();
     const guidance = await getSpiritualGuidance(`أشعر بـ ${moodLabel}`, context, userProfile?.displayName || "رفيقي");
     processResponse(`أشعر بـ ${moodLabel}`, guidance);
     setLoadingAi(false);
@@ -72,7 +85,7 @@ export default function RetreatView({ userProfile }: RetreatViewProps) {
     const currentQuestion = question;
     setQuestion('');
     setLoadingAi(true);
-    const context = chatMessages.map(m => m.message).join(" | ");
+    const context = buildContext();
     const guidance = await getSpiritualGuidance(currentQuestion, context, userProfile?.displayName || "رفيقي");
     processResponse(currentQuestion, guidance);
     setLoadingAi(false);
@@ -105,7 +118,7 @@ export default function RetreatView({ userProfile }: RetreatViewProps) {
       recognition.onresult = async (event: any) => {
         const transcript = event.results[0][0].transcript;
         setLoadingAi(true);
-        const context = chatMessages.map(m => m.message).join(" | ");
+        const context = buildContext();
         const guidance = await getSpiritualGuidance(transcript, context, userProfile?.displayName || "رفيقي");
         processResponse(transcript, guidance);
         setLoadingAi(false);
@@ -208,6 +221,33 @@ export default function RetreatView({ userProfile }: RetreatViewProps) {
                       <p className="text-xs opacity-80 italic font-medium leading-relaxed">{msg.dhikrExplanation}</p>
                    </div>
                 )}
+
+                {msg.actionPlan && msg.actionPlan.length > 0 && (
+                  <div className="mt-4 pt-4 border-t border-white/10 space-y-3 transform translateZ(15px)">
+                    <div className="flex items-center gap-2 text-[#4e635a] font-bold text-xs uppercase tracking-wider">
+                      <Target size={14} />
+                      <span>خطة التغيير</span>
+                    </div>
+                    <ul className="space-y-2">
+                      {msg.actionPlan.map((step, idx) => (
+                        <li key={idx} className="flex gap-2 text-sm leading-relaxed text-[#5a4d3a]">
+                          <span className="shrink-0 w-5 h-5 rounded-full bg-[#4e635a] text-white flex items-center justify-center text-[10px] font-bold">{idx + 1}</span>
+                          {step}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {msg.dailyChallenge && (
+                  <div className="mt-4 p-4 rounded-2xl bg-yellow-400/10 border border-yellow-400/20 space-y-2 transform translateZ(25px)">
+                    <div className="flex items-center gap-2 text-yellow-700 font-bold text-xs uppercase tracking-wider">
+                      <Rocket size={14} />
+                      <span>تحدي اليوم</span>
+                    </div>
+                    <p className="text-sm font-bold text-yellow-900">{msg.dailyChallenge}</p>
+                  </div>
+                )}
               </div>
               <span className="text-[10px] mt-2 font-bold text-[#4e635a]/20 uppercase tracking-widest px-2">
                 {msg.role === 'user' ? "حديثك" : "سند"}
@@ -246,7 +286,7 @@ export default function RetreatView({ userProfile }: RetreatViewProps) {
             type="text"
             value={question}
             onChange={(e) => setQuestion(e.target.value)}
-            placeholder="فضفض مافي صدرك..."
+            placeholder="بماذا تريد ان تصلح نفسك..."
             className="w-full px-8 py-5 rounded-[40px] bg-white/70 backdrop-blur-xl border border-white focus:outline-none focus:ring-2 focus:ring-[#4e635a]/20 shadow-2xl text-[#1b1c1a] placeholder:text-[#4e635a]/20 font-medium transition-all text-lg"
           />
           <button 

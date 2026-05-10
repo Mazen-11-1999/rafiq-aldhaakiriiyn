@@ -1,10 +1,11 @@
-import { GoogleGenAI } from "@google/genai";
+import { GoogleGenAI, Type } from "@google/genai";
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || "" });
 const modelName = "gemini-3-flash-preview";
 
 export interface Insight {
   coreMessage: string;
+  universalLaw: string; // القانون الكوني
   modernLessons: string[];
   practicalChallenge: string;
 }
@@ -20,17 +21,7 @@ export async function getTrackInsight(title: string, artist: string): Promise<In
     - لا تستخدم لغة الرموز أو الاختصارات مثل (ﷺ) أو التشكيلات والزخارف، اجعل النص يبدو كأنه مكتوب يدوياً من شخص يحب الخير لصديقه.
     - ابتعد تماماً عن أسلوب الذكاء الاصطناعي (مثل: "بناءً على المعطيات.."، "النقاط التالية هي..").
     - ركز على "مفاهيم الأمور" و "العبرة من الحياة" وكيف يربط ما سمعه بواقعه اليومي.
-    
-    أجب بتنسيق JSON حصراً كالتالي:
-    {
-      "coreMessage": "كلام من القلب (ابدأ بداية طبيعية مثل: 'يا أخي العزيز..' أو 'تدري؟ هذا الموقف ذكرني بـ..') وتحدث عن لب الموضوع كإنسان يفهم الحياة.",
-      "modernLessons": [
-        "نصيحة بسيطة (كأنك تقول له: جرب أن تفعل كذا..)",
-        "خاطرة (كأنك تقول له: انظر إلى هذا الموقف من زاوية ثانية..)",
-        "توجيه (بأسلوب الصديق الحكيم)"
-      ],
-      "practicalChallenge": "خطوة واحدة بسيطة يفعلها الآن (مثلاً: لا تحمل في خاطرك على فلان، أو كلم والدتك)"
-    }
+    - **الجديد والمهم**: استخرج "القانون الكوني" أو "السنة الإلهية" من المقطع (مثلاً: من يتقِ ويصبر فإن الله لا يضيع أجر المحسنين، أو أن الفرج مع الكرب).
     
     تذكر: لا تتصرف كآلة، تصرف كإنسان ناصح مشفق، لغتك سليمة وبسيطة في آن واحد.
   `;
@@ -41,17 +32,45 @@ export async function getTrackInsight(title: string, artist: string): Promise<In
       contents: prompt,
       config: {
         responseMimeType: "application/json",
+        responseSchema: {
+          type: Type.OBJECT,
+          properties: {
+            coreMessage: { type: Type.STRING, description: "الرسالة الأساسية من القلب" },
+            universalLaw: { type: Type.STRING, description: "القانون الكوني أو السنة الإلهية" },
+            modernLessons: { 
+              type: Type.ARRAY, 
+              items: { type: Type.STRING },
+              description: "دروس وحكم من الواقع"
+            },
+            practicalChallenge: { type: Type.STRING, description: "تحدي عملي بسيط" }
+          },
+          required: ["coreMessage", "universalLaw", "modernLessons", "practicalChallenge"]
+        }
       },
     });
 
-    const text = response.text || "{}";
-    // Find JSON block if Gemini adds markers
-    const jsonStr = text.match(/\{[\s\S]*\}/)?.[0] || text;
-    return JSON.parse(jsonStr) as Insight;
+    let text = response.text || "{}";
+    
+    // Clean up potential markdown formatting or trailing text
+    text = text.trim();
+    if (text.includes("```")) {
+      const match = text.match(/```(?:json)?\s*([\s\S]*?)\s*```/);
+      if (match) text = match[1];
+    }
+    
+    // Robust search for the JSON object if there's still trailing garbage
+    const firstBrace = text.indexOf('{');
+    const lastBrace = text.lastIndexOf('}');
+    if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+      text = text.substring(firstBrace, lastBrace + 1);
+    }
+
+    return JSON.parse(text) as Insight;
   } catch (error) {
     console.error("Error generating insight:", error);
     return {
       coreMessage: "التأمل في كلام الله والذكر هو باب الهداية الأول.",
+      universalLaw: "قانون 'تذكر الله يذكرك': الصدق في الرخاء يفتح لك أبواب النجاة في الشدة.",
       modernLessons: ["العمل بما نعلم هو زكاة العلم", "القصص مواقيت للتدبر وليس للتسلية", "التغيير يبدأ من الداخل"],
       practicalChallenge: "حاول أن تستخرج فكرة واحدة من هذا المقطع وتطبقها في أول موقف يواجهك اليوم."
     };

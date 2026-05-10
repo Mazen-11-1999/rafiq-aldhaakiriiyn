@@ -1,14 +1,16 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { X, Share2, Download, Sparkles, Heart, Quote, Loader2 } from 'lucide-react';
+import { X, Share2, Download, Sparkles, Heart, Quote, Loader2, Target } from 'lucide-react';
 import { UserProfile } from '../types';
 import { toPng } from 'html-to-image';
+import { useChallenges } from '../context/ChallengeContext';
 
 interface Inspiration {
   text: string;
   source: string;
   type: 'آية' | 'حديث' | 'حكمة';
   gradient: string;
+  challenge: string;
 }
 
 const inspirations: Inspiration[] = [
@@ -16,31 +18,36 @@ const inspirations: Inspiration[] = [
     text: "وَاصْبِرْ لِحُكْمِ رَبِّكَ فَإِنَّكَ بِأَعْيُنِنَا",
     source: "سورة الطور - ٤٨",
     type: "آية",
-    gradient: "from-[#4e635a] to-[#2d3a35]"
+    gradient: "from-[#4e635a] to-[#2d3a35]",
+    challenge: "اليوم، عندما يضيق صدرك من شيء، تذكر أن الله يراك، واصبر دقيقة واحدة قبل أن تظهر غضبك."
   },
   {
     text: "إِنَّ مَعَ الْعُسْرِ يُسْرًا",
     source: "سورة الشرح - ٦",
     type: "آية",
-    gradient: "from-[#8B735B] to-[#5D4D3F]"
+    gradient: "from-[#8B735B] to-[#5D4D3F]",
+    challenge: "ابحث عن 'يسر' بسيط في يومك الصعب، واشكر الله عليه بصوت مسموع."
   },
   {
     text: "أنا عند ظن عبدي بي",
     source: "حديث قدسي",
     type: "حديث",
-    gradient: "from-[#2C3E50] to-[#000000]"
+    gradient: "from-[#2C3E50] to-[#000000]",
+    challenge: "تخيل أفضل احتمال ممكن لمشكلة تقلقك، وقل: 'يا رب، أظن بك خيراً فآتني به'."
   },
   {
     text: "ما أصابك ما كان ليخطئك، وما أخطأك ما كان ليصيبك",
     source: "وصية نبوية",
     type: "حكمة",
-    gradient: "from-[#4A2D2D] to-[#2A1A1A]"
+    gradient: "from-[#4A2D2D] to-[#2A1A1A]",
+    challenge: "إذا فاتك شيء اليوم (موعد، مكالمة، طلب)، قل 'قدر الله وما شاء فعل' بقلب راضٍ تماماً."
   },
   {
     text: "اصبر تنل، فمن صبر ظفر",
     source: "حكمة عربية",
     type: "حكمة",
-    gradient: "from-[#1a3a3a] to-[#0d1d1d]"
+    gradient: "from-[#1a3a3a] to-[#0d1d1d]",
+    challenge: "تمرن على الصبر في الزحام أو عند الانتظار، ولا تنظر إلى هاتفك، بل سبّح الله."
   }
 ];
 
@@ -49,6 +56,7 @@ export default function DailyInspiration({ userProfile }: { userProfile: UserPro
   const [card, setCard] = useState<Inspiration | null>(null);
   const [isDownloading, setIsDownloading] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
+  const { acceptChallenge } = useChallenges();
 
   const dateFormat = userProfile?.settings?.appearance.dateFormat ?? 'arabic';
   const today = new Date().toLocaleDateString(dateFormat === 'arabic' ? 'ar-SA-u-ca-islamic-uma' : 'ar-YE', {
@@ -155,6 +163,33 @@ export default function DailyInspiration({ userProfile }: { userProfile: UserPro
               <p className="text-lg opacity-60 font-medium italic">
                 {card.source}
               </p>
+
+              {/* Actionable Challenge Section */}
+              <motion.div 
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.4 }}
+                className="pt-6 w-full max-w-sm mx-auto"
+              >
+                <div className="bg-white/10 backdrop-blur-md rounded-3xl p-6 border border-white/20 space-y-4">
+                  <div className="flex items-center gap-2 justify-center text-yellow-300">
+                    <Target size={16} />
+                    <span className="text-[10px] font-black uppercase tracking-[0.2em]">تحدي التطبيق</span>
+                  </div>
+                  <p className="text-sm font-medium leading-relaxed">
+                    {card.challenge}
+                  </p>
+                  <button 
+                    onClick={() => {
+                      acceptChallenge(card.challenge, 'inspiration');
+                      setIsVisible(false);
+                    }}
+                    className="w-full py-3 bg-white text-[#1b1c1a] rounded-2xl font-black text-xs hover:bg-yellow-400 transition-all shadow-lg active:scale-95"
+                  >
+                    أقبل التحدي لهذا اليوم
+                  </button>
+                </div>
+              </motion.div>
             </motion.div>
 
             <div className="absolute bottom-8 flex items-center gap-2 opacity-30 text-[10px] font-bold uppercase tracking-widest">

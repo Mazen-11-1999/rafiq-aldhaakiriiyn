@@ -24,11 +24,23 @@ export default function PrayerAlarmOverlay({ prayerName, message, isOpen, onClos
       audio.volume = 0.6;
       audioRef.current = audio;
 
+      const handleAudioError = () => {
+        console.error('Audio source error in PrayerAlarmOverlay: Failed to load ringtone');
+        // Fallback to a confirmed reliable source
+        if (audioRef.current && !audioRef.current.src.includes('IslamicRingtones_201306/Spirit.mp3')) {
+           audioRef.current.src = 'https://archive.org/download/IslamicRingtones_201306/Spirit.mp3';
+           audioRef.current.load();
+           audioRef.current.play().catch(() => console.error('Fallback audio failed'));
+        }
+      };
+
+      audio.addEventListener('error', handleAudioError);
+
       const attemptPlay = async () => {
         try {
           await audio.play();
         } catch (err) {
-          console.error('Audio play failed, waiting for user interaction:', err);
+          console.warn('Playback blocked or source invalid:', err);
           
           const playOnInteraction = async () => {
             try {
@@ -51,6 +63,7 @@ export default function PrayerAlarmOverlay({ prayerName, message, isOpen, onClos
 
       return () => {
         if (audioRef.current) {
+          audioRef.current.removeEventListener('error', handleAudioError);
           audioRef.current.pause();
           audioRef.current = null;
         }

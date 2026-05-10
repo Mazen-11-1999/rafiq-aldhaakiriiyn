@@ -90,7 +90,20 @@ export default function DhikrView({ onSessionComplete }: { onSessionComplete?: (
 
   return (
     <div className="min-h-full flex flex-col items-center justify-between p-margin-page pb-20 perspective-1000">
-      <audio ref={alarmAudioRef} src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3" preload="auto" />
+      <audio 
+        ref={alarmAudioRef} 
+        src="https://archive.org/download/IslamicRingtones_201306/Spirit.mp3" 
+        preload="auto" 
+        crossOrigin="anonymous"
+        onError={() => {
+          console.error("Dhikr alarm audio error: Audio source failed to load");
+          if (alarmAudioRef.current) {
+            // Last resort: browser native notification sound or silent failure
+            alarmAudioRef.current.src = 'https://archive.org/download/IslamicRingtones_201306/05.mp3';
+            console.log("Switching to secondary fallback");
+          }
+        }}
+      />
 
       <div className="text-center space-y-4 mt-8">
          <h2 className="text-[#4e635a] font-bold text-xs uppercase tracking-[0.4em] opacity-60">مسبحة رفيق الذاكرين</h2>

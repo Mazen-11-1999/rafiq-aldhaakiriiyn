@@ -15,6 +15,8 @@ export default function NasheedView() {
   const [viewMode, setViewMode] = useState<'list' | 'grid'>('grid');
   const [isInsightOpen, setIsInsightOpen] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [retryCount, setRetryCount] = useState(0);
+  const [isBuffering, setIsBuffering] = useState(false);
   
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const currentTrack = NASHEEDS[currentTrackIndex];
@@ -42,12 +44,14 @@ export default function NasheedView() {
 
   const handleNext = () => {
     setLoadError(null);
+    setRetryCount(0);
     setCurrentTrackIndex((prev) => (prev + 1) % NASHEEDS.length);
     setIsPlaying(true);
   };
 
   const handlePrev = () => {
     setLoadError(null);
+    setRetryCount(0);
     setCurrentTrackIndex((prev) => (prev - 1 + NASHEEDS.length) % NASHEEDS.length);
     setIsPlaying(true);
   };
@@ -172,11 +176,27 @@ export default function NasheedView() {
               src={currentTrack.url}
               onTimeUpdate={onTimeUpdate}
               onEnded={handleNext}
-              onLoadedMetadata={() => setDuration(audioRef.current?.duration || 0)}
+              onWaiting={() => setIsBuffering(true)}
+              onPlaying={() => setIsBuffering(false)}
+              onCanPlay={() => setIsBuffering(false)}
+              onLoadedMetadata={() => {
+                setDuration(audioRef.current?.duration || 0);
+                setIsBuffering(false);
+              }}
+              crossOrigin="anonymous"
               onError={(e) => {
-                console.error("Audio Load Error:", e);
-                setLoadError("عذراً، تعذر تحميل هذا النشيد من المصدر الأصلي.");
-                setIsPlaying(false);
+                console.error("Audio Load Error for:", currentTrack.title, e);
+                
+                // If we haven't retried too many times, try the next track automatically
+                if (retryCount < 3) {
+                  setRetryCount(prev => prev + 1);
+                  setTimeout(() => {
+                    handleNext();
+                  }, 1000);
+                } else {
+                  setLoadError(`تعذر تحميل "${currentTrack.title}". يبدو أن الرابط الأصلي متوقف حالياً. تم تخطي عدة مقاطع غير متوفرة.`);
+                  setIsPlaying(false);
+                }
               }}
             />
 
@@ -253,7 +273,16 @@ export default function NasheedView() {
                 className="w-20 h-20 bg-[#4e635a] text-white rounded-3xl flex items-center justify-center shadow-2xl shadow-[#4e635a]/40 group overflow-hidden relative"
               >
                 <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />
-                {isPlaying ? <Pause size={36} fill="white" /> : <Play size={36} fill="white" className="ml-1" />}
+                {isBuffering ? (
+                  <motion.div 
+                    animate={{ rotate: 360 }}
+                    transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                  >
+                    <Disc size={36} fill="white" className="opacity-50" />
+                  </motion.div>
+                ) : (
+                  isPlaying ? <Pause size={36} fill="white" /> : <Play size={36} fill="white" className="ml-1" />
+                )}
               </motion.button>
 
               <motion.button 

@@ -48,6 +48,15 @@ export interface Session {
   createdAt: any;
 }
 
+export interface ChatMessage {
+  role: 'user' | 'ai';
+  message: string;
+  suggestedDhikr?: string;
+  dhikrExplanation?: string;
+  actionPlan?: string[];
+  dailyChallenge?: string;
+}
+
 export enum OperationType {
   CREATE = 'create',
   UPDATE = 'update',
