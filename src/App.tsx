@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { auth, signInWithGoogle, db, getRedirectResult } from './lib/firebase';
-import { doc, getDoc, setDoc, updateDoc, serverTimestamp } from 'firebase/firestore';
+import { doc, getDoc, setDoc, updateDoc, serverTimestamp, onSnapshot } from 'firebase/firestore';
 import { UserProfile, OperationType, ChatMessage } from './types';
 import { handleFirestoreError } from './lib/firestore-errors';
 import RetreatView from './components/RetreatView';
@@ -52,17 +52,27 @@ export default function App() {
 
   useEffect(() => {
     if (user) {
-      const fetchProfile = async () => {
-        try {
-          const userRef = doc(db, 'users', user.uid);
-          let userSnap;
-          try {
-            userSnap = await getDoc(userRef);
-          } catch (e) {
-            handleFirestoreError(e, OperationType.GET, 'users/' + user.uid);
+      const userRef = doc(db, 'users', user.uid);
+      
+      const unsubscribe = onSnapshot(userRef, (docSnap) => {
+        if (docSnap.exists()) {
+          const data = docSnap.data() as UserProfile;
+          if (!data.settings) {
+            data.settings = {
+              notifications: { 
+                enabled: true, 
+                dhikrReminders: true, 
+                retreatReminders: true, 
+                prayerTimes: true, 
+                ringtone: 'official-prayer' 
+              },
+              privacy: { publicProfile: false, shareInsights: true },
+              appearance: { language: 'ar', dateFormat: 'arabic' }
+            };
           }
-
-          if (!userSnap!.exists()) {
+          setUserProfile(data);
+        } else {
+          const createInitialProfile = async () => {
             const newProfile: UserProfile = {
               uid: user.uid,
               email: user.email || '',
@@ -95,40 +105,23 @@ export default function App() {
             } catch (e) {
               handleFirestoreError(e, OperationType.WRITE, 'users/' + user.uid);
             }
-            setUserProfile(newProfile);
-          } else {
-            const data = userSnap!.data() as UserProfile;
-            // Ensure settings exist with defaults if missing
-            if (!data.settings) {
-              data.settings = {
-                notifications: { 
-                  enabled: true, 
-                  dhikrReminders: true, 
-                  retreatReminders: true, 
-                  prayerTimes: true, 
-                  ringtone: 'official-prayer' 
-                },
-                privacy: { publicProfile: false, shareInsights: true },
-                appearance: { language: 'ar', dateFormat: 'arabic' }
-              };
-            }
-            setUserProfile(data);
-          }
-        } catch (e) {
-          console.warn("Could not fetch profile from server, using local defaults if available.", e);
-          // Fallback to minimal profile if server fails
-          setUserProfile({
-            uid: user.uid,
-            email: user.email || '',
-            displayName: user.displayName || 'ضيف',
-            photoURL: user.photoURL || '',
-            createdAt: new Date(),
-            totalMinutes: 0,
-            currentStreak: 0,
-          });
+          };
+          createInitialProfile();
         }
-      };
-      fetchProfile();
+      }, (e) => {
+        console.warn("Could not fetch profile from server, using local defaults if available.", e);
+        setUserProfile({
+          uid: user.uid,
+          email: user.email || '',
+          displayName: user.displayName || 'ضيف',
+          photoURL: user.photoURL || '',
+          createdAt: new Date(),
+          totalMinutes: 0,
+          currentStreak: 0,
+        });
+      });
+
+      return () => unsubscribe();
     }
   }, [user]);
 
@@ -428,7 +421,7 @@ export default function App() {
               exit={{ opacity: 0, rotateY: -90, x: -100, scale: 0.9 }}
               transition={{ type: "spring", stiffness: 100, damping: 20 }}
             >
-              <JournalView />
+              <JournalView userProfile={userProfile} />
             </motion.div>
           )}
           {activeTab === 'stories' && (

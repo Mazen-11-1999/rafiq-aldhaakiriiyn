@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { getSpiritualGuidance } from '../services/geminiService';
-import { Leaf, Mic, Plus, CheckCircle, Rocket, Target } from 'lucide-react';
+import { Leaf, Mic, Plus, CheckCircle, Rocket, Target, Trash2 } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { UserProfile, ChatMessage } from '../types';
 
@@ -111,7 +111,7 @@ export default function RetreatView({ userProfile, chatMessages, setChatMessages
     recognition.onstart = () => setIsListening(true);
     recognition.onend = () => setIsListening(false);
     recognition.onerror = (event: any) => {
-      console.error("Speech Recognition Error:", event.error);
+      console.error("Speech Recognition Error:", event.error || "Unknown error");
       setIsListening(false);
     };
 
@@ -125,6 +125,11 @@ export default function RetreatView({ userProfile, chatMessages, setChatMessages
       };
 
     recognition.start();
+  };
+
+  const clearChat = () => {
+    setChatMessages([]);
+    window.speechSynthesis.cancel();
   };
 
   return (
@@ -154,9 +159,20 @@ export default function RetreatView({ userProfile, chatMessages, setChatMessages
       </div>
 
       {/* Greeting */}
-      <div className="z-10 text-center space-y-2">
+      <div className="z-10 text-center space-y-2 relative w-full max-w-lg">
         <p className="text-[#4e635a]/70 font-bold tracking-[0.3em] uppercase text-xs">الآن هو وقت الهدوء</p>
         <h2 className="text-4xl font-bold text-[#1b1c1a] font-serif">معك وين ما كنت</h2>
+        {chatMessages.length > 0 && (
+          <motion.button 
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            onClick={clearChat}
+            className="absolute left-0 top-1/2 -translate-y-1/2 p-3 text-[#4e635a]/40 hover:text-white hover:bg-[#ba1a1a] rounded-full transition-all duration-300"
+            title="بدء محادثة جديدة"
+          >
+            <Trash2 size={20} />
+          </motion.button>
+        )}
       </div>
 
       {/* AI Assistant Sanad Conversation Area */}

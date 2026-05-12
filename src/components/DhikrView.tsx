@@ -47,6 +47,38 @@ export default function DhikrView({ onSessionComplete }: { onSessionComplete?: (
     }
   };
 
+  const playSystemBeep = () => {
+    try {
+      const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+      const oscillator = audioCtx.createOscillator();
+      const gainNode = audioCtx.createGain();
+
+      oscillator.connect(gainNode);
+      gainNode.connect(audioCtx.destination);
+
+      oscillator.type = 'sine';
+      oscillator.frequency.setValueAtTime(880, audioCtx.currentTime);
+      gainNode.gain.setValueAtTime(0.5, audioCtx.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
+
+      oscillator.start();
+      oscillator.stop(audioCtx.currentTime + 0.5);
+    } catch (e) {
+      console.error("System beep failed:", e);
+    }
+  };
+
+  const playAlarm = () => {
+    if (alarmAudioRef.current) {
+      alarmAudioRef.current.play().catch(e => {
+        console.error("Alarm sound playback failed, using system beep. Error:", e instanceof Error ? e.message : String(e));
+        playSystemBeep();
+      });
+    } else {
+      playSystemBeep();
+    }
+  };
+
   useEffect(() => {
     if (sessionActive && timeLeft > 0) {
       timerRef.current = setInterval(() => {
@@ -54,9 +86,7 @@ export default function DhikrView({ onSessionComplete }: { onSessionComplete?: (
           if (prev <= 1) {
             if (timerRef.current) clearInterval(timerRef.current);
             setSessionActive(false);
-            if (alarmAudioRef.current) {
-              alarmAudioRef.current.play().catch(e => console.log("Alarm sound error:", e));
-            }
+            playAlarm();
             if (onSessionComplete) {
               onSessionComplete(duration);
             }
@@ -92,15 +122,15 @@ export default function DhikrView({ onSessionComplete }: { onSessionComplete?: (
     <div className="min-h-full flex flex-col items-center justify-between p-margin-page pb-20 perspective-1000">
       <audio 
         ref={alarmAudioRef} 
-        src="https://archive.org/download/IslamicRingtones_201306/Spirit.mp3" 
+        src="https://www.soundjay.com/buttons/sounds/beep-07.mp3" 
         preload="auto" 
-        crossOrigin="anonymous"
         onError={() => {
-          console.error("Dhikr alarm audio error: Audio source failed to load");
+          console.warn("Dhikr alarm audio error: Switching to secondary source");
           if (alarmAudioRef.current) {
-            // Last resort: browser native notification sound or silent failure
-            alarmAudioRef.current.src = 'https://archive.org/download/IslamicRingtones_201306/05.mp3';
-            console.log("Switching to secondary fallback");
+            const fallbackSrc = "https://raw.githubusercontent.com/rafaelreis-hotmart/Audio-Files/master/notification.mp3";
+            if (alarmAudioRef.current.src !== fallbackSrc) {
+              alarmAudioRef.current.src = fallbackSrc;
+            }
           }
         }}
       />

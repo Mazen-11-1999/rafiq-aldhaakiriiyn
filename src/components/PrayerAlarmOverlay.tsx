@@ -14,23 +14,47 @@ interface PrayerAlarmProps {
 
 export default function PrayerAlarmOverlay({ prayerName, message, isOpen, onClose, selectedRingtoneId }: PrayerAlarmProps) {
   const [isMuted, setIsMuted] = useState(false);
+  const [audioError, setAudioError] = useState<string | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
     if (isOpen) {
+      setAudioError(null);
       const ringtone = RINGTONES.find(r => r.id === selectedRingtoneId) || DEFAULT_RINGTONE;
+      
       const audio = new Audio(ringtone.url);
+      audio.crossOrigin = 'anonymous';
       audio.loop = true;
       audio.volume = 0.6;
       audioRef.current = audio;
 
       const handleAudioError = () => {
         console.error('Audio source error in PrayerAlarmOverlay: Failed to load ringtone');
-        // Fallback to a confirmed reliable source
-        if (audioRef.current && !audioRef.current.src.includes('IslamicRingtones_201306/Spirit.mp3')) {
-           audioRef.current.src = 'https://archive.org/download/IslamicRingtones_201306/Spirit.mp3';
-           audioRef.current.load();
-           audioRef.current.play().catch(() => console.error('Fallback audio failed'));
+        
+        if (!audioRef.current) return;
+
+        // Sequence of fallbacks
+        const fallbacks = [
+          'https://archive.org/download/nasheed_adel/Beep.mp3',
+          'https://archive.org/download/nasheed_adel/Salawat.mp3',
+          'https://archive.org/download/IslamicRingtones_201306/Spirit.mp3'
+        ];
+
+        const currentSrc = audioRef.current.src;
+        const fallbackIndex = fallbacks.indexOf(currentSrc);
+        const nextFallback = fallbacks[fallbackIndex + 1] || (fallbackIndex === -1 ? fallbacks[0] : null);
+
+        if (nextFallback) {
+          console.log(`Trying fallback: ${nextFallback}`);
+          audioRef.current.src = nextFallback;
+          audioRef.current.load();
+          audioRef.current.play().catch((err) => {
+             console.error('Fallback audio failed:', err);
+             // handleAudioError will be triggered again by the error event on the next source failure
+          });
+        } else {
+          setAudioError("عذراً، تعذر تحميل صوت التنبيه حالياً");
+          console.error('All audio fallbacks failed');
         }
       };
 
@@ -40,7 +64,7 @@ export default function PrayerAlarmOverlay({ prayerName, message, isOpen, onClos
         try {
           await audio.play();
         } catch (err) {
-          console.warn('Playback blocked or source invalid:', err);
+          console.warn('Playback blocked or source invalid:', err instanceof Error ? err.message : String(err));
           
           const playOnInteraction = async () => {
             try {
@@ -50,7 +74,7 @@ export default function PrayerAlarmOverlay({ prayerName, message, isOpen, onClos
                 window.removeEventListener('touchstart', playOnInteraction);
               }
             } catch (e) {
-              console.error('Playback still blocked', e);
+              console.error('Playback still blocked. Error:', e instanceof Error ? e.message : String(e));
             }
           };
           
@@ -119,6 +143,16 @@ export default function PrayerAlarmOverlay({ prayerName, message, isOpen, onClos
                 <p className="text-xl text-white/70 leading-relaxed font-medium">
                   {message}
                 </p>
+                {audioError && (
+                  <motion.div 
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="bg-red-500/20 border border-red-500/30 py-2 px-4 rounded-xl text-red-200 text-sm flex items-center justify-center gap-2"
+                  >
+                    <VolumeX size={16} />
+                    <span>{audioError}</span>
+                  </motion.div>
+                )}
                 <div className="flex items-center justify-center gap-2 pt-4">
                     <div className="h-px w-8 bg-white/20" />
                     <Heart size={14} className="text-red-400 fill-red-400/20" />

@@ -15,21 +15,45 @@ export default function NasheedView() {
   const [viewMode, setViewMode] = useState<'list' | 'grid'>('grid');
   const [isInsightOpen, setIsInsightOpen] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [activeUrlIndex, setActiveUrlIndex] = useState(0);
   const [retryCount, setRetryCount] = useState(0);
   const [isBuffering, setIsBuffering] = useState(false);
+  const [failedTrackIds, setFailedTrackIds] = useState<Set<string>>(new Set());
+  const [consecutiveFailures, setConsecutiveFailures] = useState(0);
   
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const currentTrack = NASHEEDS[currentTrackIndex];
 
+  // Handle track changes
+  useEffect(() => {
+    setActiveUrlIndex(0);
+    if (audioRef.current) {
+      audioRef.current.load();
+      setLoadError(null);
+      setRetryCount(0);
+      if (isPlaying) {
+        audioRef.current.play().catch(err => console.warn("Auto-play failed:", err));
+      }
+    }
+  }, [currentTrackIndex]);
+
+  // Handle play/pause
   useEffect(() => {
     if (audioRef.current) {
       if (isPlaying) {
-        audioRef.current.play().catch(console.error);
+        audioRef.current.play().catch(() => setIsPlaying(false));
       } else {
         audioRef.current.pause();
       }
     }
-  }, [isPlaying, currentTrackIndex]);
+  }, [isPlaying]);
+
+  // Handle volume changes without reloading
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.volume = volume;
+    }
+  }, [volume]);
 
   const togglePlay = () => {
     if (loadError) {
@@ -45,14 +69,28 @@ export default function NasheedView() {
   const handleNext = () => {
     setLoadError(null);
     setRetryCount(0);
-    setCurrentTrackIndex((prev) => (prev + 1) % NASHEEDS.length);
+    // Find next non-failed track
+    let nextIndex = (currentTrackIndex + 1) % NASHEEDS.length;
+    let attempts = 0;
+    while (failedTrackIds.has(NASHEEDS[nextIndex].id) && attempts < NASHEEDS.length) {
+      nextIndex = (nextIndex + 1) % NASHEEDS.length;
+      attempts++;
+    }
+    setCurrentTrackIndex(nextIndex);
     setIsPlaying(true);
   };
 
   const handlePrev = () => {
     setLoadError(null);
     setRetryCount(0);
-    setCurrentTrackIndex((prev) => (prev - 1 + NASHEEDS.length) % NASHEEDS.length);
+    // Find previous non-failed track
+    let prevIndex = (currentTrackIndex - 1 + NASHEEDS.length) % NASHEEDS.length;
+    let attempts = 0;
+    while (failedTrackIds.has(NASHEEDS[prevIndex].id) && attempts < NASHEEDS.length) {
+      prevIndex = (prevIndex - 1 + NASHEEDS.length) % NASHEEDS.length;
+      attempts++;
+    }
+    setCurrentTrackIndex(prevIndex);
     setIsPlaying(true);
   };
 
@@ -173,28 +211,54 @@ export default function NasheedView() {
           <div className="glass-3d p-8 rounded-[2.5rem] space-y-6">
             <audio 
               ref={audioRef}
-              src={currentTrack.url}
+              src={(currentTrack.urls ? [currentTrack.url, ...currentTrack.urls] : [currentTrack.url])[activeUrlIndex]}
+              preload="auto"
               onTimeUpdate={onTimeUpdate}
               onEnded={handleNext}
               onWaiting={() => setIsBuffering(true)}
-              onPlaying={() => setIsBuffering(false)}
-              onCanPlay={() => setIsBuffering(false)}
+              onPlaying={() => {
+                setIsBuffering(false);
+                setConsecutiveFailures(0);
+                const trackId = currentTrack.id;
+                setFailedTrackIds(prev => {
+                  const next = new Set(prev);
+                  next.delete(trackId);
+                  return next;
+                });
+              }}
+              onCanPlay={() => {
+                setIsBuffering(false);
+                setConsecutiveFailures(0);
+              }}
               onLoadedMetadata={() => {
                 setDuration(audioRef.current?.duration || 0);
                 setIsBuffering(false);
+                setConsecutiveFailures(0);
+                setLoadError(null);
               }}
-              crossOrigin="anonymous"
               onError={(e) => {
-                console.error("Audio Load Error for:", currentTrack.title, e);
+                const availableUrls = currentTrack.urls ? [currentTrack.url, ...currentTrack.urls] : [currentTrack.url];
                 
-                // If we haven't retried too many times, try the next track automatically
-                if (retryCount < 3) {
+                if (activeUrlIndex < availableUrls.length - 1) {
+                  // Try next fallback URL
+                  console.warn(`URL failed for ${currentTrack.title}, trying mirror ${activeUrlIndex + 1}`);
+                  setActiveUrlIndex(prev => prev + 1);
                   setRetryCount(prev => prev + 1);
-                  setTimeout(() => {
-                    handleNext();
-                  }, 1000);
+                  return;
+                }
+
+                console.error("All Audio URLs failed for:", currentTrack.title, availableUrls);
+                
+                const trackId = currentTrack.id;
+                setFailedTrackIds(prev => new Set(prev).add(trackId));
+                setConsecutiveFailures(prev => prev + 1);
+
+                // Only show error if we've exhausted all options
+                setLoadError(`معذرةً، لم نتمكن من تحميل "${currentTrack.title}" من جميع المصادر المتاحة حالياً.`);
+                
+                if (consecutiveFailures < 3) {
+                  setTimeout(handleNext, 3000);
                 } else {
-                  setLoadError(`تعذر تحميل "${currentTrack.title}". يبدو أن الرابط الأصلي متوقف حالياً. تم تخطي عدة مقاطع غير متوفرة.`);
                   setIsPlaying(false);
                 }
               }}
@@ -317,7 +381,7 @@ export default function NasheedView() {
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div>
               <h3 className="text-3xl font-black font-serif text-[#1b1c1a]">مكتبة الأناشيد</h3>
-              <p className="text-[#4e635a]/60 text-sm font-medium mt-1">تصفح {NASHEEDS.length} نشيد مختار بعناية</p>
+              <p className="text-[#4e635a]/60 text-sm font-medium mt-1">لحن يـخاطب القلوب وينير البصيرة</p>
             </div>
             
             <div className="flex items-center gap-2 bg-white/80 backdrop-blur-xl p-1.5 rounded-2xl border border-[#4e635a]/10 shadow-sm">
@@ -376,6 +440,11 @@ export default function NasheedView() {
                           : "bg-white border-transparent shadow-sm hover:shadow-2xl"
                       )}
                     >
+                      {failedTrackIds.has(nasheed.id) && (
+                        <div className="absolute top-2 left-2 bg-red-500 text-white p-1.5 rounded-full shadow-lg z-20">
+                          <AlertCircle size={14} />
+                        </div>
+                      )}
                       <div className="relative aspect-square w-full rounded-[1.8rem] overflow-hidden shadow-lg mb-1">
                         <img 
                           src={nasheed.cover} 
@@ -434,8 +503,13 @@ export default function NasheedView() {
                           : "bg-white border-transparent text-[#1b1c1a] shadow-sm"
                       )}
                     >
-                      <div className="w-16 h-16 rounded-[1.2rem] overflow-hidden shrink-0 shadow-md">
+                      <div className="w-16 h-16 rounded-[1.2rem] overflow-hidden shrink-0 shadow-md relative">
                          <img src={nasheed.cover} alt={nasheed.title} className="w-full h-full object-cover" />
+                         {failedTrackIds.has(nasheed.id) && (
+                           <div className="absolute inset-0 bg-red-500/40 backdrop-blur-[1px] flex items-center justify-center">
+                             <AlertCircle size={20} className="text-white" />
+                           </div>
+                         )}
                       </div>
                       <div className="flex-grow">
                         <p className="font-black text-base">{nasheed.title}</p>

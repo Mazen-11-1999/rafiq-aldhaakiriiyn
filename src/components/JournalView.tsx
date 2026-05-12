@@ -6,6 +6,8 @@ import { collection, query, where, orderBy, onSnapshot, addDoc, serverTimestamp,
 import { handleFirestoreError } from '../lib/firestore-errors';
 import { OperationType } from '../types';
 
+import { UserProfile } from '../types';
+
 interface ReflectionEntry {
   id: string;
   text: string;
@@ -13,7 +15,7 @@ interface ReflectionEntry {
   userId: string;
 }
 
-export default function JournalView() {
+export default function JournalView({ userProfile }: { userProfile: UserProfile | null }) {
   const [reflection, setReflection] = useState('');
   const [notes, setNotes] = useState<ReflectionEntry[]>([]);
   const [loading, setLoading] = useState(true);
@@ -73,7 +75,24 @@ export default function JournalView() {
   const formatDate = (timestamp: any) => {
     if (!timestamp) return '';
     const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
-    return `${date.toLocaleDateString('ar-SA')} - ${date.toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' })}`;
+    const dateFormat = userProfile?.settings?.appearance.dateFormat ?? 'arabic';
+    
+    const options: Intl.DateTimeFormatOptions = { 
+      year: 'numeric', 
+      month: 'long', 
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    };
+
+    try {
+      if (dateFormat === 'arabic') {
+        return date.toLocaleDateString('ar-SA-u-ca-islamic-uma', options);
+      }
+      return date.toLocaleDateString('ar-YE', options);
+    } catch (e) {
+      return date.toLocaleString('ar-SA');
+    }
   };
 
   return (

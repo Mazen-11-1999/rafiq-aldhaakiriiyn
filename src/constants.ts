@@ -3,130 +3,163 @@ export const RINGTONES = [
   { 
     id: 'official-prayer', 
     name: 'تنبيه الأذان (رنين)', 
-    url: 'https://archive.org/download/IslamicRingtones_201306/01.mp3'
+    url: 'https://ia800904.us.archive.org/30/items/IslamicRingtones_201306/01.mp3'
   },
   { 
     id: 'spiritual-call', 
     name: 'نداء الروح (هادئ)', 
-    url: 'https://archive.org/download/IslamicRingtones_201306/Spirit.mp3'
+    url: 'https://ia800904.us.archive.org/30/items/IslamicRingtones_201306/Spirit.mp3'
   },
   { 
     id: 'faith-alert', 
     name: 'تنبيه إيماني', 
-    url: 'https://archive.org/download/IslamicRingtones_201306/05.mp3'
+    url: 'https://ia800904.us.archive.org/30/items/IslamicRingtones_201306/05.mp3'
   },
   { 
     id: 'deep-meditation', 
     name: 'تأمل عميق', 
-    url: 'https://archive.org/download/IslamicRingtones_201306/02.mp3'
+    url: 'https://ia800904.us.archive.org/30/items/IslamicRingtones_201306/02.mp3'
   },
   { 
     id: 'morning-sun', 
     name: 'ضحى الصباح', 
-    url: 'https://archive.org/download/IslamicRingtones_201306/03.mp3'
+    url: 'https://ia800904.us.archive.org/30/items/IslamicRingtones_201306/03.mp3'
   },
   { 
     id: 'sacred-echo', 
     name: 'صدى الخلود', 
-    url: 'https://archive.org/download/IslamicRingtones_201306/04.mp3'
+    url: 'https://ia800904.us.archive.org/30/items/IslamicRingtones_201306/04.mp3'
   },
   { 
     id: 'spiritual-calm', 
     name: 'سكينة روحية', 
-    url: 'https://archive.org/download/nasheed_adel/Salawat.mp3'
+    url: 'https://ia800100.us.archive.org/30/items/nasheed_adel/Salawat.mp3'
   },
   {
     id: 'classic-beep',
     name: 'منبه كلاسيكي',
-    url: 'https://archive.org/download/nasheed_adel/Beep.mp3'
+    url: 'https://ia800100.us.archive.org/30/items/nasheed_adel/Beep.mp3'
   }
 ];
 
 export const DEFAULT_RINGTONE = RINGTONES[0];
 
-export const NASHEEDS = [
+export interface Nasheed {
+  id: string;
+  title: string;
+  artist: string;
+  url: string;
+  urls?: string[]; // Fallback URLs
+  cover: string;
+}
+
+export const NASHEEDS: Nasheed[] = [
+  {
+    id: 'nasheed-94',
+    title: 'محمد وحشنا',
+    artist: 'ماهر زين',
+    url: 'https://serv100.albumaty.com/songs_2020/Albumaty.Com_mahr_zyn_mhmd_whshna.mp3',
+    urls: [
+      'https://ia601202.us.archive.org/29/items/maher-zain-collection/Maher%20Zain%20-%20Muhammad%20Wahashna.mp3',
+      'https://archive.org/download/Maher-Zain-Collection/Maher%20Zain%20-%20Muhammad%20Wahashna.mp3',
+      'https://ia801602.us.archive.org/29/items/maher-zain-collection/Maher%20Zain%20-%20Muhammad%20Wahashna.mp3'
+    ],
+    cover: 'https://i1.sndcdn.com/artworks-000110795835-whurr8-t500x500.jpg'
+  },
   {
     id: 'nasheed-1',
     title: 'جد بلطفك',
     artist: 'أحمد بو خاطر',
-    url: 'https://archive.org/download/Jud.Belutfik/Jud.Belutfik.mp3',
+    url: 'https://www.ashefaa.com/enshad/files/Ahmed-Bukhatir/Fartaqi/01-Jod-Belotfak.mp3',
+    urls: [
+      'https://archive.org/download/ahmed-bukhatir-fartaqi/01%20Jod%20Belotfak.mp3',
+      'https://ia801908.us.archive.org/28/items/ahmed-bukhatir-fartaqi/01%20Jod%20Belotfak.mp3'
+    ],
     cover: 'https://images.unsplash.com/photo-1590076202213-90d65b938f31?q=80&w=200&auto=format&fit=crop'
   },
   {
     id: 'nasheed-2',
     title: 'سجدت لك',
     artist: 'أحمد بو خاطر',
-    url: 'https://archive.org/download/Sejadto/Sejadto.mp3',
+    url: 'https://www.ashefaa.com/enshad/files/Ahmed-Bukhatir/Fartaqi/03-Sajadto-Laka.mp3',
+    urls: [
+      'https://archive.org/download/ahmed-bukhatir-fartaqi/03%20Sajadto%20Laka.mp3',
+      'https://ia801908.us.archive.org/28/items/ahmed-bukhatir-fartaqi/03%20Sajadto%20Laka.mp3'
+    ],
     cover: 'https://images.unsplash.com/photo-1542810634-71277d95dcbb?q=80&w=200&auto=format&fit=crop'
   },
   {
     id: 'nasheed-3',
     title: 'يا حامل القرآن',
     artist: 'أحمد بو خاطر',
-    url: 'https://archive.org/download/nasheed_adel/Ya_Hamel_Al_Quran.mp3',
+    url: 'https://www.ashefaa.com/enshad/files/Ahmed-Bukhatir/Fartaqi/06-YaHamel-AlQuran.mp3',
+    urls: [
+      'https://archive.org/download/ahmed-bukhatir-fartaqi/06%20Ya%20Hamel%20Al%20Quran.mp3',
+      'https://ia801908.us.archive.org/28/items/ahmed-bukhatir-fartaqi/06%20Ya%20Hamel%20Al%20Quran.mp3'
+    ],
     cover: 'https://images.unsplash.com/photo-1507615811603-347cf74e1019?q=80&w=200&auto=format&fit=crop'
   },
   {
     id: 'nasheed-4',
     title: 'يا نبي سلام عليك',
     artist: 'ماهر زين',
-    url: 'https://archive.org/download/nasheed_adel/Maher%20Zain%20-%20Ya%20Nabi%20Salam%20Alayka.mp3',
+    url: 'https://ia800100.us.archive.org/30/items/nasheed_adel/Maher%20Zain%20-%20Ya%20Nabi%20Salam%20Alayka.mp3',
     cover: 'https://i1.sndcdn.com/artworks-000110795835-whurr8-t500x500.jpg'
   },
   {
     id: 'nasheed-5',
     title: 'رقت عيناي شوقاً',
     artist: 'ماهر زين',
-    url: 'https://archive.org/download/nasheed_adel/Maher%20Zain%20-%20Raqqat%20Aynaya%20Shawqan.mp3',
+    url: 'https://ia800100.us.archive.org/30/items/nasheed_adel/Maher%20Zain%20-%20Raqqat%20Aynaya%20Shawqan.mp3',
     cover: 'https://i1.sndcdn.com/artworks-000110795835-whurr8-t500x500.jpg'
   },
   {
     id: 'nasheed-6',
     title: 'تنبيه إيماني',
     artist: 'منوعات',
-    url: 'https://archive.org/download/IslamicRingtones_201306/05.mp3',
+    url: 'https://ia800904.us.archive.org/30/items/IslamicRingtones_201306/05.mp3',
     cover: 'https://images.unsplash.com/photo-1516062423079-7ca13cdc7f5a?q=80&w=200&auto=format&fit=crop'
   },
   {
     id: 'nasheed-7',
     title: 'نداء الروح',
     artist: 'منوعات',
-    url: 'https://archive.org/download/IslamicRingtones_201306/Spirit.mp3',
+    url: 'https://ia800904.us.archive.org/30/items/IslamicRingtones_201306/Spirit.mp3',
     cover: 'https://images.unsplash.com/photo-1469474968028-56623f02e42e?q=80&w=200&auto=format&fit=crop'
   },
   {
     id: 'nasheed-8',
     title: 'سدد',
     artist: 'فرقة الوعد',
-    url: 'https://archive.org/download/alw3d-nasheeds/Sadded.mp3',
+    url: 'https://archive.org/download/nasheed_adel/Sadded.mp3',
     cover: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?q=80&w=200&auto=format&fit=crop'
   },
   {
     id: 'nasheed-9',
     title: 'مآسي (5)',
     artist: 'منوعات',
-    url: 'https://archive.org/download/IslamicRingtones_201306/07.mp3',
+    url: 'https://ia800904.us.archive.org/30/items/IslamicRingtones_201306/07.mp3',
     cover: 'https://images.unsplash.com/photo-1470252649358-96957cef6f0c?q=80&w=200&auto=format&fit=crop'
   },
   {
     id: 'nasheed-10',
     title: 'مآسي (4)',
     artist: 'منوعات',
-    url: 'https://archive.org/download/IslamicRingtones_201306/08.mp3',
+    url: 'https://ia800904.us.archive.org/30/items/IslamicRingtones_201306/08.mp3',
     cover: 'https://images.unsplash.com/photo-1502012652162-6221bab362e6?q=80&w=200&auto=format&fit=crop'
   },
   {
     id: 'nasheed-11',
     title: 'دنيا (8)',
     artist: 'منوعات',
-    url: 'https://archive.org/download/IslamicRingtones_201306/09.mp3',
+    url: 'https://ia800904.us.archive.org/30/items/IslamicRingtones_201306/09.mp3',
     cover: 'https://images.unsplash.com/photo-1444703686981-a3abbc4d4fe3?q=80&w=200&auto=format&fit=crop'
   },
   {
     id: 'nasheed-12',
     title: 'دنيا (5)',
     artist: 'منوعات',
-    url: 'https://archive.org/download/IslamicRingtones_201306/10.mp3',
+    url: 'https://ia800904.us.archive.org/30/items/IslamicRingtones_201306/10.mp3',
     cover: 'https://images.unsplash.com/photo-1465447142348-e9952c393450?q=80&w=200&auto=format&fit=crop'
   },
   {
@@ -138,7 +171,7 @@ export const NASHEEDS = [
   },
   {
     id: 'nasheed-14',
-    title: 'يا حامل القرآن',
+    title: 'روحي فداك',
     artist: 'منوعات',
     url: 'https://www.ashefaa.com/enshad/files/monaw3at/ya_hamel.mp3',
     cover: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?q=80&w=200&auto=format&fit=crop'
@@ -588,7 +621,11 @@ export const NASHEEDS = [
     id: 'nasheed-78',
     title: 'رقت عيناي شوقاً',
     artist: 'ماهر زين',
-    url: 'https://archive.org/download/nasheed_adel/Maher%20Zain%20-%20Raqqat%20Aynaya%20Shawqan.mp3',
+    url: 'https://serv100.albumaty.com/songs_2020/Albumaty.Com_mahr_zyn_raqt_aynay_shwqa.mp3',
+    urls: [
+      'https://archive.org/download/nasheed_adel/Maher%20Zain%20-%20Raqqat%20Aynaya%20Shawqan.mp3',
+      'https://ia800100.us.archive.org/30/items/nasheed_adel/Maher%20Zain%20-%20Raqqat%20Aynaya%20Shawqan.mp3'
+    ],
     cover: 'https://i1.sndcdn.com/artworks-000110795835-whurr8-t500x500.jpg'
   },
   {
@@ -602,7 +639,11 @@ export const NASHEEDS = [
     id: 'nasheed-80',
     title: 'يا نبي سلام عليك',
     artist: 'ماهر زين',
-    url: 'https://archive.org/download/MaherZainFullAlbum_201612/Maher%20Zain%20-%20Ya%20Nabi%20Salam%20Alayka.mp3',
+    url: 'https://serv100.albumaty.com/songs_2020/Albumaty.Com_mahr_zyn_ya_nby_slam_alyk.mp3',
+    urls: [
+      'https://archive.org/download/nasheed_adel/Maher%20Zain%20-%20Ya%20Nabi%20Salam%20Alayka.mp3',
+      'https://ia800100.us.archive.org/30/items/nasheed_adel/Maher%20Zain%20-%20Ya%20Nabi%20Salam%20Alayka.mp3'
+    ],
     cover: 'https://i1.sndcdn.com/artworks-000110795835-whurr8-t500x500.jpg'
   },
   {
@@ -658,7 +699,7 @@ export const NASHEEDS = [
     id: 'nasheed-88',
     title: 'صلى عليك الرحمن',
     artist: 'ماهر زين',
-    url: 'https://archive.org/download/MaherZainFullAlbum_201612/Maher%20Zain%20-%20Salla%20Alayka%20Ar%20Rahman.mp3',
+    url: 'https://serv100.albumaty.com/song2022/Albumaty.Com_mahr_zyn_sli_alyk_alrhmn.mp3',
     cover: 'https://i1.sndcdn.com/artworks-000110795835-whurr8-t500x500.jpg'
   },
   {
@@ -666,6 +707,10 @@ export const NASHEEDS = [
     title: 'قلبي في المدينة',
     artist: 'ماهر زين',
     url: 'https://serv100.albumaty.com/2025/Albumaty.Com_mahr_zyn_klby_fy_almdynt.mp3',
+    urls: [
+      'https://ia801602.us.archive.org/29/items/maher-zain-collection/Maher%20Zain%20-%20Medina.mp3',
+      'https://ia601202.us.archive.org/29/items/maher-zain-collection/Maher%20Zain%20-%20Medina.mp3'
+    ],
     cover: 'https://i1.sndcdn.com/artworks-000110795835-whurr8-t500x500.jpg'
   },
   {
@@ -687,6 +732,10 @@ export const NASHEEDS = [
     title: 'رحمة للعالمين (نسخة أخرى)',
     artist: 'ماهر زين',
     url: 'https://serv100.albumaty.com/songs_2020/Albumaty.Com_mahr_zyn_rhmt_llaalmyn.mp3',
+    urls: [
+      'https://ia800100.us.archive.org/30/items/nasheed_adel/Maher%20Zain%20-%20Rahmatun%20Lil%27Alameen.mp3',
+      'https://ia601202.us.archive.org/29/items/maher-zain-collection/Maher%20Zain%20-%20Rahmatun%20Lil%27Alameen.mp3'
+    ],
     cover: 'https://i1.sndcdn.com/artworks-000110795835-whurr8-t500x500.jpg'
   },
   {
@@ -694,13 +743,10 @@ export const NASHEEDS = [
     title: 'إن شاء الله',
     artist: 'ماهر زين',
     url: 'https://serv100.albumaty.com/songs_2020/Albumaty.Com_mahr_zyn_an_shaa_allh.mp3',
-    cover: 'https://i1.sndcdn.com/artworks-000110795835-whurr8-t500x500.jpg'
-  },
-  {
-    id: 'nasheed-94',
-    title: 'محمد وحشنا',
-    artist: 'ماهر زين',
-    url: 'https://serv100.albumaty.com/songs_2020/Albumaty.Com_mahr_zyn_mhmd_(s)_whshna.mp3',
+    urls: [
+      'https://archive.org/download/nasheed_adel/Maher%20Zain%20-%20Insha%20Allah.mp3',
+      'https://ia800100.us.archive.org/30/items/nasheed_adel/Maher%20Zain%20-%20Insha%20Allah.mp3'
+    ],
     cover: 'https://i1.sndcdn.com/artworks-000110795835-whurr8-t500x500.jpg'
   },
   {
@@ -982,5 +1028,12 @@ export const NASHEEDS = [
     artist: 'عبد الرحمن الخضر',
     url: 'https://www.ashefaa.com/enshad/files/monaw3at/%D8%B9%D8%A8%D8%AF-%D8%A7%D9%84%D8%B1%D8%AD%D9%85%D9%86-%D8%A7%D9%84%D8%AE%D8%B6%D8%B1-%D9%87%D9%88-%D8%A7%D9%84%D8%AD%D8%A8.mp3',
     cover: 'https://www.ashefaa.com/enshad/Sound-images/new1.jpg'
+  },
+  {
+    id: 'nasheed-149',
+    title: 'روحي فداك',
+    artist: 'منوعات إيمانية',
+    url: 'https://dl.nghmaty.com/s3/324K35UI.mp3',
+    cover: 'https://www.albumaty.com/n/uploads/albums//4351-16.jpg'
   }
 ];
