@@ -2,11 +2,71 @@ import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
 import {defineConfig, loadEnv} from 'vite';
+import { VitePWA } from 'vite-plugin-pwa';
 
 export default defineConfig(({mode}) => {
   const env = loadEnv(mode, '.', '');
   return {
-    plugins: [react(), tailwindcss()],
+    plugins: [
+      react(), 
+      tailwindcss(),
+      VitePWA({
+        registerType: 'autoUpdate',
+        manifest: {
+          name: 'نور الإيمان - أناشيد ماهر زين',
+          short_name: 'نور الإيمان',
+          description: 'تطبيق أناشيد ماهر زين بدون انترنت',
+          theme_color: '#4e635a',
+          background_color: '#fbf9f6',
+          display: 'standalone',
+          icons: []
+        },
+        workbox: {
+          globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
+          runtimeCaching: [
+            {
+              urlPattern: /^https:\/\/ia\d+\.us\.archive\.org\/.*\.mp3$/,
+              handler: 'CacheFirst',
+              options: {
+                cacheName: 'nasheed-audio-archive',
+                expiration: {
+                  maxEntries: 20,
+                  maxAgeSeconds: 60 * 60 * 24 * 30 // 30 Days
+                },
+                cacheableResponse: {
+                  statuses: [0, 200]
+                }
+              }
+            },
+            {
+              urlPattern: /^https:\/\/serv100\.albumaty\.com\/.*\.mp3$/,
+              handler: 'CacheFirst',
+              options: {
+                cacheName: 'nasheed-audio-albumaty',
+                expiration: {
+                  maxEntries: 20,
+                  maxAgeSeconds: 60 * 60 * 24 * 30 // 30 Days
+                },
+                cacheableResponse: {
+                  statuses: [0, 200]
+                }
+              }
+            },
+            {
+              urlPattern: /^https:\/\/i1\.sndcdn\.com\/.*$/,
+              handler: 'StaleWhileRevalidate',
+              options: {
+                cacheName: 'nasheed-covers',
+                expiration: {
+                  maxEntries: 50,
+                  maxAgeSeconds: 60 * 60 * 24 * 30 // 30 Days
+                }
+              }
+            }
+          ]
+        }
+      })
+    ],
     define: {
       'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY),
     },

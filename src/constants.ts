@@ -58,7 +58,7 @@ export const NASHEEDS: Nasheed[] = [
     id: 'nasheed-94',
     title: 'محمد وحشنا',
     artist: 'ماهر زين',
-    url: 'https://serv100.albumaty.com/songs_2020/Albumaty.Com_mahr_zyn_mhmd_whshna.mp3',
+    url: 'https://serv100.albumaty.com/songs_2020/Albumaty.Com_mahr_zyn_mhmd_(s)_whshna.mp3',
     urls: [
       'https://ia601202.us.archive.org/29/items/maher-zain-collection/Maher%20Zain%20-%20Muhammad%20Wahashna.mp3',
       'https://archive.org/download/Maher-Zain-Collection/Maher%20Zain%20-%20Muhammad%20Wahashna.mp3',
@@ -632,15 +632,21 @@ export const NASHEEDS: Nasheed[] = [
     id: 'nasheed-79',
     title: 'رحمة للعالمين',
     artist: 'ماهر زين',
-    url: 'https://archive.org/download/nasheed_adel/Maher%20Zain%20-%20Rahmatun%20Lil%27Alameen.mp3',
+    url: 'https://serv100.albumaty.com/songs_2020/Albumaty.Com_mahr_zyn_rhmt_llaalmyn.mp3',
+    urls: [
+      'https://archive.org/download/nasheed_adel/Maher%20Zain%20-%20Rahmatun%20Lil%27Alameen.mp3',
+      'https://ia800100.us.archive.org/30/items/nasheed_adel/Maher%20Zain%20-%20Rahmatun%20Lil%27Alameen.mp3',
+      'https://ia601202.us.archive.org/29/items/maher-zain-collection/Maher%20Zain%20-%20Rahmatun%20Lil%27Alameen.mp3'
+    ],
     cover: 'https://i1.sndcdn.com/artworks-000110795835-whurr8-t500x500.jpg'
   },
   {
     id: 'nasheed-80',
     title: 'يا نبي سلام عليك',
     artist: 'ماهر زين',
-    url: 'https://serv100.albumaty.com/songs_2020/Albumaty.Com_mahr_zyn_ya_nby_slam_alyk.mp3',
+    url: 'https://serv100.albumaty.com/dl/mem/maher-zain/singles/Albumaty.Com.Maher.Zain.Ya.Nabi.Salam.Alayka.mp3',
     urls: [
+      'https://serv100.albumaty.com/songs_2020/Albumaty.Com_mahr_zyn_ya_nby_slam_alyk.mp3',
       'https://archive.org/download/nasheed_adel/Maher%20Zain%20-%20Ya%20Nabi%20Salam%20Alayka.mp3',
       'https://ia800100.us.archive.org/30/items/nasheed_adel/Maher%20Zain%20-%20Ya%20Nabi%20Salam%20Alayka.mp3'
     ],
@@ -664,7 +670,10 @@ export const NASHEEDS: Nasheed[] = [
     id: 'nasheed-83',
     title: 'الصبح بدا',
     artist: 'ماهر زين',
-    url: 'https://archive.org/download/MaherZainFullAlbum_201612/Maher%20Zain%20-%20Assubhu%20Bada.mp3',
+    url: 'https://serv100.albumaty.com/dl/mem/maher-zain/singles/Albumaty.Com.Maher.Zain.Assubhu.Bada.mp3',
+    urls: [
+      'https://archive.org/download/MaherZainFullAlbum_201612/Maher%20Zain%20-%20Assubhu%20Bada.mp3'
+    ],
     cover: 'https://i1.sndcdn.com/artworks-000110795835-whurr8-t500x500.jpg'
   },
   {
@@ -685,7 +694,7 @@ export const NASHEEDS: Nasheed[] = [
     id: 'nasheed-86',
     title: 'لا تحزن',
     artist: 'ماهر زين',
-    url: 'https://archive.org/download/MaherZainFullAlbum_201612/Maher%20Zain%20-%20La%20Tahzan.mp3',
+    url: 'https://serv100.albumaty.com/2024/Albumaty.Com_mahr_zyn_la_thzn.mp3',
     cover: 'https://i1.sndcdn.com/artworks-000110795835-whurr8-t500x500.jpg'
   },
   {
@@ -792,6 +801,13 @@ export const NASHEEDS: Nasheed[] = [
     cover: 'https://i1.sndcdn.com/artworks-000110795835-whurr8-t500x500.jpg'
   },
   {
+    id: 'nasheed-150',
+    title: 'أعمارنا أعمالنا',
+    artist: 'ماهر زين',
+    url: 'https://serv100.albumaty.com/dl/mem/maher-zain/singels/Albumaty.Com.Maher.Zain.A3marona.A3malona.mp3',
+    cover: 'https://i1.sndcdn.com/artworks-000110795835-whurr8-t500x500.jpg'
+  },
+  {
     id: 'nasheed-101',
     title: 'مولاي',
     artist: 'ماهر زين',
@@ -831,6 +847,13 @@ export const NASHEEDS: Nasheed[] = [
     title: 'بالذكر (Bilzikr)',
     artist: 'ماهر زين',
     url: 'https://serv100.albumaty.com/dl/mem/maher-zain/albums/one/05.Bilzikr.mp3',
+    cover: 'https://i1.sndcdn.com/artworks-000110795835-whurr8-t500x500.jpg'
+  },
+  {
+    id: 'nasheed-151',
+    title: 'الله يا مولانا',
+    artist: 'ماهر زين',
+    url: 'https://serv100.albumaty.com/dl/mem/maher-zain/albums/one/02.Allah.Ya.Moulana.mp3',
     cover: 'https://i1.sndcdn.com/artworks-000110795835-whurr8-t500x500.jpg'
   },
   {
@@ -1035,5 +1058,68 @@ export const NASHEEDS: Nasheed[] = [
     artist: 'منوعات إيمانية',
     url: 'https://dl.nghmaty.com/s3/324K35UI.mp3',
     cover: 'https://www.albumaty.com/n/uploads/albums//4351-16.jpg'
+  },
+  {
+    id: 'nasheed-152',
+    title: 'السلام عليك',
+    artist: 'ماهر زين',
+    url: 'https://serv100.albumaty.com/dl/mem/maher-zain/singles/Albumaty.Com.Maher.Zain.Assalamu.Alayka.mp3',
+    cover: 'https://i1.sndcdn.com/artworks-000110795835-whurr8-t500x500.jpg'
+  },
+  {
+    id: 'nasheed-153',
+    title: 'أنشودة إيمانية 1',
+    artist: 'منوعات إيمانية',
+    url: 'https://dl.nghmaty.com/s3/93sx84t2.mp3',
+    cover: 'https://www.albumaty.com/n/uploads/albums//4351-16.jpg'
+  },
+  {
+    id: 'nasheed-154',
+    title: 'أنشودة إيمانية 2',
+    artist: 'منوعات إيمانية',
+    url: 'https://dl.nghmaty.com/s3/50v282Rn.mp3',
+    cover: 'https://www.albumaty.com/n/uploads/albums//4351-16.jpg'
+  },
+  {
+    id: 'nasheed-155',
+    title: 'أنشودة إيمانية 3',
+    artist: 'منوعات إيمانية',
+    url: 'https://dl.nghmaty.com/s3/38Lj88GX.mp3',
+    cover: 'https://www.albumaty.com/n/uploads/albums//4351-16.jpg'
+  },
+  {
+    id: 'nasheed-156',
+    title: 'أنشودة إيمانية 4',
+    artist: 'منوعات إيمانية',
+    url: 'https://dl.nghmaty.com/s3/55Zl39Wn.mp3',
+    cover: 'https://www.albumaty.com/n/uploads/albums//4351-16.jpg'
+  },
+  {
+    id: 'nasheed-157',
+    title: 'أنشودة إيمانية 5',
+    artist: 'منوعات إيمانية',
+    url: 'https://dl.nghmaty.com/s3/94Xe13vn.mp3',
+    cover: 'https://www.albumaty.com/n/uploads/albums//4351-16.jpg'
+  },
+  {
+    id: 'nasheed-158',
+    title: 'أنت (الحجاب)',
+    artist: 'مسعود كرتس',
+    url: 'https://dl.nghmaty.com/serv9/songs/Nghmaty.CoM_msawd_krts_ant_(_al7gab_).mp3',
+    cover: 'https://www.albumaty.com/a/uploads/singers/3784-797.jpg'
+  },
+  {
+    id: 'nasheed-159',
+    title: 'أنشودة إيمانية 6',
+    artist: 'منوعات إيمانية',
+    url: 'https://dl.nghmaty.com/s3/79pH18Zt.mp3',
+    cover: 'https://www.albumaty.com/n/uploads/albums//4351-16.jpg'
+  },
+  {
+    id: 'nasheed-160',
+    title: 'يا الله - النسخة الثانية',
+    artist: 'مسعود كرتس',
+    url: 'https://dl.nghmaty.com/serv9/songs/Nghmaty.CoM_msawd_krts_ya_allh.mp3',
+    cover: 'https://www.albumaty.com/a/uploads/singers/3784-797.jpg'
   }
 ];

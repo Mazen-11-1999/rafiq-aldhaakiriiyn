@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Play, Pause, SkipBack, SkipForward, Volume2, Music, Search, Heart, Sparkles, Disc, Lightbulb, AlertCircle } from 'lucide-react';
+import { Play, Pause, SkipBack, SkipForward, Volume2, Music, Search, Heart, Sparkles, Disc, Lightbulb, AlertCircle, WifiOff, CloudCheck } from 'lucide-react';
 import { NASHEEDS } from '../constants';
 import { cn } from '../lib/utils';
 import InsightPanel from './InsightPanel';
@@ -20,9 +20,99 @@ export default function NasheedView() {
   const [isBuffering, setIsBuffering] = useState(false);
   const [failedTrackIds, setFailedTrackIds] = useState<Set<string>>(new Set());
   const [consecutiveFailures, setConsecutiveFailures] = useState(0);
+  const [isOnline, setIsOnline] = useState(navigator.onLine);
+  const [downloadingIds, setDownloadingIds] = useState<Set<string>>(new Set());
+  const [offlineReadyIds, setOfflineReadyIds] = useState<Set<string>>(new Set());
   
+  // Check which tracks are already cached
+  const checkCachedTracks = async () => {
+    try {
+      const cacheNames = await caches.keys();
+      const audioCacheNames = cacheNames.filter(name => 
+        name.includes('nasheed-audio-archive') || name.includes('nasheed-audio-albumaty')
+      );
+      
+      const readyIds = new Set<string>();
+      
+      for (const cacheName of audioCacheNames) {
+        const cache = await caches.open(cacheName);
+        for (const track of NASHEEDS) {
+          const response = await cache.match(track.url);
+          if (response) {
+            readyIds.add(track.id);
+          }
+        }
+      }
+      setOfflineReadyIds(readyIds);
+    } catch (err) {
+      console.warn("Cache check failed:", err);
+    }
+  };
+
+  useEffect(() => {
+    checkCachedTracks();
+  }, []);
+  
+  // Update online status
+
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const [isBatchDownloading, setIsBatchDownloading] = useState(false);
+  const [batchProgress, setBatchProgress] = useState(0);
+
+  const downloadAll = async () => {
+    if (isBatchDownloading) return;
+    setIsBatchDownloading(true);
+    setBatchProgress(0);
+    
+    let successCount = 0;
+    const total = NASHEEDS.length;
+
+    for (let i = 0; i < total; i++) {
+      const track = NASHEEDS[i];
+      if (!offlineReadyIds.has(track.id)) {
+        try {
+          await fetch(track.url, { mode: 'no-cors', cache: 'force-cache' });
+        } catch (e) {
+          console.warn(`Failed to download ${track.title}`, e);
+        }
+      }
+      successCount++;
+      setBatchProgress(Math.round((successCount / total) * 100));
+    }
+    
+    await checkCachedTracks();
+    setIsBatchDownloading(false);
+    setBatchProgress(0);
+  };
+
   const currentTrack = NASHEEDS[currentTrackIndex];
+
+  const saveForOffline = async (track: typeof currentTrack) => {
+    if (downloadingIds.has(track.id) || offlineReadyIds.has(track.id)) return;
+    
+    setDownloadingIds(prev => new Set(prev).add(track.id));
+    try {
+      // Fetching initiates the Service Worker caching (CacheFirst)
+      await fetch(track.url, { mode: 'no-cors', cache: 'force-cache' });
+      
+      // Update the ready status
+      setTimeout(async () => {
+        await checkCachedTracks();
+        setDownloadingIds(prev => {
+          const next = new Set(prev);
+          next.delete(track.id);
+          return next;
+        });
+      }, 1000);
+    } catch (err) {
+      console.warn("Save for offline feedback:", err);
+      setDownloadingIds(prev => {
+        const next = new Set(prev);
+        next.delete(track.id);
+        return next;
+      });
+    }
+  };
 
   // Handle track changes
   useEffect(() => {
@@ -315,6 +405,38 @@ export default function NasheedView() {
               <motion.button 
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
+                onClick={() => saveForOffline(currentTrack)}
+                className={cn(
+                  "p-3 rounded-2xl transition-all group relative overflow-hidden",
+                  offlineReadyIds.has(currentTrack.id)
+                    ? "bg-emerald-500/10 text-emerald-600"
+                    : downloadingIds.has(currentTrack.id) 
+                      ? "bg-amber-500/20 text-amber-600" 
+                      : "text-[#4e635a] bg-[#4e635a]/5 hover:bg-[#4e635a]/10"
+                )}
+                title={offlineReadyIds.has(currentTrack.id) ? "محفوظ أوفلاين" : "حفظ للاستماع بدون انترنت"}
+              >
+                {downloadingIds.has(currentTrack.id) ? (
+                  <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1, ease: "linear" }}>
+                    <Disc size={24} />
+                  </motion.div>
+                ) : offlineReadyIds.has(currentTrack.id) ? (
+                  <CloudCheck size={24} className="text-emerald-600" />
+                ) : (
+                  <CloudCheck size={24} className="group-hover:scale-110 transition-transform opacity-40" />
+                )}
+                {downloadingIds.has(currentTrack.id) && (
+                  <motion.div 
+                    initial={{ height: 0 }}
+                    animate={{ height: '100%' }}
+                    className="absolute bottom-0 left-0 w-1 bg-amber-500 transition-all"
+                  />
+                )}
+              </motion.button>
+
+              <motion.button 
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
                 onClick={() => setIsInsightOpen(true)}
                 className="p-3 text-[#4e635a] bg-[#4e635a]/5 hover:bg-[#4e635a]/10 rounded-2xl transition-all group"
                 title="نـصيحة مـحب"
@@ -378,11 +500,49 @@ export default function NasheedView() {
 
         {/* Right Side: Playlist / Grid */}
         <div className="w-full lg:w-3/5 space-y-6">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <div>
-              <h3 className="text-3xl font-black font-serif text-[#1b1c1a]">مكتبة الأناشيد</h3>
-              <p className="text-[#4e635a]/60 text-sm font-medium mt-1">لحن يـخاطب القلوب وينير البصيرة</p>
-            </div>
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div>
+          <h3 className="text-3xl font-black font-serif text-[#1b1c1a] flex items-center gap-3">
+            مكتبة الأناشيد
+            {!isOnline && (
+              <motion.span 
+                initial={{ opacity: 0, scale: 0.5 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-500/10 text-amber-600 text-xs font-bold rounded-full border border-amber-500/20"
+              >
+                <WifiOff size={12} />
+                وضع الأوفلاين
+              </motion.span>
+            )}
+            {isOnline && (
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={downloadAll}
+                disabled={isBatchDownloading}
+                className={cn(
+                  "inline-flex items-center gap-1.5 px-3 py-1 text-xs font-bold rounded-full border transition-all",
+                  isBatchDownloading 
+                    ? "bg-amber-500/10 text-amber-600 border-amber-500/20" 
+                    : "bg-emerald-500/10 text-emerald-600 border-emerald-500/20 hover:bg-emerald-500/20"
+                )}
+              >
+                {isBatchDownloading ? (
+                  <>
+                    <Disc size={12} className="animate-spin" />
+                    جاري التحميل {batchProgress}%
+                  </>
+                ) : (
+                  <>
+                    <CloudCheck size={12} />
+                    تحميل الكل للأوفلاين
+                  </>
+                )}
+              </motion.button>
+            )}
+          </h3>
+          <p className="text-[#4e635a]/60 text-sm font-medium mt-1">لحن يـخاطب القلوب وينير البصيرة</p>
+        </div>
             
             <div className="flex items-center gap-2 bg-white/80 backdrop-blur-xl p-1.5 rounded-2xl border border-[#4e635a]/10 shadow-sm">
               <button 
@@ -412,7 +572,7 @@ export default function NasheedView() {
             <Search className="absolute right-4 top-1/2 -translate-y-1/2 text-[#4e635a]/40 group-focus-within:text-[#4e635a] transition-colors" size={20} />
             <input 
               type="text"
-              placeholder="ابحث عن نشيد أو منشد أو ألبوم..."
+              placeholder="ابحث عن الانشودة"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full bg-white border-2 border-transparent rounded-[1.5rem] py-5 pr-14 pl-6 text-base font-bold focus:border-[#4e635a]/20 focus:ring-8 focus:ring-[#4e635a]/5 outline-none shadow-xl shadow-[#4e635a]/5 transition-all text-right"
@@ -452,6 +612,12 @@ export default function NasheedView() {
                           className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" 
                         />
                         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors" />
+                        
+                        {offlineReadyIds.has(nasheed.id) && (
+                          <div className="absolute top-2 right-2 bg-emerald-500 text-white p-1 rounded-full shadow-lg z-20">
+                            <CloudCheck size={12} />
+                          </div>
+                        )}
                         
                         {currentTrackIndex === NASHEEDS.indexOf(nasheed) && isPlaying && (
                           <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px] flex items-center justify-center">
