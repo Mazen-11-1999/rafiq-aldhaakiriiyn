@@ -333,31 +333,62 @@ export default function ProfileView({ userProfile, onTabChange }: { userProfile:
                   onChange={(val: boolean) => updateSettings({ notifications: { prayerTimes: val } })}
                 />
                 
-                <div className="flex flex-col gap-2 pt-2">
-                  <div className="flex items-center gap-2 text-xs font-bold text-[#4e635a] mb-1">
-                    <Music size={14} />
-                    <span>نغمة المنبه</span>
+                  <div className="flex flex-col gap-3 pt-2">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2 text-xs font-bold text-[#4e635a]">
+                        <Music size={14} />
+                        <span>نغمة المنبه</span>
+                      </div>
+                      <button 
+                        onClick={() => {
+                          const ringtone = RINGTONES.find(r => r.id === (userProfile.settings?.notifications.ringtone || 'official-prayer'));
+                          if (ringtone) {
+                             const audio = new Audio(ringtone.url);
+                             audio.volume = 0.5;
+                             audio.play();
+                             setTimeout(() => audio.pause(), 5000);
+                          }
+                        }}
+                        className="text-[10px] font-black text-blue-600 hover:underline"
+                      >
+                        استماع سريع
+                      </button>
+                    </div>
+                    <select 
+                      value={userProfile.settings?.notifications.ringtone || 'official-prayer'}
+                      onChange={(e) => {
+                        const newId = e.target.value;
+                        updateSettings({ notifications: { ringtone: newId } });
+                        // Voice preview
+                        const ringtone = RINGTONES.find(r => r.id === newId);
+                        if (ringtone) {
+                          const audio = new Audio(ringtone.url);
+                          audio.volume = 0.4;
+                          audio.play();
+                          setTimeout(() => audio.pause(), 3000); // 3 sec preview
+                        }
+                      }}
+                      className="w-full bg-white/5 border border-[#4e635a]/20 rounded-xl p-3 text-sm font-bold text-[#1b1c1a] focus:ring-2 focus:ring-[#4e635a]/50 outline-none appearance-none"
+                    >
+                      {RINGTONES.map(r => (
+                        <option key={r.id} value={r.id}>{r.name}</option>
+                      ))}
+                    </select>
                   </div>
-                  <select 
-                    value={userProfile.settings?.notifications.ringtone || 'official-prayer'}
-                    onChange={(e) => updateSettings({ notifications: { ringtone: e.target.value } })}
-                    className="w-full bg-white/5 border border-[#4e635a]/20 rounded-xl p-3 text-sm font-bold text-[#1b1c1a] focus:ring-2 focus:ring-[#4e635a]/50 outline-none appearance-none"
-                  >
-                    {RINGTONES.map(r => (
-                      <option key={r.id} value={r.id}>{r.name}</option>
-                    ))}
-                  </select>
-                </div>
 
-                <button 
-                  onClick={() => {
-                    window.dispatchEvent(new CustomEvent('test-prayer-alarm'));
-                  }}
-                  className="w-full py-3 px-4 rounded-xl bg-[#4e635a]/5 text-[#4e635a] font-bold text-xs hover:bg-[#4e635a]/10 transition-all flex items-center justify-center gap-2 border border-[#4e635a]/10"
-                >
-                  <Bell size={14} />
-                  <span>اختبار صوت المنبه والرسائل</span>
-                </button>
+                  <motion.button 
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => {
+                      window.dispatchEvent(new CustomEvent('test-prayer-alarm', { 
+                        detail: { ringtoneId: userProfile.settings?.notifications.ringtone } 
+                      }));
+                    }}
+                    className="w-full py-4 px-4 rounded-2xl bg-[#4e635a] text-white font-black text-xs shadow-lg shadow-[#4e635a]/20 flex items-center justify-center gap-3 border border-white/10"
+                  >
+                    <Bell size={18} className="animate-bounce" />
+                    <span>تجربة المنبه بالشكل الكامل</span>
+                  </motion.button>
                 <Toggle 
                   label="تذكير بجلست الخلوة اليومية" 
                   enabled={userProfile.settings?.notifications.retreatReminders ?? true} 

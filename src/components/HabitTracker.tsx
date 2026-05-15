@@ -12,7 +12,7 @@ const iconMap: any = {
   Wrench, Hammer, Sun, Heart, RefreshCw, Ship, Target, MessageCircle
 };
 
-export default function HabitTracker() {
+export default function HabitTracker({ onActivity }: { onActivity?: () => void }) {
   const [completedToday, setCompletedToday] = useState<Record<string, boolean>>({});
   const [gratitudeEntries, setGratitudeEntries] = useState<string[]>(['', '', '']);
   const [reflection, setReflection] = useState('');
@@ -47,6 +47,9 @@ export default function HabitTracker() {
       const newStats = { ...stats, total: stats.total + 1, streak: stats.streak + 1 };
       setStats(newStats);
       localStorage.setItem('prophetic_habits_stats', JSON.stringify(newStats));
+      
+      // Signal activity to global tracker
+      if (onActivity) onActivity();
     }
   };
 

@@ -291,38 +291,63 @@ export default function RetreatView({ userProfile, chatMessages, setChatMessages
       <div className="z-10 w-full max-w-lg mb-6 px-4 space-y-4">
         {chatMessages.length > 0 && (
           <div className="flex justify-center">
-            {showClearConfirm ? (
-              <motion.div 
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="flex items-center gap-2 bg-white/50 backdrop-blur-sm p-1 rounded-2xl border border-[#ba1a1a]/20"
-              >
-                <button 
-                  onClick={clearChat}
-                  className="px-4 py-2 bg-[#ba1a1a] text-white rounded-xl text-xs font-bold shadow-lg"
-                >
-                  نعم، امسح المحادثة
-                </button>
-                <button 
-                  onClick={() => setShowClearConfirm(false)}
-                  className="px-4 py-2 bg-white text-[#4e635a] rounded-xl text-xs font-bold border border-white"
-                >
-                  إلغاء
-                </button>
-              </motion.div>
-            ) : (
-              <motion.button
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                onClick={() => setShowClearConfirm(true)}
-                className="flex items-center gap-2 px-6 py-2 rounded-2xl bg-white/30 hover:bg-white/50 text-[#4e635a] text-xs font-bold transition-all border border-white/50 backdrop-blur-sm"
-              >
-                <Trash2 size={14} />
-                <span>مسح المحادثة وبدء جديد</span>
-              </motion.button>
-            )}
+            <motion.button
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              onClick={() => setShowClearConfirm(true)}
+              className="flex items-center gap-2 px-6 py-2 rounded-2xl bg-white/30 hover:bg-white/50 text-[#4e635a] text-xs font-bold transition-all border border-white/50 backdrop-blur-sm"
+            >
+              <Trash2 size={14} />
+              <span>مسح المحادثة وبدء جديد</span>
+            </motion.button>
           </div>
         )}
+
+        <AnimatePresence>
+          {showClearConfirm && (
+            <>
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() => setShowClearConfirm(false)}
+                className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[100] flex items-center justify-center p-6"
+              >
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                  onClick={(e) => e.stopPropagation()}
+                  className="bg-white rounded-[32px] p-8 max-w-sm w-full shadow-2xl text-center space-y-6"
+                >
+                  <div className="w-16 h-16 bg-[#ba1a1a]/10 text-[#ba1a1a] rounded-full flex items-center justify-center mx-auto">
+                    <Trash2 size={32} />
+                  </div>
+                  <div className="space-y-2">
+                    <h3 className="text-xl font-bold text-[#1b1c1a] font-serif">هل أنت متأكد؟</h3>
+                    <p className="text-[#655d51] text-sm leading-relaxed">
+                      سوف يتم مسح جميع الرسائل الحالية من ذاكرة "سند". لا يمكن التراجع عن هذا الإجراء.
+                    </p>
+                  </div>
+                  <div className="flex flex-col gap-3 pt-2">
+                    <button
+                      onClick={clearChat}
+                      className="w-full py-4 bg-[#ba1a1a] text-white rounded-2xl font-bold shadow-lg shadow-[#ba1a1a]/20 active:scale-95 transition-all"
+                    >
+                      نعم، امسح المحادثة
+                    </button>
+                    <button
+                      onClick={() => setShowClearConfirm(false)}
+                      className="w-full py-4 bg-gray-100 text-[#4e635a] rounded-2xl font-bold active:scale-95 transition-all"
+                    >
+                      إلغاء
+                    </button>
+                  </div>
+                </motion.div>
+              </motion.div>
+            </>
+          )}
+        </AnimatePresence>
 
         <form onSubmit={handleQuestionSubmit} className="relative group ring-offset-background">
           <input 

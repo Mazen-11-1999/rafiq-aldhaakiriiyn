@@ -13,13 +13,31 @@ export default defineConfig(({mode}) => {
       VitePWA({
         registerType: 'prompt',
         manifest: {
-          name: 'نور الإيمان - أناشيد ماهر زين',
-          short_name: 'نور الإيمان',
-          description: 'تطبيق أناشيد ماهر زين بدون انترنت',
+          name: 'رفيق الذاكرين',
+          short_name: 'الرفيق',
+          description: 'رفيقك الرقمي للسكينة والذكر والتربية الأخلاقية',
           theme_color: '#4e635a',
           background_color: '#fbf9f6',
           display: 'standalone',
-          icons: []
+          orientation: 'portrait',
+          icons: [
+            {
+              src: 'https://cdn-icons-png.flaticon.com/512/2903/2903531.png',
+              sizes: '192x192',
+              type: 'image/png'
+            },
+            {
+              src: 'https://cdn-icons-png.flaticon.com/512/2903/2903531.png',
+              sizes: '512x512',
+              type: 'image/png'
+            },
+            {
+              src: 'https://cdn-icons-png.flaticon.com/512/2903/2903531.png',
+              sizes: '512x512',
+              type: 'image/png',
+              purpose: 'any maskable'
+            }
+          ]
         },
         workbox: {
           globPatterns: ['**/*.{js,css,html,ico,png,svg}'],

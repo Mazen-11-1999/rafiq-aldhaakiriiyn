@@ -21,13 +21,27 @@ import NotificationManager from './components/NotificationManager';
 import Background3D from './components/Background3D';
 import ChallengeWidget from './components/ChallengeWidget';
 import PWAPrompt from './components/PWAPrompt';
+import TimeFiqhView from './components/TimeFiqhView';
+import { useTimeTracking } from './context/TimeTrackingContext';
 import { motion, AnimatePresence } from 'motion/react';
-import { LogIn, Compass, ListChecks, PieChart, VolumeX, Settings, User, BookOpen, Book, Map, HelpCircle, Music, Scale } from 'lucide-react';
+import { LogIn, Compass, ListChecks, PieChart, VolumeX, Settings, User, BookOpen, Book, Map, HelpCircle, Music, Scale, Clock } from 'lucide-react';
 import { cn } from './lib/utils';
 
 export default function App() {
   const [user, loading, error] = useAuthState(auth);
-  const [activeTab, setActiveTab] = useState<'retreat' | 'dhikr' | 'stories' | 'habits' | 'ethics' | 'nasheeds' | 'history' | 'journey' | 'quiz' | 'journal' | 'insights' | 'profile'>('retreat');
+  const [activeTab, setActiveTab] = useState<'retreat' | 'dhikr' | 'stories' | 'habits' | 'ethics' | 'nasheeds' | 'history' | 'journey' | 'quiz' | 'journal' | 'insights' | 'profile' | 'time'>('retreat');
+  const { setActiveCategory } = useTimeTracking();
+
+  useEffect(() => {
+     const categoryMap: Record<string, 'nasheed' | 'dhikr' | 'retreat' | 'journal' | 'general'> = {
+       'nasheeds': 'nasheed',
+       'dhikr': 'dhikr',
+       'retreat': 'retreat',
+       'journal': 'journal'
+     };
+     setActiveCategory(categoryMap[activeTab] || 'general');
+  }, [activeTab, setActiveCategory]);
+
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [coords, setCoords] = useState<{lat: number, lng: number} | null>(null);
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>(() => {
@@ -172,12 +186,12 @@ export default function App() {
     }
   };
 
-  const updateProfileStats = async (minutesToAdd: number) => {
+  const updateProfileStats = async (minutesToAdd: number, isSessionComplete: boolean = false) => {
     if (!user || !userProfile) return;
     
     const userRef = doc(db, 'users', user.uid);
-    const newTotalMinutes = userProfile.totalMinutes + minutesToAdd;
-    const newTotalSessions = (userProfile.totalSessions || 0) + 1;
+    const newTotalMinutes = (userProfile.totalMinutes || 0) + minutesToAdd;
+    const newTotalSessions = (userProfile.totalSessions || 0) + (isSessionComplete ? 1 : 0);
     
     // Streak logic
     const lastActiveDate = userProfile.lastActiveDate?.toDate ? userProfile.lastActiveDate.toDate() : new Date(userProfile.lastActiveDate || 0);
@@ -187,17 +201,18 @@ export default function App() {
     const lastActive = new Date(lastActiveDate);
     lastActive.setHours(0, 0, 0, 0);
     
-    const diffTime = Math.abs(today.getTime() - lastActive.getTime());
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    const diffTime = today.getTime() - lastActive.getTime();
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
     
-    let newStreak = userProfile.currentStreak;
+    let newStreak = userProfile.currentStreak || 0;
     if (diffDays === 1) {
       newStreak += 1;
     } else if (diffDays > 1) {
       newStreak = 1; // Reset if missed a day
-    } else if (userProfile.currentStreak === 0) {
+    } else if (newStreak === 0) {
       newStreak = 1;
     }
+    // if diffDays === 0, keep current streak
 
     try {
       await updateDoc(userRef, {
@@ -206,12 +221,21 @@ export default function App() {
         currentStreak: newStreak,
         lastActiveDate: serverTimestamp()
       });
-      
-      // Update local state is handled by onSnapshot in useEffect
     } catch (error) {
       handleFirestoreError(error, OperationType.UPDATE, 'users/' + user.uid);
     }
   };
+
+  const { stats } = useTimeTracking();
+  const prevBeneficialMinutes = React.useRef(stats.beneficialMinutes);
+
+  useEffect(() => {
+    if (stats.beneficialMinutes > prevBeneficialMinutes.current) {
+      const diff = stats.beneficialMinutes - prevBeneficialMinutes.current;
+      updateProfileStats(diff, false); // Don't count as a full "session" yet
+      prevBeneficialMinutes.current = stats.beneficialMinutes;
+    }
+  }, [stats.beneficialMinutes, user]);
 
   if (loading) {
     return (
@@ -415,7 +439,7 @@ export default function App() {
               exit={{ opacity: 0, rotateY: -90, x: -100, scale: 0.9 }}
               transition={{ type: "spring", stiffness: 100, damping: 20 }}
             >
-              <DhikrView onSessionComplete={updateProfileStats} />
+              <DhikrView onSessionComplete={(mins) => updateProfileStats(mins, true)} />
             </motion.div>
           )}
           {activeTab === 'journal' && (
@@ -446,7 +470,7 @@ export default function App() {
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 1.1 }}
             >
-              <HabitTracker />
+              <HabitTracker onActivity={() => updateProfileStats(0, false)} />
             </motion.div>
           )}
           {activeTab === 'ethics' && (
@@ -522,6 +546,16 @@ export default function App() {
               <ProfileView userProfile={userProfile} onTabChange={setActiveTab} />
             </motion.div>
           )}
+          {activeTab === 'time' && (
+            <motion.div
+              key="time"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 20 }}
+            >
+              <TimeFiqhView />
+            </motion.div>
+          )}
         </AnimatePresence>
         <DailyInspiration userProfile={userProfile} />
         <ChallengeWidget />
@@ -584,6 +618,18 @@ export default function App() {
             onClick={() => setActiveTab('journey')} 
             icon={<Map size={22} />} 
             label="رحلتك" 
+          />
+          <NavItem 
+            active={activeTab === 'profile'} 
+            onClick={() => setActiveTab('profile')} 
+            icon={<User size={22} />} 
+            label="أنا" 
+          />
+          <NavItem 
+            active={activeTab === 'time'} 
+            onClick={() => setActiveTab('time')} 
+            icon={<Clock size={22} />} 
+            label="عمرك أغلى" 
           />
         </div>
       </nav>

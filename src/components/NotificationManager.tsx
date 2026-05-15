@@ -14,7 +14,7 @@ interface NotificationManagerProps {
 export default function NotificationManager({ enabled, prayerEnabled = false, coords, userProfile }: NotificationManagerProps) {
   const [permission, setPermission] = useState<NotificationPermission>('default');
   const [showPrompt, setShowPrompt] = useState(false);
-  const [alarmData, setAlarmData] = useState<{ name: string, message: string } | null>(null);
+  const [alarmData, setAlarmData] = useState<{ name: string, message: string, testRingtoneId?: string } | null>(null);
 
   useEffect(() => {
     if (typeof window !== 'undefined' && 'Notification' in window) {
@@ -42,10 +42,11 @@ export default function NotificationManager({ enabled, prayerEnabled = false, co
   };
 
   useEffect(() => {
-    const handleTestAlarm = () => {
+    const handleTestAlarm = (event: any) => {
       setAlarmData({
         name: "الفجر (تجريبي)",
-        message: PrayerService.getPrayerMessage('fajr')
+        message: PrayerService.getPrayerMessage('fajr'),
+        testRingtoneId: event.detail?.ringtoneId
       });
     };
 
@@ -157,7 +158,7 @@ export default function NotificationManager({ enabled, prayerEnabled = false, co
         prayerName={alarmData?.name || ''}
         message={alarmData?.message || ''}
         onClose={() => setAlarmData(null)}
-        selectedRingtoneId={userProfile?.settings?.notifications.ringtone}
+        selectedRingtoneId={alarmData?.testRingtoneId || userProfile?.settings?.notifications.ringtone}
       />
       
       <AnimatePresence>

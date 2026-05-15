@@ -6,7 +6,7 @@ import { ETHICS_CHALLENGES, HYPOCRISY_TRAITS, HIDDEN_WORSHIP_LIST, REAL_STORIES,
 import { cn } from '../lib/utils';
 
 export default function EthicsView() {
-  const [activeSection, setActiveSection] = useState<'challenges' | 'compass' | 'tazkiyah' | 'stories'>('challenges');
+  const [activeSection, setActiveSection] = useState<'challenges' | 'compass' | 'tazkiyah' | 'stories' | 'digital'>('challenges');
   const [currentChallengeIndex, setCurrentChallengeIndex] = useState(0);
 
   const currentChallenge = ETHICS_CHALLENGES[currentChallengeIndex];
@@ -33,42 +33,52 @@ export default function EthicsView() {
         <button
           onClick={() => setActiveSection('challenges')}
           className={cn(
-            "flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-bold transition-all whitespace-nowrap",
+            "flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-bold transition-all whitespace-nowrap text-sm",
             activeSection === 'challenges' ? "bg-white text-[#4e635a] shadow-sm" : "text-[#7a8c82] hover:text-[#4e635a]"
           )}
         >
-          <Heart size={18} />
-          كن أنت المُبادر
+          <Heart size={16} />
+          المبادرة
+        </button>
+        <button
+          onClick={() => setActiveSection('digital')}
+          className={cn(
+            "flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-bold transition-all whitespace-nowrap text-sm",
+            activeSection === 'digital' ? "bg-white text-blue-600 shadow-sm" : "text-[#7a8c82] hover:text-blue-500"
+          )}
+        >
+          <Fingerprint size={16} />
+          أثر البصمة
         </button>
         <button
           onClick={() => setActiveSection('tazkiyah')}
           className={cn(
-            "flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-bold transition-all whitespace-nowrap",
+            "flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-bold transition-all whitespace-nowrap text-sm",
             activeSection === 'tazkiyah' ? "bg-white text-amber-600 shadow-sm" : "text-[#7a8c82] hover:text-amber-600"
           )}
         >
-          <Sparkles size={18} />
-          ركن التزكية
+          <Sparkles size={16} />
+          التزكية
         </button>
         <button
           onClick={() => setActiveSection('stories')}
           className={cn(
-            "flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-bold transition-all whitespace-nowrap",
+            "flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-bold transition-all whitespace-nowrap text-sm",
             activeSection === 'stories' ? "bg-white text-indigo-600 shadow-sm" : "text-[#7a8c82] hover:text-indigo-600"
           )}
         >
-          <VenetianMask size={18} />
-          كشف الأقنعة
+          <VenetianMask size={16} />
+          الأقنعة
         </button>
         <button
           onClick={() => setActiveSection('compass')}
           className={cn(
-            "flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-bold transition-all whitespace-nowrap",
+            "flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-bold transition-all whitespace-nowrap text-sm",
             activeSection === 'compass' ? "bg-white text-red-600 shadow-sm" : "text-[#7a8c82] hover:text-red-500"
           )}
         >
-          <AlertTriangle size={18} />
-          بوصلة النفاق
+          <AlertTriangle size={16} />
+          النفاق
         </button>
       </div>
 
@@ -147,6 +157,78 @@ export default function EthicsView() {
                <StatCard icon={<Scale size={20} />} label="ميزانك" value="85%" color="#4e635a" />
                <StatCard icon={<Heart size={20} />} label="الصدق" value="ممتاز" color="#10b981" />
                <StatCard icon={<Fingerprint size={20} />} label="الأثر" value="باقٍ" color="#8b5cf6" />
+            </div>
+          </motion.div>
+        ) : activeSection === 'digital' ? (
+          <motion.div
+            key="digital"
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 1.05 }}
+            className="space-y-8"
+          >
+            <div className="bg-blue-500/5 p-8 rounded-[40px] border border-blue-500/10 text-center space-y-4">
+              <div className="w-16 h-16 bg-blue-500/10 rounded-full flex items-center justify-center mx-auto text-blue-600">
+                <Fingerprint size={32} />
+              </div>
+              <h3 className="text-2xl font-black text-blue-900">أثر بصمتك الرقمية</h3>
+              <p className="text-blue-800/70 max-w-2xl mx-auto italic">
+                "مَا يَلْفِظُ مِن قَوْلٍ إِلَّا لَدَيْهِ رَقِيبٌ عَتِيدٌ"
+              </p>
+              <p className="text-blue-800/60 leading-relaxed max-w-xl mx-auto text-sm">
+                كل تعليق، أو إعجاب، أو إعادة نشر هي "أثر" تتركه في صحيفتك الرقمية. هل هي بصمة تمهد لك طريق الجنة، أم عبء ستُسأل عنه؟
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <DigitalCard 
+                title="تثبّت قبل النشر" 
+                description="سهولة الإشاعات في هذا الزمن تجعلك شريكاً في الكذب إذا لم تتأكد." 
+                action="لا تنشر خبراً إلا إذا تيقنت منه 100%"
+                color="blue"
+              />
+              <DigitalCard 
+                title="الكلمة الطيبة" 
+                description="التنمر الإلكتروني جرح لا يبرأ بسهولة. بصمتك يجب أن تجبر الخواطر." 
+                action="اجعل تعليقك بلسمًا لا سُمًا"
+                color="indigo"
+              />
+              <DigitalCard 
+                title="شهادة اللايك" 
+                description="الإعجاب بالمحتوى الهابط أو الحرام هو تشجيع عليه، وأنت شريك في الإثمر." 
+                action="فكّر قبل أن تضغط 'إعجاب'؛ فهي شهادة"
+                color="amber"
+              />
+              <DigitalCard 
+                title="الستر الرقمي" 
+                description="تتبع عثرات الناس أو نشر صورهم بغير رضاهم خيانة للأمانة." 
+                action="استر على أخيك يبعث الله من يسترك"
+                color="emerald"
+              />
+            </div>
+
+            <div className="bg-[#1b1c1a] p-8 rounded-[40px] text-white space-y-6 relative overflow-hidden">
+               <div className="absolute right-0 bottom-0 opacity-10">
+                 <Fingerprint size={120} />
+               </div>
+               <h4 className="text-xl font-bold flex items-center gap-2">
+                 <ShieldCheck className="text-blue-400" />
+                 ميثاق المسلم الرقمي
+               </h4>
+               <ul className="space-y-4 text-white/70 text-sm">
+                 <li className="flex gap-3">
+                    <div className="w-1.5 h-1.5 rounded-full bg-blue-400 mt-2 shrink-0" />
+                    <span>أوقن أن الله يراني وأنا أمسك بهاتفي كما يراني في الصلاة.</span>
+                 </li>
+                 <li className="flex gap-3">
+                    <div className="w-1.5 h-1.5 rounded-full bg-blue-400 mt-2 shrink-0" />
+                    <span>لن أكتب كلمة أخجل أن أقرأها في صحيفتي يوم القيامة.</span>
+                 </li>
+                 <li className="flex gap-3">
+                    <div className="w-1.5 h-1.5 rounded-full bg-blue-400 mt-2 shrink-0" />
+                    <span>بصمتي هي هويتي الروحية في العالم الافتراضي.</span>
+                 </li>
+               </ul>
             </div>
           </motion.div>
         ) : activeSection === 'tazkiyah' ? (
@@ -332,6 +414,25 @@ export default function EthicsView() {
           </motion.div>
         )}
       </AnimatePresence>
+    </div>
+  );
+}
+
+function DigitalCard({ title, description, action, color }: { title: string, description: string, action: string, color: string }) {
+  const colorMap: Record<string, string> = {
+    blue: 'bg-blue-600',
+    indigo: 'bg-indigo-600',
+    amber: 'bg-amber-600',
+    emerald: 'bg-emerald-600'
+  };
+
+  return (
+    <div className="glass-3d p-6 rounded-[35px] border border-white/50 flex flex-col">
+      <h4 className="text-lg font-black text-[#1b1c1a] mb-2">{title}</h4>
+      <p className="text-[#655d51] text-xs font-medium leading-relaxed mb-4 flex-grow">{description}</p>
+      <div className={cn("p-4 rounded-2xl text-white text-xs font-bold shadow-lg", colorMap[color])}>
+        {action}
+      </div>
     </div>
   );
 }

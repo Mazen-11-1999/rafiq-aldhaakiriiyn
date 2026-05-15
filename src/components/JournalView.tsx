@@ -42,8 +42,14 @@ export default function JournalView({ userProfile }: { userProfile: UserProfile 
     return () => unsubscribe();
   }, []);
 
+  const [showEthicGuard, setShowEthicGuard] = useState(false);
+
   const addReflection = async () => {
     if (!reflection.trim()) return;
+    setShowEthicGuard(true);
+  };
+
+  const confirmAddReflection = async () => {
     const user = auth.currentUser;
     if (!user) return;
 
@@ -55,6 +61,7 @@ export default function JournalView({ userProfile }: { userProfile: UserProfile 
         createdAt: serverTimestamp()
       });
       setReflection('');
+      setShowEthicGuard(false);
     } catch (error) {
       handleFirestoreError(error, OperationType.CREATE, `users/${user.uid}/reflections`);
     }
@@ -129,6 +136,43 @@ export default function JournalView({ userProfile }: { userProfile: UserProfile 
             </motion.button>
         </div>
       </section>
+
+      <AnimatePresence>
+        {showEthicGuard && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/40 backdrop-blur-sm">
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              className="bg-white rounded-[40px] p-8 max-w-sm w-full shadow-2xl text-center space-y-6"
+            >
+              <div className="w-16 h-16 bg-[#4e635a]/10 text-[#4e635a] rounded-full flex items-center justify-center mx-auto">
+                <Sparkles size={32} />
+              </div>
+              <div className="space-y-2">
+                <h3 className="text-xl font-bold text-[#1b1c1a] font-serif">أثر بصمتك</h3>
+                <p className="text-[#655d51] text-sm leading-relaxed">
+                  تذكر أن كل كلمة تكتبها هي شهادة لك أو عليك. هل تعتقد أن ما كتبتَه يرضي رب العالمين وينفعك في آخرتك؟
+                </p>
+              </div>
+              <div className="flex flex-col gap-3">
+                <button 
+                  onClick={confirmAddReflection}
+                  className="w-full py-4 bg-[#4e635a] text-white rounded-2xl font-bold shadow-lg shadow-[#4e635a]/20 active:scale-95 transition-all"
+                >
+                  نعم، انشر الخير
+                </button>
+                <button 
+                  onClick={() => setShowEthicGuard(false)}
+                  className="w-full py-4 bg-[#fbf9f6] text-[#4e635a] rounded-2xl font-bold active:scale-95 transition-all"
+                >
+                  أريد مراجعة قولي
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
 
       {/* History Area */}
       <section className="space-y-6">
