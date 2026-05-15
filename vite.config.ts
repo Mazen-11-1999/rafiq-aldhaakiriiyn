@@ -11,7 +11,7 @@ export default defineConfig(({mode}) => {
       react(), 
       tailwindcss(),
       VitePWA({
-        registerType: 'autoUpdate',
+        registerType: 'prompt',
         manifest: {
           name: 'نور الإيمان - أناشيد ماهر زين',
           short_name: 'نور الإيمان',
@@ -39,16 +39,27 @@ export default defineConfig(({mode}) => {
               }
             },
             {
-              urlPattern: /^https:\/\/serv100\.albumaty\.com\/.*\.mp3$/,
+              urlPattern: /^https:\/\/.*\.albumaty\.com\/.*\.mp3$/,
               handler: 'CacheFirst',
               options: {
                 cacheName: 'nasheed-audio-albumaty',
                 expiration: {
-                  maxEntries: 20,
+                  maxEntries: 100, // Increased for more nasheeds
                   maxAgeSeconds: 60 * 60 * 24 * 30 // 30 Days
                 },
                 cacheableResponse: {
                   statuses: [0, 200]
+                }
+              }
+            },
+            {
+              urlPattern: /^https:\/\/www\.albumaty\.com\/.*$/,
+              handler: 'StaleWhileRevalidate',
+              options: {
+                cacheName: 'nasheed-covers-albumaty',
+                expiration: {
+                  maxEntries: 50,
+                  maxAgeSeconds: 60 * 60 * 24 * 30 // 30 Days
                 }
               }
             },

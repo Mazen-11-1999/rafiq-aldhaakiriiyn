@@ -127,9 +127,12 @@ export default function RetreatView({ userProfile, chatMessages, setChatMessages
     recognition.start();
   };
 
+  const [showClearConfirm, setShowClearConfirm] = useState(false);
+
   const clearChat = () => {
     setChatMessages([]);
     window.speechSynthesis.cancel();
+    setShowClearConfirm(false);
   };
 
   return (
@@ -162,17 +165,6 @@ export default function RetreatView({ userProfile, chatMessages, setChatMessages
       <div className="z-10 text-center space-y-2 relative w-full max-w-lg">
         <p className="text-[#4e635a]/70 font-bold tracking-[0.3em] uppercase text-xs">الآن هو وقت الهدوء</p>
         <h2 className="text-4xl font-bold text-[#1b1c1a] font-serif">معك وين ما كنت</h2>
-        {chatMessages.length > 0 && (
-          <motion.button 
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            onClick={clearChat}
-            className="absolute left-0 top-1/2 -translate-y-1/2 p-3 text-[#4e635a]/40 hover:text-white hover:bg-[#ba1a1a] rounded-full transition-all duration-300"
-            title="بدء محادثة جديدة"
-          >
-            <Trash2 size={20} />
-          </motion.button>
-        )}
       </div>
 
       {/* AI Assistant Sanad Conversation Area */}
@@ -282,10 +274,10 @@ export default function RetreatView({ userProfile, chatMessages, setChatMessages
                   <div className="flex gap-2">
                     {[0, 1, 2].map(i => (
                       <motion.div 
-                        key={i}
-                        animate={{ y: [0, -6, 0], opacity: [0.3, 1, 0.3] }}
-                        transition={{ duration: 1, repeat: Infinity, delay: i * 0.2 }}
-                        className="w-2.5 h-2.5 bg-[#4e635a] rounded-full" 
+                         key={i}
+                         animate={{ y: [0, -6, 0], opacity: [0.3, 1, 0.3] }}
+                         transition={{ duration: 1, repeat: Infinity, delay: i * 0.2 }}
+                         className="w-2.5 h-2.5 bg-[#4e635a] rounded-full" 
                       />
                     ))}
                   </div>
@@ -296,7 +288,42 @@ export default function RetreatView({ userProfile, chatMessages, setChatMessages
       </div>
 
       {/* Input Area */}
-      <div className="z-10 w-full max-w-lg mb-6 px-4">
+      <div className="z-10 w-full max-w-lg mb-6 px-4 space-y-4">
+        {chatMessages.length > 0 && (
+          <div className="flex justify-center">
+            {showClearConfirm ? (
+              <motion.div 
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="flex items-center gap-2 bg-white/50 backdrop-blur-sm p-1 rounded-2xl border border-[#ba1a1a]/20"
+              >
+                <button 
+                  onClick={clearChat}
+                  className="px-4 py-2 bg-[#ba1a1a] text-white rounded-xl text-xs font-bold shadow-lg"
+                >
+                  نعم، امسح المحادثة
+                </button>
+                <button 
+                  onClick={() => setShowClearConfirm(false)}
+                  className="px-4 py-2 bg-white text-[#4e635a] rounded-xl text-xs font-bold border border-white"
+                >
+                  إلغاء
+                </button>
+              </motion.div>
+            ) : (
+              <motion.button
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                onClick={() => setShowClearConfirm(true)}
+                className="flex items-center gap-2 px-6 py-2 rounded-2xl bg-white/30 hover:bg-white/50 text-[#4e635a] text-xs font-bold transition-all border border-white/50 backdrop-blur-sm"
+              >
+                <Trash2 size={14} />
+                <span>مسح المحادثة وبدء جديد</span>
+              </motion.button>
+            )}
+          </div>
+        )}
+
         <form onSubmit={handleQuestionSubmit} className="relative group ring-offset-background">
           <input 
             type="text"

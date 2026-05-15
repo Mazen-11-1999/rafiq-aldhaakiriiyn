@@ -15,42 +15,45 @@ interface PrayerAlarmProps {
 export default function PrayerAlarmOverlay({ prayerName, message, isOpen, onClose, selectedRingtoneId }: PrayerAlarmProps) {
   const [isMuted, setIsMuted] = useState(false);
   const [audioError, setAudioError] = useState<string | null>(null);
+  const [isBlocked, setIsBlocked] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
     if (isOpen) {
       setAudioError(null);
+      setIsBlocked(false);
       const ringtone = RINGTONES.find(r => r.id === selectedRingtoneId) || DEFAULT_RINGTONE;
       
       const audio = new Audio(ringtone.url);
-      audio.crossOrigin = 'anonymous';
       audio.loop = true;
       audio.volume = 0.6;
       audioRef.current = audio;
 
+      const fallbacks = [
+        'https://ia800100.us.archive.org/30/items/nasheed_adel/Salawat.mp3',
+        'https://ia800904.us.archive.org/30/items/IslamicRingtones_201306/Spirit.mp3',
+        'https://ia800100.us.archive.org/30/items/nasheed_adel/Beep.mp3',
+        'https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3', // Mixkit bell as a very stable fallback
+        'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3' // Ultimate fallback
+      ];
+
+      let fallbackIndex = 0;
+
       const handleAudioError = () => {
-        console.error('Audio source error in PrayerAlarmOverlay: Failed to load ringtone');
-        
         if (!audioRef.current) return;
 
-        // Sequence of fallbacks
-        const fallbacks = [
-          'https://archive.org/download/nasheed_adel/Beep.mp3',
-          'https://archive.org/download/nasheed_adel/Salawat.mp3',
-          'https://archive.org/download/IslamicRingtones_201306/Spirit.mp3'
-        ];
-
-        const currentSrc = audioRef.current.src;
-        const fallbackIndex = fallbacks.indexOf(currentSrc);
-        const nextFallback = fallbacks[fallbackIndex + 1] || (fallbackIndex === -1 ? fallbacks[0] : null);
-
-        if (nextFallback) {
-          console.log(`Trying fallback: ${nextFallback}`);
+        if (fallbackIndex < fallbacks.length) {
+          const nextFallback = fallbacks[fallbackIndex];
+          fallbackIndex++;
+          
+          console.log(`Trying fallback (${fallbackIndex}/${fallbacks.length}): ${nextFallback}`);
           audioRef.current.src = nextFallback;
           audioRef.current.load();
           audioRef.current.play().catch((err) => {
-             console.error('Fallback audio failed:', err);
-             // handleAudioError will be triggered again by the error event on the next source failure
+             console.warn('Fallback audio play blocked or failed:', err instanceof Error ? err.message : String(err));
+             if (err.name === 'NotAllowedError') {
+               setIsBlocked(true);
+             }
           });
         } else {
           setAudioError("عذراً، تعذر تحميل صوت التنبيه حالياً");
@@ -63,15 +66,21 @@ export default function PrayerAlarmOverlay({ prayerName, message, isOpen, onClos
       const attemptPlay = async () => {
         try {
           await audio.play();
-        } catch (err) {
+          setIsBlocked(false);
+        } catch (err: any) {
           console.warn('Playback blocked or source invalid:', err instanceof Error ? err.message : String(err));
+          if (err.name === 'NotAllowedError') {
+            setIsBlocked(true);
+          }
           
           const playOnInteraction = async () => {
             try {
               if (audioRef.current && isOpen) {
                 await audioRef.current.play();
+                setIsBlocked(false);
                 window.removeEventListener('click', playOnInteraction);
                 window.removeEventListener('touchstart', playOnInteraction);
+                window.removeEventListener('keydown', playOnInteraction);
               }
             } catch (e) {
               console.error('Playback still blocked. Error:', e instanceof Error ? e.message : String(e));
@@ -80,6 +89,7 @@ export default function PrayerAlarmOverlay({ prayerName, message, isOpen, onClos
           
           window.addEventListener('click', playOnInteraction);
           window.addEventListener('touchstart', playOnInteraction);
+          window.addEventListener('keydown', playOnInteraction);
         }
       };
 
@@ -91,6 +101,7 @@ export default function PrayerAlarmOverlay({ prayerName, message, isOpen, onClos
           audioRef.current.pause();
           audioRef.current = null;
         }
+        window.removeEventListener('click', () => {}); // Just in case
       };
     }
   }, [isOpen, selectedRingtoneId]);
@@ -151,6 +162,16 @@ export default function PrayerAlarmOverlay({ prayerName, message, isOpen, onClos
                   >
                     <VolumeX size={16} />
                     <span>{audioError}</span>
+                  </motion.div>
+                )}
+                {isBlocked && !audioError && (
+                  <motion.div 
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="bg-yellow-500/20 border border-yellow-500/30 py-2 px-4 rounded-xl text-yellow-100 text-sm flex items-center justify-center gap-2 animate-pulse"
+                  >
+                    <Volume2 size={16} />
+                    <span>انقر في أي مكان لتشغيل الصوت</span>
                   </motion.div>
                 )}
                 <div className="flex items-center justify-center gap-2 pt-4">

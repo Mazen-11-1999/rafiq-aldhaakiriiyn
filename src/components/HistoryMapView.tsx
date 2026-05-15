@@ -382,10 +382,10 @@ export default function HistoryMapView() {
             <div className="p-3 bg-[#4e635a] rounded-2xl text-white shadow-lg shadow-[#4e635a]/20">
               <MapIcon size={24} />
             </div>
-            <h2 className="text-4xl font-bold text-[#4e635a] font-serif tracking-tight">الأطوار النبوية</h2>
+            <h2 className="text-4xl font-bold text-[#4e635a] font-serif tracking-tight">مسار الهدى النبوي</h2>
           </motion.div>
           <p className="text-[#655d51] font-medium text-lg max-w-xl text-right leading-relaxed opacity-90">
-            اكتشف المسار المكاني الحقيقي لرحلة المنهج النبوي عبر تضاريس الجزيرة العربية، من طور التأسيس وصولاً إلى كمال المنهج.
+            اكتشف الخريطة الوجدانية والمكانية لرحلة المصطفى ﷺ لأعظم رسالة، وشاهد كيف تحول المنهج من طور الغرس والتأسيس إلى طور الفتح والكمال الشامل لنفهم كيف تشكّل الوعي الإسلامي الأول وسط التضاريس
           </p>
         </div>
 

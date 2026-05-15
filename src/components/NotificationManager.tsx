@@ -93,8 +93,8 @@ export default function NotificationManager({ enabled, prayerEnabled = false, co
           const prayerTime = (prayers as any)[key];
           if (prayerTime) {
             const diff = Math.abs(now.getTime() - prayerTime.getTime());
-            // Trigger if within 30 seconds of the prayer time
-            if (diff < 30000) {
+            // Trigger if within 1 minute of the prayer time
+            if (diff < 60000) {
               triggerAlarm(key);
             }
           }
@@ -111,6 +111,21 @@ export default function NotificationManager({ enabled, prayerEnabled = false, co
           name: PrayerService.getPrayerNameAr(key),
           message: PrayerService.getPrayerMessage(key)
         });
+
+        // Add browser notification for extra visibility
+        if (permission === 'granted') {
+          try {
+            new Notification(`حان الآن وقت صلاة ${PrayerService.getPrayerNameAr(key)}`, {
+              body: PrayerService.getPrayerMessage(key),
+              icon: '/compass.png',
+              tag: `prayer_${key}`,
+              requireInteraction: true
+            });
+          } catch (e) {
+            console.warn("Could not show browser notification", e);
+          }
+        }
+
         localStorage.setItem(`last_alarm_${key}`, todayString);
       }
     };
@@ -131,7 +146,7 @@ export default function NotificationManager({ enabled, prayerEnabled = false, co
       }
     };
 
-    const interval = setInterval(checkNotifications, 30000); // Check every 30 seconds for accuracy
+    const interval = setInterval(checkNotifications, 10000); // Check every 10 seconds for higher precision
     return () => clearInterval(interval);
   }, [enabled, permission, prayerEnabled, coords]);
 

@@ -20,6 +20,7 @@ import EthicsView from './components/EthicsView';
 import NotificationManager from './components/NotificationManager';
 import Background3D from './components/Background3D';
 import ChallengeWidget from './components/ChallengeWidget';
+import PWAPrompt from './components/PWAPrompt';
 import { motion, AnimatePresence } from 'motion/react';
 import { LogIn, Compass, ListChecks, PieChart, VolumeX, Settings, User, BookOpen, Book, Map, HelpCircle, Music, Scale } from 'lucide-react';
 import { cn } from './lib/utils';
@@ -45,9 +46,12 @@ export default function App() {
           setCoords({ lat: position.coords.latitude, lng: position.coords.longitude });
         },
         (error) => {
-          console.warn("Geolocation denied or failed. Prayer times may be inaccurate.", error);
+          console.warn("Geolocation denied or failed. Using default location (Mecca).", error);
+          setCoords({ lat: 21.4225, lng: 39.8262 }); // Mecca as default
         }
       );
+    } else {
+      setCoords({ lat: 21.4225, lng: 39.8262 });
     }
   }, []);
 
@@ -521,6 +525,7 @@ export default function App() {
         </AnimatePresence>
         <DailyInspiration userProfile={userProfile} />
         <ChallengeWidget />
+        <PWAPrompt />
       </main>
 
       {/* Bottom Nav */}

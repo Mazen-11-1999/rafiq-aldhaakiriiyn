@@ -38,7 +38,7 @@ export default function EthicsView() {
           )}
         >
           <Heart size={18} />
-          خصلة اليوم
+          كن أنت المُبادر
         </button>
         <button
           onClick={() => setActiveSection('tazkiyah')}
@@ -87,7 +87,7 @@ export default function EthicsView() {
               
               <div className="flex justify-between items-start mb-8">
                 <div className="space-y-1">
-                  <span className="text-[#4e635a] font-bold text-sm tracking-widest uppercase opacity-60">تحدي الأخلاق</span>
+                  <span className="text-[#4e635a] font-bold text-sm tracking-widest uppercase opacity-60">كن أنت المُبادر</span>
                   <h3 className="text-2xl font-black text-[#1b1c1a]">{currentChallenge.title}</h3>
                 </div>
                 <div className="flex gap-2">
@@ -306,11 +306,24 @@ export default function EthicsView() {
                       </div>
                       <h3 className="text-xl font-black text-red-900">{trait.trait}</h3>
                     </div>
-                    <p className="text-red-800/60 font-medium mb-4 min-h-[48px]">
+                    <p className="text-red-800/60 font-medium mb-6">
                       {trait.description}
                     </p>
+
+                    <div className="space-y-4 mb-6">
+                      <div className="bg-white/40 p-4 rounded-2xl border border-red-500/10 text-sm">
+                        <span className="font-black text-red-900 block mb-1">📖 مثال من الواقع:</span>
+                        <p className="text-red-800/70 leading-relaxed italic">{trait.story}</p>
+                      </div>
+                      
+                      <div className="bg-red-600 p-4 rounded-2xl text-white shadow-lg shadow-red-600/20 text-sm">
+                        <span className="font-black block mb-1">💊 طريقة العلاج والوقاية:</span>
+                        <p className="font-medium leading-relaxed">{trait.solution}</p>
+                      </div>
+                    </div>
+
                     <div className="bg-white/60 p-4 rounded-2xl border border-red-500/10 italic text-red-700/80 text-sm">
-                      <span className="font-black block mb-1">💡 نصيحة للوقاية:</span>
+                      <span className="font-black block mb-1">💡 تحذير:</span>
                       {trait.warning}
                     </div>
                   </motion.div>
