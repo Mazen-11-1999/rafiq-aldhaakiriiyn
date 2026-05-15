@@ -13,6 +13,11 @@
         "totalMinutes": { "type": "integer" },
         "totalSessions": { "type": "integer" },
         "currentStreak": { "type": "integer" },
+        "nasheedMinutes": { "type": "integer" },
+        "dhikrMinutes": { "type": "integer" },
+        "retreatMinutes": { "type": "integer" },
+        "journalMinutes": { "type": "integer" },
+        "growthMinutes": { "type": "integer" },
         "lastSessionAt": { "type": "string", "format": "date-time" },
         "lastActiveDate": { "type": "string", "format": "date-time" },
         "settings": { "type": "object" }

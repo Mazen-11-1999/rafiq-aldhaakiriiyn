@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { auth, signInWithGoogle, db, getRedirectResult } from './lib/firebase';
-import { doc, getDoc, setDoc, updateDoc, serverTimestamp, onSnapshot } from 'firebase/firestore';
+import { doc, getDoc, setDoc, updateDoc, serverTimestamp, onSnapshot, increment } from 'firebase/firestore';
 import { UserProfile, OperationType, ChatMessage } from './types';
 import { handleFirestoreError } from './lib/firestore-errors';
 import RetreatView from './components/RetreatView';
@@ -157,9 +157,9 @@ export default function App() {
       } catch (e: any) {
         console.error('Redirect result error:', e);
         if (e.code === 'auth/unauthorized-domain') {
-          setLoginError('هذا النطاق غير مصرح به في إعدادات Firebase. يرجى إضافة النطاق الحالي إلى القائمة المسموح بها في وحدة تحكم Firebase (Firebase Console).');
+          setLoginError('هذا النطاق غير مصرح به في إعدادات Firebase.');
         } else {
-          setLoginError('خطأ أثناء إكمال تسجيل الدخول: ' + (e.message || 'خطأ غير معروف'));
+          setLoginError('خطأ أثناء إكمال تسجيل الدخول.');
         }
       }
     };
@@ -175,23 +175,40 @@ export default function App() {
     } catch (e: any) {
       console.error('Login Error:', e);
       if (e.code === 'auth/popup-blocked') {
-        setLoginError('تم حظر النافذة المنبثقة. يرجى تفعيل النوافذ المنبثقة أو فتح التطبيق في علامة تبويب جديدة من الزر في الأعلى.');
-      } else if (e.code === 'auth/unauthorized-domain') {
-        setLoginError('هذا النطاق غير مصرح به في إعدادات Firebase. يرجى إضافة النطاق الحالي إلى القائمة المسموح بها.');
+        setLoginError('تم حظر النافذة المنبثقة.');
       } else {
-        setLoginError('فشل تسجيل الدخول: ' + (e.message || 'خطأ غير معروف'));
+        setLoginError('خطأ في تسجيل الدخول.');
       }
     } finally {
       setIsLoggingIn(false);
     }
   };
 
+  const { stats, activeCategory } = useTimeTracking();
+
   const updateProfileStats = async (minutesToAdd: number, isSessionComplete: boolean = false) => {
     if (!user || !userProfile) return;
     
     const userRef = doc(db, 'users', user.uid);
-    const newTotalMinutes = (userProfile.totalMinutes || 0) + minutesToAdd;
-    const newTotalSessions = (userProfile.totalSessions || 0) + (isSessionComplete ? 1 : 0);
+    
+    // Prepare dynamic update object
+    const categoryUpdates: any = {};
+    if (minutesToAdd > 0) {
+      categoryUpdates.totalMinutes = increment(minutesToAdd);
+      
+      // Update specific category if active
+      if (activeCategory === 'nasheed') categoryUpdates.nasheedMinutes = increment(minutesToAdd);
+      else if (activeCategory === 'dhikr') categoryUpdates.dhikrMinutes = increment(minutesToAdd);
+      else if (activeCategory === 'retreat') categoryUpdates.retreatMinutes = increment(minutesToAdd);
+      else if (activeCategory === 'journal') categoryUpdates.journalMinutes = increment(minutesToAdd);
+      else {
+        categoryUpdates.growthMinutes = increment(minutesToAdd);
+      }
+    }
+    
+    if (isSessionComplete) {
+      categoryUpdates.totalSessions = increment(1);
+    }
     
     // Streak logic
     const lastActiveDate = userProfile.lastActiveDate?.toDate ? userProfile.lastActiveDate.toDate() : new Date(userProfile.lastActiveDate || 0);
@@ -207,35 +224,36 @@ export default function App() {
     let newStreak = userProfile.currentStreak || 0;
     if (diffDays === 1) {
       newStreak += 1;
+      categoryUpdates.currentStreak = newStreak;
     } else if (diffDays > 1) {
-      newStreak = 1; // Reset if missed a day
+      newStreak = 1;
+      categoryUpdates.currentStreak = 1;
     } else if (newStreak === 0) {
       newStreak = 1;
+      categoryUpdates.currentStreak = 1;
     }
-    // if diffDays === 0, keep current streak
 
     try {
-      await updateDoc(userRef, {
-        totalMinutes: newTotalMinutes,
-        totalSessions: newTotalSessions,
-        currentStreak: newStreak,
-        lastActiveDate: serverTimestamp()
-      });
+      if (Object.keys(categoryUpdates).length > 0) {
+        await updateDoc(userRef, {
+          ...categoryUpdates,
+          lastActiveDate: serverTimestamp()
+        });
+      }
     } catch (error) {
       handleFirestoreError(error, OperationType.UPDATE, 'users/' + user.uid);
     }
   };
 
-  const { stats } = useTimeTracking();
   const prevBeneficialMinutes = React.useRef(stats.beneficialMinutes);
 
   useEffect(() => {
     if (stats.beneficialMinutes > prevBeneficialMinutes.current) {
       const diff = stats.beneficialMinutes - prevBeneficialMinutes.current;
-      updateProfileStats(diff, false); // Don't count as a full "session" yet
+      updateProfileStats(diff, false);
       prevBeneficialMinutes.current = stats.beneficialMinutes;
     }
-  }, [stats.beneficialMinutes, user]);
+  }, [stats.beneficialMinutes, user, activeCategory]);
 
   if (loading) {
     return (
@@ -252,39 +270,19 @@ export default function App() {
   if (!user) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-[#fbf9f6] p-6 text-center perspective-1000 overflow-hidden relative selection:bg-[#4e635a]/20">
-        {/* Responsive High-Fidelity 3D Archway Background */}
         <div className="absolute inset-0 z-0 overflow-hidden bg-[#fbf9f6] flex items-center justify-center">
-          {/* Floor / Platform - Adjusted for better contrast */}
           <div className="absolute bottom-0 w-full h-[30%] bg-white/60 border-t border-white/40 z-[1] shadow-[0_-10px_30px_rgba(0,0,0,0.02)]" />
-          
-          {/* Perspective Container */}
           <div className="relative w-full h-full flex items-center justify-center perspective-2000 preserve-3d">
-            {/* 1. Deepest Background Light */}
             <div className="absolute w-[40vw] h-[40vh] bg-white rounded-t-full blur-[80px] opacity-100 translate-y-[-15%]" />
-
-            {/* 2. Successive Arches - Adjusted for Mobile Scale (using % instead of vw/vh where appropriate) */}
-            
-            {/* Level 5: Pure White / Lightest (The End of the Tunnel) */}
             <div className="absolute w-[30%] h-[40%] border-[20px] md:border-[40px] border-[#fdfcfb] rounded-t-full translate-z-[-800px] translate-y-[-5%]" />
-            
-            {/* Level 4: Warm Off-White / Beige */}
             <div className="absolute w-[45%] h-[55%] border-[30px] md:border-[60px] border-[#f5f2eb] rounded-t-full translate-z-[-600px] translate-y-[-5%] shadow-inner" />
-
-            {/* Level 3: Frosted Glass / Translucent Arches */}
             <div className="absolute w-[65%] h-[75%] border-[40px] md:border-[80px] border-white/40 backdrop-blur-sm rounded-t-full translate-z-[-400px] translate-y-[-5%] ring-1 ring-white/20" />
-
-            {/* Level 2: Middle Greenish Arches */}
             <div className="absolute w-[85%] h-[95%] border-[50px] md:border-[100px] border-[#7a8c82]/30 rounded-t-full translate-z-[-200px] translate-y-[-5%]" />
-
-            {/* Level 1: Deep Green Foreground Arches (Primary Frame) - Adjusted to be further out */}
             <div className="absolute w-[120%] h-[120%] border-[60px] md:border-[150px] border-[#4e635a] rounded-t-full shadow-[inset_0_0_100px_rgba(0,0,0,0.4)] translate-y-[-5%] z-0" />
-
-            {/* Global Light Diffusion Layer */}
             <div className="absolute inset-0 bg-radial-gradient from-transparent via-[#fbf9f6]/40 to-transparent pointer-events-none" />
           </div>
         </div>
 
-        {/* Content Layer - Elevated and Z-indexed for visibility */}
         <motion.div 
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -370,7 +368,6 @@ export default function App() {
         userProfile={userProfile}
       />
 
-      {/* Header */}
       <header className="fixed top-0 w-full z-50 flex justify-between items-center px-8 h-20 glass-3d border-b-0 m-2 rounded-[25px] w-[calc(100%-1rem)] mx-auto top-2 shadow-2xl">
         <div className="flex items-center gap-3">
           <motion.div 
@@ -412,7 +409,6 @@ export default function App() {
         </div>
       </header>
 
-      {/* Main Content */}
       <main className="flex-grow pt-24 pb-28 relative z-10">
         <AnimatePresence mode="wait">
           {activeTab === 'retreat' && (
@@ -439,7 +435,7 @@ export default function App() {
               exit={{ opacity: 0, rotateY: -90, x: -100, scale: 0.9 }}
               transition={{ type: "spring", stiffness: 100, damping: 20 }}
             >
-              <DhikrView onSessionComplete={(mins) => updateProfileStats(mins, true)} />
+              <DhikrView onSessionComplete={() => updateProfileStats(0, true)} />
             </motion.div>
           )}
           {activeTab === 'journal' && (
@@ -562,75 +558,19 @@ export default function App() {
         <PWAPrompt />
       </main>
 
-      {/* Bottom Nav */}
       <nav className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center h-20 glass-3d rounded-[2.5rem] px-2 w-[calc(100%-2rem)] max-w-[650px] overflow-x-auto scrollbar-hide preserve-3d shadow-[0_20px_50px_rgba(0,0,0,0.2)]">
         <div className="flex items-center gap-1 min-w-max px-2">
-          <NavItem 
-            active={activeTab === 'retreat'} 
-            onClick={() => setActiveTab('retreat')} 
-            icon={<Compass size={22} />} 
-            label="الرئيسية" 
-          />
-          <NavItem 
-            active={activeTab === 'dhikr'} 
-            onClick={() => setActiveTab('dhikr')} 
-            icon={<ListChecks size={22} />} 
-            label="ذكر" 
-          />
-          <NavItem 
-            active={activeTab === 'stories'} 
-            onClick={() => setActiveTab('stories')} 
-            icon={<BookOpen size={20} />} 
-            label="قصص" 
-          />
-          <NavItem 
-            active={activeTab === 'habits'} 
-            onClick={() => setActiveTab('habits')} 
-            icon={<ListChecks size={22} />} 
-            label="المنهج" 
-          />
-          <NavItem 
-            active={activeTab === 'ethics'} 
-            onClick={() => setActiveTab('ethics')} 
-            icon={<Scale size={22} />} 
-            label="الميزان" 
-          />
-          <NavItem 
-            active={activeTab === 'history'} 
-            onClick={() => setActiveTab('history')} 
-            icon={<Book size={20} />} 
-            label="السيرة" 
-          />
-          <NavItem 
-            active={activeTab === 'nasheeds'} 
-            onClick={() => setActiveTab('nasheeds')} 
-            icon={<Music size={22} />} 
-            label="أناشيد" 
-          />
-          <NavItem 
-            active={activeTab === 'insights'} 
-            onClick={() => setActiveTab('insights')} 
-            icon={<PieChart size={22} />} 
-            label="إحصائيات" 
-          />
-          <NavItem 
-            active={activeTab === 'journey'} 
-            onClick={() => setActiveTab('journey')} 
-            icon={<Map size={22} />} 
-            label="رحلتك" 
-          />
-          <NavItem 
-            active={activeTab === 'profile'} 
-            onClick={() => setActiveTab('profile')} 
-            icon={<User size={22} />} 
-            label="أنا" 
-          />
-          <NavItem 
-            active={activeTab === 'time'} 
-            onClick={() => setActiveTab('time')} 
-            icon={<Clock size={22} />} 
-            label="عمرك أغلى" 
-          />
+          <NavItem active={activeTab === 'retreat'} onClick={() => setActiveTab('retreat')} icon={<Compass size={22} />} label="الرئيسية" />
+          <NavItem active={activeTab === 'dhikr'} onClick={() => setActiveTab('dhikr')} icon={<ListChecks size={22} />} label="ذكر" />
+          <NavItem active={activeTab === 'stories'} onClick={() => setActiveTab('stories')} icon={<BookOpen size={20} />} label="قصص" />
+          <NavItem active={activeTab === 'habits'} onClick={() => setActiveTab('habits')} icon={<ListChecks size={22} />} label="المنهج" />
+          <NavItem active={activeTab === 'ethics'} onClick={() => setActiveTab('ethics')} icon={<Scale size={22} />} label="الميزان" />
+          <NavItem active={activeTab === 'history'} onClick={() => setActiveTab('history')} icon={<Book size={20} />} label="السيرة" />
+          <NavItem active={activeTab === 'nasheeds'} onClick={() => setActiveTab('nasheeds')} icon={<Music size={22} />} label="أناشيد" />
+          <NavItem active={activeTab === 'insights'} onClick={() => setActiveTab('insights')} icon={<PieChart size={22} />} label="إحصائيات" />
+          <NavItem active={activeTab === 'journey'} onClick={() => setActiveTab('journey')} icon={<Map size={22} />} label="رحلتك" />
+          <NavItem active={activeTab === 'profile'} onClick={() => setActiveTab('profile')} icon={<User size={22} />} label="أنا" />
+          <NavItem active={activeTab === 'time'} onClick={() => setActiveTab('time')} icon={<Clock size={22} />} label="عمرك أغلى" />
         </div>
       </nav>
     </div>
@@ -655,11 +595,7 @@ function NavItem({ active, onClick, icon, label }: { active: boolean, onClick: (
           />
         )}
       </AnimatePresence>
-      
-      <motion.div
-        animate={active ? { scale: 1.1, y: -2 } : { scale: 1, y: 0 }}
-        className="relative"
-      >
+      <motion.div animate={active ? { scale: 1.1, y: -2 } : { scale: 1, y: 0 }} className="relative">
         {icon}
         {active && (
           <motion.div
@@ -670,20 +606,9 @@ function NavItem({ active, onClick, icon, label }: { active: boolean, onClick: (
           />
         )}
       </motion.div>
-      
-      <span className={cn(
-        "text-[9px] font-bold mt-1 transition-all",
-        active ? "opacity-100 scale-100" : "opacity-60 scale-90"
-      )}>
+      <span className={cn("text-[8px] md:text-[9px] font-bold mt-1 transition-all", active ? "opacity-100 scale-100" : "opacity-60 scale-90")}>
         {label}
       </span>
-
-      {active && (
-        <motion.div
-          layoutId="bottom-indicator"
-          className="absolute -bottom-1 w-1 h-1 bg-[#4e635a] rounded-full"
-        />
-      )}
     </button>
   );
 }

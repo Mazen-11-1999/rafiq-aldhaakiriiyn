@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 import { auth, db } from '../lib/firebase';
-import { doc, updateDoc, increment } from 'firebase/firestore';
+import { doc, updateDoc, increment, onSnapshot } from 'firebase/firestore';
 
 interface TimeStats {
   beneficialMinutes: number;
@@ -37,6 +37,7 @@ export function TimeTrackingProvider({ children }: { children: React.ReactNode }
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const sessionStartTime = useRef<number>(Date.now());
 
+  // Initialize from LocalStorage (fast)
   useEffect(() => {
     const savedStats = localStorage.getItem('timeStats');
     if (savedStats) {
@@ -51,7 +52,32 @@ export function TimeTrackingProvider({ children }: { children: React.ReactNode }
         console.error("Failed to parse saved stats", e);
       }
     }
+  }, []);
 
+  // Sync with Firestore (Real Truth)
+  useEffect(() => {
+    const user = auth.currentUser;
+    if (user) {
+      const userRef = doc(db, 'users', user.uid);
+      const unsubscribe = onSnapshot(userRef, (snapshot) => {
+        if (snapshot.exists()) {
+          const data = snapshot.data();
+          setStats(prev => ({
+            ...prev,
+            beneficialMinutes: data.totalMinutes || prev.beneficialMinutes,
+            dhikrMinutes: data.dhikrMinutes || prev.dhikrMinutes,
+            nasheedMinutes: data.nasheedMinutes || prev.nasheedMinutes,
+            retreatMinutes: data.retreatMinutes || prev.retreatMinutes,
+            journalMinutes: data.journalMinutes || prev.journalMinutes,
+            growthMinutes: data.growthMinutes || prev.growthMinutes,
+          }));
+        }
+      });
+      return () => unsubscribe();
+    }
+  }, [auth.currentUser]);
+
+  useEffect(() => {
     timerRef.current = setInterval(() => {
       const elapsedSeconds = Math.floor((Date.now() - sessionStartTime.current) / 1000);
       setCurrentSessionSeconds(elapsedSeconds);

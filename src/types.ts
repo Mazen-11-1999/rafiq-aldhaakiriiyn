@@ -31,6 +31,11 @@ export interface UserProfile {
   totalMinutes: number;
   totalSessions: number;
   currentStreak: number;
+  nasheedMinutes?: number;
+  dhikrMinutes?: number;
+  retreatMinutes?: number;
+  journalMinutes?: number;
+  growthMinutes?: number;
   lastSessionAt?: any;
   lastActiveDate?: any;
   settings?: UserSettings;

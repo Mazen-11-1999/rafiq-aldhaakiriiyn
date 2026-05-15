@@ -4,8 +4,32 @@ import { Clock, TrendingUp, Sparkles, X, Info, Zap, Calendar, Heart, Shield } fr
 import { useTimeTracking } from '../context/TimeTrackingContext';
 
 const TimeFiqhView: React.FC = () => {
-  const { stats, currentSessionSeconds, activeCategory } = useTimeTracking();
+  const { stats, activeCategory } = useTimeTracking();
   const [showInfo, setShowInfo] = useState(false);
+  const [viewSeconds, setViewSeconds] = useState(0);
+  const mountTime = React.useRef(Date.now());
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const elapsed = Math.floor((Date.now() - mountTime.current) / 1000);
+      setViewSeconds(elapsed);
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const timeWisdoms = [
+    "نعمتان مغبون فيهما كثير من الناس: الصحة والفراغ",
+    "اغتنم وقتك قبل أن ينقضي، وعمرك في ما يبني لك أثراً خالداً",
+    "الوقت كالسيف، إن لم تقطعه بأعمالٍ ثمينة ومفيدة تبني بها ذاتك، قطعك في الغفلة والتسويف",
+    "أعظم طاعة لله هي أن تستثمر عمرك في كل ما هو نافع وجميل",
+    "قيمة عمرك تكمن في ما تنجزه من خير ونفع للناس ولنفسك",
+    "كل ثانية تقضيها في بناء ذاتك أو نفع غيرك هي تجارة رابحة مع الله",
+    "أنت دقائق مجموعة، إذا ذهبت دقيقة ذهب جزء من كيانك، فكن شحيحاً بأنفاسك",
+    "أجمل دقائق العمر هي التي ترحل وقد تركت خلفها قلباً مطمئناً وعقلاً مستنيراً"
+  ];
+
+  // Rotate wisdom every minute
+  const currentWisdom = timeWisdoms[Math.floor(viewSeconds / 60) % timeWisdoms.length];
 
   const totalBeneficial = stats.beneficialMinutes;
   
@@ -62,15 +86,25 @@ const TimeFiqhView: React.FC = () => {
         </div>
 
         <div className="text-center space-y-2">
-           <div className="text-6xl font-black text-[#4e635a] font-mono tracking-tight">
-             {formatTime(currentSessionSeconds)}
+           <div className="text-6xl font-black text-[#4e635a] font-mono tracking-tight tabular-nums">
+             {formatTime(viewSeconds)}
            </div>
-           <p className="text-xs font-bold text-[#7a8c82] uppercase tracking-[0.2em]">دقائق مستثمرة</p>
+           <p className="text-xs font-bold text-[#7a8c82] uppercase tracking-[0.2em]">دقائق مستثمرة بصحبة الله</p>
         </div>
 
         <div className="bg-emerald-600 text-white p-5 rounded-3xl text-center shadow-lg shadow-emerald-600/20">
            <p className="text-[10px] font-black uppercase tracking-widest opacity-80 mb-1">أثرك الطيب الآن</p>
-           <p className="text-sm font-bold">كل ثانية تقضيها هنا هي استثمار حقيقي في طمأنينة قلبك</p>
+           <AnimatePresence mode="wait">
+             <motion.p 
+               key={currentWisdom}
+               initial={{ opacity: 0, y: 10 }}
+               animate={{ opacity: 1, y: 0 }}
+               exit={{ opacity: 0, y: -10 }}
+               className="text-sm font-bold"
+             >
+               {currentWisdom}
+             </motion.p>
+           </AnimatePresence>
         </div>
       </motion.div>
 
@@ -131,15 +165,23 @@ const TimeFiqhView: React.FC = () => {
       </section>
 
       {/* Quote / Wisdom */}
-      <div className="bg-[#4e635a] p-8 rounded-[40px] text-white text-center space-y-4 relative overflow-hidden">
+      <div className="bg-[#4e635a] p-8 rounded-[40px] text-white text-center space-y-4 relative overflow-hidden min-h-[160px] flex flex-col justify-center">
         <div className="absolute left-0 bottom-0 opacity-10">
           <Calendar size={120} />
         </div>
-        <p className="text-lg font-serif italic relative z-10">
-          "نعمتان مغبون فيهما كثير من الناس: الصحة والفراغ"
-        </p>
+        <AnimatePresence mode="wait">
+          <motion.p 
+            key={currentWisdom}
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 1.1 }}
+            className="text-lg font-serif italic relative z-10 leading-relaxed"
+          >
+            "{currentWisdom}"
+          </motion.p>
+        </AnimatePresence>
         <div className="w-12 h-1 bg-white/30 mx-auto rounded-full" />
-        <p className="text-xs font-bold opacity-60 tracking-wider">المنهج النبوي في تقدير الزمن</p>
+        <p className="text-xs font-bold opacity-60 tracking-wider">المنهج القويم في تقدير الزمن</p>
       </div>
     </div>
   );
