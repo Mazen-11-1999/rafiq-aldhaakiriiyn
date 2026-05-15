@@ -16,16 +16,17 @@ import DailyInspiration from './components/DailyInspiration';
 import ProfileView from './components/ProfileView';
 import NasheedView from './components/NasheedView';
 import HabitTracker from './components/HabitTracker';
+import EthicsView from './components/EthicsView';
 import NotificationManager from './components/NotificationManager';
 import Background3D from './components/Background3D';
 import ChallengeWidget from './components/ChallengeWidget';
 import { motion, AnimatePresence } from 'motion/react';
-import { LogIn, Compass, ListChecks, PieChart, VolumeX, Settings, User, BookOpen, Book, Map, HelpCircle, Music } from 'lucide-react';
+import { LogIn, Compass, ListChecks, PieChart, VolumeX, Settings, User, BookOpen, Book, Map, HelpCircle, Music, Scale } from 'lucide-react';
 import { cn } from './lib/utils';
 
 export default function App() {
   const [user, loading, error] = useAuthState(auth);
-  const [activeTab, setActiveTab] = useState<'retreat' | 'dhikr' | 'stories' | 'habits' | 'nasheeds' | 'history' | 'journey' | 'quiz' | 'journal' | 'insights' | 'profile'>('retreat');
+  const [activeTab, setActiveTab] = useState<'retreat' | 'dhikr' | 'stories' | 'habits' | 'ethics' | 'nasheeds' | 'history' | 'journey' | 'quiz' | 'journal' | 'insights' | 'profile'>('retreat');
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [coords, setCoords] = useState<{lat: number, lng: number} | null>(null);
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>(() => {
@@ -444,6 +445,16 @@ export default function App() {
               <HabitTracker />
             </motion.div>
           )}
+          {activeTab === 'ethics' && (
+            <motion.div
+              key="ethics"
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 1.1 }}
+            >
+              <EthicsView />
+            </motion.div>
+          )}
           {activeTab === 'quiz' && (
             <motion.div
               key="quiz"
@@ -538,6 +549,12 @@ export default function App() {
             onClick={() => setActiveTab('habits')} 
             icon={<ListChecks size={22} />} 
             label="المنهج" 
+          />
+          <NavItem 
+            active={activeTab === 'ethics'} 
+            onClick={() => setActiveTab('ethics')} 
+            icon={<Scale size={22} />} 
+            label="الميزان" 
           />
           <NavItem 
             active={activeTab === 'history'} 
