@@ -24,12 +24,15 @@ import PWAPrompt from './components/PWAPrompt';
 import TimeFiqhView from './components/TimeFiqhView';
 import { useTimeTracking } from './context/TimeTrackingContext';
 import { motion, AnimatePresence } from 'motion/react';
-import { LogIn, Compass, ListChecks, PieChart, VolumeX, Settings, User, BookOpen, Book, Map, HelpCircle, Music, Scale, Clock } from 'lucide-react';
+import { LogIn, Compass, ListChecks, PieChart, VolumeX, Settings, User, BookOpen, Book, Map, HelpCircle, Music, Scale, Clock, Sparkles } from 'lucide-react';
 import { cn } from './lib/utils';
+
+import { ChatBot } from './components/ChatBot';
 
 export default function App() {
   const [user, loading, error] = useAuthState(auth);
   const [activeTab, setActiveTab] = useState<'retreat' | 'dhikr' | 'stories' | 'habits' | 'ethics' | 'nasheeds' | 'history' | 'journey' | 'quiz' | 'journal' | 'insights' | 'profile' | 'time'>('retreat');
+  const [isChatOpen, setIsChatOpen] = useState(false);
   const { setActiveCategory } = useTimeTracking();
 
   useEffect(() => {
@@ -556,6 +559,7 @@ export default function App() {
         <DailyInspiration userProfile={userProfile} />
         <ChallengeWidget />
         <PWAPrompt />
+        <ChatBot isOpen={isChatOpen} onClose={() => setIsChatOpen(false)} />
       </main>
 
       <nav className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center h-20 glass-3d rounded-[2.5rem] px-2 w-[calc(100%-2rem)] max-w-[650px] overflow-x-auto scrollbar-hide preserve-3d shadow-[0_20px_50px_rgba(0,0,0,0.2)]">
@@ -571,6 +575,7 @@ export default function App() {
           <NavItem active={activeTab === 'journey'} onClick={() => setActiveTab('journey')} icon={<Map size={22} />} label="رحلتك" />
           <NavItem active={activeTab === 'profile'} onClick={() => setActiveTab('profile')} icon={<User size={22} />} label="أنا" />
           <NavItem active={activeTab === 'time'} onClick={() => setActiveTab('time')} icon={<Clock size={22} />} label="عمرك أغلى" />
+          <NavItem active={isChatOpen} onClick={() => setIsChatOpen(true)} icon={<Sparkles size={22} />} label="خطوة الإصلاح" />
         </div>
       </nav>
     </div>

@@ -1,12 +1,22 @@
 import { initializeApp } from 'firebase/app';
 import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult } from 'firebase/auth';
-import { getFirestore, doc, getDocFromCache, getDocFromServer } from 'firebase/firestore';
+import { 
+  doc, 
+  getDocFromServer, 
+  initializeFirestore, 
+  persistentLocalCache, 
+  persistentMultipleTabManager 
+} from 'firebase/firestore';
 import firebaseConfig from '../../firebase-applet-config.json';
 
 const app = initializeApp(firebaseConfig);
 
-// Standard Firestore setup - MUST pass the database ID from config for AI Studio projects
-export const db = getFirestore(app, firebaseConfig.firestoreDatabaseId); 
+// Initialize Firestore with modern persistence configuration
+export const db = initializeFirestore(app, {
+  localCache: persistentLocalCache({
+    tabManager: persistentMultipleTabManager()
+  })
+}, firebaseConfig.firestoreDatabaseId); 
 
 export const auth = getAuth(app);
 export { getRedirectResult };
