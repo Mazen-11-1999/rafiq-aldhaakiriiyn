@@ -567,7 +567,7 @@ export default function App() {
           <NavItem active={activeTab === 'retreat'} onClick={() => setActiveTab('retreat')} icon={<Compass size={22} />} label="الرئيسية" />
           <NavItem active={activeTab === 'dhikr'} onClick={() => setActiveTab('dhikr')} icon={<ListChecks size={22} />} label="ذكر" />
           <NavItem active={activeTab === 'stories'} onClick={() => setActiveTab('stories')} icon={<BookOpen size={20} />} label="قصص" />
-          <NavItem active={activeTab === 'habits'} onClick={() => setActiveTab('habits')} icon={<ListChecks size={22} />} label="المنهج" />
+          <NavItem active={activeTab === 'habits'} onClick={() => setActiveTab('habits')} icon={<ListChecks size={22} />} label="مختبر البر" />
           <NavItem active={activeTab === 'ethics'} onClick={() => setActiveTab('ethics')} icon={<Scale size={22} />} label="الميزان" />
           <NavItem active={activeTab === 'history'} onClick={() => setActiveTab('history')} icon={<Book size={20} />} label="السيرة" />
           <NavItem active={activeTab === 'nasheeds'} onClick={() => setActiveTab('nasheeds')} icon={<Music size={22} />} label="أناشيد" />

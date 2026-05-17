@@ -4,18 +4,15 @@ import {
   doc, 
   getDocFromServer, 
   initializeFirestore, 
-  persistentLocalCache, 
-  persistentMultipleTabManager 
+  memoryLocalCache 
 } from 'firebase/firestore';
 import firebaseConfig from '../../firebase-applet-config.json';
 
 const app = initializeApp(firebaseConfig);
 
-// Initialize Firestore with modern persistence configuration
+// Initialize Firestore; using memory cache to avoid QuotaExceededError in shared environments
 export const db = initializeFirestore(app, {
-  localCache: persistentLocalCache({
-    tabManager: persistentMultipleTabManager()
-  })
+  localCache: memoryLocalCache()
 }, firebaseConfig.firestoreDatabaseId); 
 
 export const auth = getAuth(app);

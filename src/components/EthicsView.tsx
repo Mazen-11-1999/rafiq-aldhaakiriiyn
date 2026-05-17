@@ -244,13 +244,18 @@ export default function EthicsView() {
                   <h4 className="text-xl font-black text-indigo-900 mb-6">{story.title}</h4>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <div className="space-y-4">
+                      <span className="text-[10px] font-bold text-indigo-400 uppercase tracking-widest px-2">القصة والواقع</span>
                       <p className="text-indigo-900/80 leading-relaxed bg-white/40 p-5 rounded-3xl border border-white">{story.scenario}</p>
                     </div>
                     <div className="space-y-6">
                       <div className="bg-red-50 p-5 rounded-3xl border border-red-100">
+                        <span className="text-[10px] font-bold text-red-400 uppercase tracking-widest block mb-2">تزييف الشيطان</span>
                         <p className="text-red-900/70 text-sm">{story.trap}</p>
                       </div>
-                      <div className="bg-indigo-600 p-5 rounded-3xl text-white"><p className="font-medium">{story.awareness}</p></div>
+                      <div className="bg-indigo-600 p-5 rounded-3xl text-white">
+                        <span className="text-[10px] font-bold text-indigo-300 uppercase tracking-widest block mb-2">الوعي واليقطة</span>
+                        <p className="font-medium">{story.awareness}</p>
+                      </div>
                     </div>
                   </div>
                 </div>

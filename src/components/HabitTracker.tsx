@@ -66,10 +66,10 @@ export default function HabitTracker({ onActivity }: { onActivity?: () => void }
           <span>منهج الأنبياء اليومي</span>
         </motion.div>
         <h1 className="text-4xl md:text-5xl font-serif font-black text-[#1b1c1a] leading-tight">
-          <span className="text-[#4e635a]">تتبع أخلاق الانبياء</span> الذي علموك هي
+          كن <span className="text-[#4e635a]">وارثاً لنهجِ الأنبياء</span> في يومك
         </h1>
         <p className="text-[#655d51] text-lg max-w-xl mx-auto font-medium">
-          حوّل قصصهم من "معجزات مضت" إلى "منهج حي" تعيشه في تفاصيل يومك. ابدأ بتجسيد خلق واحد منهم اليوم.
+          الأنبياء لم يتركوا ذهباً بل تركوا "أثراً" ومنهجاً.. اختر خلقاً واحداً اليوم ليكون جزءاً من "شخصيتك" وتصرفاتك، وليس مجرد معلومة قرأتها.
         </p>
       </section>
 
