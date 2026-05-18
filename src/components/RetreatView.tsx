@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { getSpiritualGuidance } from '../services/geminiService';
-import { Leaf, Mic, Plus, CheckCircle, Rocket, Target, Trash2 } from 'lucide-react';
+import { Leaf, Mic, Plus, CheckCircle, Rocket, Target, Trash2, Clock, Book, ListChecks, Scale, Music, Map, PieChart, Sparkles } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { UserProfile, ChatMessage } from '../types';
 
@@ -9,9 +9,10 @@ interface RetreatViewProps {
   userProfile: UserProfile | null;
   chatMessages: ChatMessage[];
   setChatMessages: React.Dispatch<React.SetStateAction<ChatMessage[]>>;
+  onTabChange: (tab: any) => void;
 }
 
-export default function RetreatView({ userProfile, chatMessages, setChatMessages }: RetreatViewProps) {
+export default function RetreatView({ userProfile, chatMessages, setChatMessages, onTabChange }: RetreatViewProps) {
   const [mood, setMood] = useState<string>('');
   const [loadingAi, setLoadingAi] = useState(false);
   const [isListening, setIsListening] = useState(false);
@@ -135,6 +136,18 @@ export default function RetreatView({ userProfile, chatMessages, setChatMessages
     setShowClearConfirm(false);
   };
 
+  const ToolCard = ({ icon, label, onClick }: { icon: React.ReactNode, label: string, onClick: () => void }) => (
+    <motion.button
+      whileHover={{ scale: 1.05, y: -2 }}
+      whileTap={{ scale: 0.95 }}
+      onClick={onClick}
+      className="flex flex-col items-center justify-center p-3 rounded-2xl bg-white border border-[#4e635a]/5 shadow-sm space-y-2 hover:shadow-md transition-all h-20"
+    >
+      <div className="text-[#4e635a] opacity-80">{icon}</div>
+      <span className="text-[10px] font-bold text-[#6b5c4c]">{label}</span>
+    </motion.button>
+  );
+
   return (
     <div className="relative min-h-full flex flex-col items-center justify-center p-6 space-y-12 overflow-hidden perspective-1000">
       {/* 3D Background Elements */}
@@ -163,8 +176,8 @@ export default function RetreatView({ userProfile, chatMessages, setChatMessages
 
       {/* Greeting */}
       <div className="z-10 text-center space-y-2 relative w-full max-w-lg">
-        <p className="text-[#4e635a]/70 font-bold tracking-[0.3em] uppercase text-xs">الآن هو وقت الهدوء</p>
-        <h2 className="text-4xl font-bold text-[#1b1c1a] font-serif">معك وين ما كنت</h2>
+        <p className="text-[#4e635a]/70 font-bold tracking-[0.3em] uppercase text-xs">سندك.. نحو حياة حقيقية</p>
+        <h2 className="text-4xl font-bold text-[#1b1c1a] font-serif">الآن هو وقت الهدوء</h2>
       </div>
 
       {/* AI Assistant Sanad Conversation Area */}
@@ -198,6 +211,25 @@ export default function RetreatView({ userProfile, chatMessages, setChatMessages
                       {m.label}
                     </motion.button>
                   ))}
+                </div>
+
+                <div className="mt-12 space-y-4 transform translateZ(10px)">
+                  <div className="flex items-center gap-3">
+                    <div className="h-[1px] flex-1 bg-[#4e635a]/10" />
+                    <span className="text-[10px] font-bold text-[#4e635a]/30 uppercase tracking-widest">أدوات رحلتك</span>
+                    <div className="h-[1px] flex-1 bg-[#4e635a]/10" />
+                  </div>
+                  
+                  <div className="grid grid-cols-4 gap-2">
+                    <ToolCard icon={<Clock size={16} />} label="المواقيت" onClick={() => onTabChange('prayer-times')} />
+                    <ToolCard icon={<Book size={16} />} label="المفكرة" onClick={() => onTabChange('journal')} />
+                    <ToolCard icon={<ListChecks size={16} />} label="المختبر" onClick={() => onTabChange('habits')} />
+                    <ToolCard icon={<Scale size={16} />} label="الميزان" onClick={() => onTabChange('ethics')} />
+                    <ToolCard icon={<Clock size={14} />} label="الوقت" onClick={() => onTabChange('time')} />
+                    <ToolCard icon={<Music size={16} />} label="أناشيد" onClick={() => onTabChange('nasheeds')} />
+                    <ToolCard icon={<Map size={16} />} label="الرحلة" onClick={() => onTabChange('journey')} />
+                    <ToolCard icon={<PieChart size={16} />} label="النمو" onClick={() => onTabChange('insights')} />
+                  </div>
                 </div>
             </motion.div>
           )}

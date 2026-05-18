@@ -67,16 +67,21 @@ export default function PrayerAlarmOverlay({ prayerName, message, isOpen, onClos
       audio.addEventListener('error', handleAudioError);
 
       const attemptPlay = async () => {
+        if (!audioRef.current || !isOpen) return;
         try {
-          await audio.play();
+          // Reset state before play
           setIsBlocked(false);
           setAudioError(null);
+          await audio.play();
         } catch (err: any) {
           if (err.name === 'NotAllowedError') {
             setIsBlocked(true);
+          } else if (err.name === 'AbortError') {
+             console.log('Playback aborted (likely due to track change or component close)');
           } else {
-             // If it failed because of source error, handleAudioError will trigger
-             console.warn('Initial play failed for non-block reason:', err.message);
+             // If it failed because of source error, handleAudioError will trigger via listener
+             console.warn('Initial play failed:', err.message);
+             // handleAudioError() is already attached to 'error' event
           }
           
           const playOnInteraction = async () => {
@@ -91,10 +96,11 @@ export default function PrayerAlarmOverlay({ prayerName, message, isOpen, onClos
                 setAudioError(null);
                 cleanupEvents();
               }
-            } catch (e) {
-              console.error('Playback still blocked or failed after interaction. Error:', e instanceof Error ? e.message : String(e));
-              // Trigger another fallback if needed
-              handleAudioError();
+            } catch (e: any) {
+              if (e.name !== 'NotAllowedError' && e.name !== 'AbortError') {
+                console.error('Playback failed after interaction:', e.message);
+                handleAudioError();
+              }
             }
           };
           

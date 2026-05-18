@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { BookOpen, Send, CheckCircle2, History, Sparkles, Feather, Trash2 } from 'lucide-react';
+import { BookOpen, Send, CheckCircle2, History, Sparkles, Feather, Trash2, Download } from 'lucide-react';
 import { db, auth } from '../lib/firebase';
 import { collection, query, where, orderBy, onSnapshot, addDoc, serverTimestamp, deleteDoc, doc } from 'firebase/firestore';
 import { handleFirestoreError } from '../lib/firestore-errors';
 import { OperationType } from '../types';
+import { DataExportService } from '../services/dataExportService';
 
 import { UserProfile } from '../types';
 
@@ -19,6 +20,23 @@ export default function JournalView({ userProfile }: { userProfile: UserProfile 
   const [reflection, setReflection] = useState('');
   const [notes, setNotes] = useState<ReflectionEntry[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isExporting, setIsExporting] = useState(false);
+
+  const handleExport = async () => {
+    if (notes.length === 0) return;
+    setIsExporting(true);
+    try {
+      const formattedEntries = notes.map(n => ({
+        content: n.text,
+        createdAt: n.createdAt
+      }));
+      await DataExportService.exportJournalToPDF(formattedEntries, userProfile?.displayName || 'رفيق');
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setIsExporting(false);
+    }
+  };
 
   useEffect(() => {
     const user = auth.currentUser;
@@ -104,9 +122,19 @@ export default function JournalView({ userProfile }: { userProfile: UserProfile 
 
   return (
     <div className="p-margin-page space-y-section-gap pb-12">
-      <header className="space-y-4">
-        <h2 className="text-3xl font-bold text-[#4e635a] font-serif">مذكرات النور</h2>
-        <p className="text-[#655d51] font-medium opacity-80">سجل لحظات امتنانك وتأملاتك اليومية لتكون لك نور في دربك .</p>
+      <header className="flex items-center justify-between">
+        <div className="space-y-4">
+          <h2 className="text-3xl font-bold text-[#4e635a] font-serif">مذكرات النور</h2>
+          <p className="text-[#655d51] font-medium opacity-80">سجل لحظات امتنانك وتأملاتك اليومية لتكون لك نور في دربك .</p>
+        </div>
+        <button 
+          onClick={handleExport}
+          disabled={isExporting || notes.length === 0}
+          className="flex items-center gap-2 px-6 py-3 bg-[#4e635a] text-white rounded-2xl font-bold hover:bg-[#3d4d46] transition-all disabled:opacity-30 shadow-lg shadow-[#4e635a]/20"
+        >
+          {isExporting ? <div className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin" /> : <Download size={18} />}
+          <span>تصدير PDF</span>
+        </button>
       </header>
 
       {/* Writing Area */}

@@ -4,13 +4,16 @@ import App from './App.tsx';
 import './index.css';
 import { ChallengeProvider } from './context/ChallengeContext';
 import { TimeTrackingProvider } from './context/TimeTrackingContext';
+import { MediaProvider } from './context/MediaContext';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <TimeTrackingProvider>
-      <ChallengeProvider>
-        <App />
-      </ChallengeProvider>
+      <MediaProvider>
+        <ChallengeProvider>
+          <App />
+        </ChallengeProvider>
+      </MediaProvider>
     </TimeTrackingProvider>
   </StrictMode>,
 );

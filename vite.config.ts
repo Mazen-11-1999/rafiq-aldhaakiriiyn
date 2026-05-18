@@ -11,11 +11,14 @@ export default defineConfig(({mode}) => {
       react(), 
       tailwindcss(),
       VitePWA({
-        registerType: 'prompt',
+        strategies: 'injectManifest',
+        srcDir: 'src',
+        filename: 'sw.ts',
+        registerType: 'autoUpdate',
         manifest: {
-          name: 'رفيق الذاكرين',
-          short_name: 'الرفيق',
-          description: 'رفيقك الرقمي للسكينة والذكر والتربية الأخلاقية',
+          name: 'سندك نحو حياة حقيقية',
+          short_name: 'سندك',
+          description: 'رحلتك نحو السكينة والوعي الروحي',
           theme_color: '#4e635a',
           background_color: '#fbf9f6',
           display: 'standalone',
@@ -39,60 +42,8 @@ export default defineConfig(({mode}) => {
             }
           ]
         },
-        workbox: {
+        injectManifest: {
           globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
-          runtimeCaching: [
-            {
-              urlPattern: /^https:\/\/ia\d+\.us\.archive\.org\/.*\.mp3$/,
-              handler: 'CacheFirst',
-              options: {
-                cacheName: 'nasheed-audio-archive',
-                expiration: {
-                  maxEntries: 20,
-                  maxAgeSeconds: 60 * 60 * 24 * 30 // 30 Days
-                },
-                cacheableResponse: {
-                  statuses: [0, 200]
-                }
-              }
-            },
-            {
-              urlPattern: /^https:\/\/.*\.albumaty\.com\/.*\.mp3$/,
-              handler: 'CacheFirst',
-              options: {
-                cacheName: 'nasheed-audio-albumaty',
-                expiration: {
-                  maxEntries: 100, // Increased for more nasheeds
-                  maxAgeSeconds: 60 * 60 * 24 * 30 // 30 Days
-                },
-                cacheableResponse: {
-                  statuses: [0, 200]
-                }
-              }
-            },
-            {
-              urlPattern: /^https:\/\/www\.albumaty\.com\/.*$/,
-              handler: 'StaleWhileRevalidate',
-              options: {
-                cacheName: 'nasheed-covers-albumaty',
-                expiration: {
-                  maxEntries: 50,
-                  maxAgeSeconds: 60 * 60 * 24 * 30 // 30 Days
-                }
-              }
-            },
-            {
-              urlPattern: /^https:\/\/i1\.sndcdn\.com\/.*$/,
-              handler: 'StaleWhileRevalidate',
-              options: {
-                cacheName: 'nasheed-covers',
-                expiration: {
-                  maxEntries: 50,
-                  maxAgeSeconds: 60 * 60 * 24 * 30 // 30 Days
-                }
-              }
-            }
-          ]
         }
       })
     ],

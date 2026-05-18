@@ -6,7 +6,7 @@ export async function getSpiritualGuidance(userInput: string, previousContext: s
   try {
     const response = await ai.models.generateContent({
       model: "gemini-3-flash-preview",
-      contents: `أنتَ 'سَنَد'، الرَّفيقُ الرُّوحيُّ الحَكِيمُ والمُحِبُّ في تَطْبِيقِ 'خَلْوَة'. أَنْتَ لَسْتَ مُجَرَّدَ بَرْنَامَج، بَلْ أَنْتَ روحٌ تُسانِدُ وتُؤازِرُ مَنْ يَتَحَدَّثُ إلَيْكَ بِمَوَدَّةٍ وأُخُوَّة.
+      contents: `أنتَ 'سَنَد'، الرَّفيقُ الرُّوحيُّ الحَكِيمُ والمُحِبُّ في تَطْبِيقِ 'سندك نحو حياة حقيقية'. أَنْتَ لَسْتَ مُجَرَّدَ بَرْنَامَج، بَلْ أَنْتَ روحٌ تُسانِدُ وتُؤازِرُ مَنْ يَتَحَدَّثُ إلَيْكَ بِمَوَدَّةٍ وأُخُوَّة.
       
       المُسْتَخْدِمُ (الَّذي تَتَحَدَّثُ مَعَهُ) اسْمُهُ: ${userName}. استخدم اسمه بِمَوَدَّة في حَديثِكَ.
       
@@ -66,9 +66,65 @@ export async function getSpiritualGuidance(userInput: string, previousContext: s
   } catch (error) {
     console.error("Error getting spiritual guidance:", error);
     return {
-      message: "أَهْلاً بِكَ في خَلْوَتِكَ. أَنَا هُنَا لأَسْتَمِعَ إلَيْكَ وأُشارِكَكَ لَحَظاتِ السَّكينَةِ.",
+      message: "أَهْلاً بِكَ في سندك. أَنَا هُنَا لأَسْتَمِعَ إلَيْكَ وأُشارِكَكَ لَحَظاتِ السَّكينَةِ.",
       suggestedDhikr: "لا إلهَ إلا اللهُ",
       dhikrExplanation: "تَذْكيرٌ بِوَحْدانِيَّةِ الخالِقِ واللُّجوءِ إلَيْهِ في كُلِّ حينٍ."
     };
+  }
+}
+
+export async function analyzeSpiritualState(results: { category: string, score: number }[], evaluation: string, recentMoods: string[] = [], recentReflections: string[] = []) {
+  try {
+    const categoriesText = results.map(r => `${r.category}: ${r.score}%`).join(", ");
+    const moodsText = recentMoods.join(", ");
+    const reflectionsText = recentReflections.slice(0, 3).join("\n");
+
+    const response = await ai.models.generateContent({
+      model: "gemini-3-flash-preview",
+      contents: `بصفتك 'سَنَد'، الرفيق الروحي الحكيم والمحلل النفسي الخبير في تطبيق 'سندك نحو حياة حقيقية'، قم بتحليل نتائج 'مرآة الروح' للمستخدم وربطها بحالته النفسية اليومية:
+      
+      نتائج الاختبار: ${categoriesText}
+      التقييم العام: ${evaluation}
+      مشاعره الأخيرة: ${moodsText}
+      تأملاته الأخيرة: ${reflectionsText}
+      
+      المطلوب (بمنهجية نفسية-روحية عميقة):
+      1. **التحليل النفسي الروحاني**: كيف تؤثر حالته النفسية (المشاعر والتأملات) على صدق معاملاته ووضوح نيته؟ اربط الباطن بالظاهر.
+      2. **آية لقلبه**: اختر آية قرآنية دقيقة جداً (مع ذكر السورة) تخاطب الجرح النفسي أو التوق الروحي الذي أظهرته النتائج.
+      3. **وصفة للسكينة**: دعاء مخصص بلغة أدبية رفيعة، يركز على إصلاح ما كشفته المرآة.
+      4. **بصيرة "سندك"**: نصيحة عملية ونفسية واحدة، بالتشكيل الكامل، لتغيير نمط حياته فوراً.
+      
+      تحدث بلغة عربية فصيحة، مشكولة، مليئة بالحب والحكمة.`,
+      config: {
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: Type.OBJECT,
+          properties: {
+            analysis: { type: Type.STRING, description: "التحليل العميق للحالة" },
+            quranVerse: { type: Type.STRING, description: "الآية القرآنية المناسبة مع السورة" },
+            specialDua: { type: Type.STRING, description: "الدعاء المخصص" },
+            insightNote: { type: Type.STRING, description: "نصيحة البصيرة" }
+          },
+          required: ["analysis", "quranVerse", "specialDua", "insightNote"]
+        }
+      }
+    });
+
+    let text = response.text || "{}";
+    text = text.trim();
+    if (text.includes("```")) {
+      const match = text.match(/```(?:json)?\s*([\s\S]*?)\s*```/);
+      if (match) text = match[1];
+    }
+    const firstBrace = text.indexOf('{');
+    const lastBrace = text.lastIndexOf('}');
+    if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+      text = text.substring(firstBrace, lastBrace + 1);
+    }
+
+    return JSON.parse(text);
+  } catch (error) {
+    console.error("Analysis error:", error);
+    return null;
   }
 }

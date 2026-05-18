@@ -19,6 +19,7 @@ export interface UserSettings {
   appearance: {
     language: 'ar' | 'en';
     dateFormat: 'western' | 'arabic';
+    darkMode: boolean;
   };
 }
 
@@ -38,6 +39,8 @@ export interface UserProfile {
   growthMinutes?: number;
   lastSessionAt?: any;
   lastActiveDate?: any;
+  coords?: { lat: number, lng: number };
+  pushSubscription?: any;
   settings?: UserSettings;
 }
 

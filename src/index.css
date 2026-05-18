@@ -6,19 +6,41 @@
   --font-serif: "Amiri", serif;
 }
 
+:root {
+  --bg-primary: #fbf9f6;
+  --bg-glass: rgba(255, 255, 255, 0.7);
+  --text-main: #1b1c1a;
+  --border-color: rgba(255, 255, 255, 0.4);
+}
+
+.dark {
+  --bg-primary: #0f110e;
+  --bg-glass: rgba(27, 28, 26, 0.8);
+  --text-main: #f4f6f5;
+  --border-color: rgba(78, 99, 90, 0.2);
+}
+
 body {
   font-family: var(--font-sans);
-  background-color: #fbf9f6;
+  background-color: var(--bg-primary);
+  color: var(--text-main);
   overscroll-behavior: none;
+  @apply transition-colors duration-500;
 }
 
 @layer utilities {
   .text-gradient {
     @apply bg-clip-text text-transparent bg-linear-to-r from-[#4e635a] to-[#8da399];
   }
+
+  .dark .text-gradient {
+    @apply from-[#8da399] to-[#c5d1cb];
+  }
   
   .glass-3d {
-    @apply bg-white/70 backdrop-blur-2xl border border-white/40 shadow-[0_20px_50px_rgba(78,99,90,0.15)] ring-1 ring-white/20;
+    @apply backdrop-blur-2xl border shadow-[0_20px_50px_rgba(78,99,90,0.15)] ring-1 ring-white/20;
+    background-color: var(--bg-glass);
+    border-color: var(--border-color);
   }
   
   .perspective-1000 {

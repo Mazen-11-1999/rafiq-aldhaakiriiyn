@@ -136,11 +136,14 @@ export default function DhikrView({ onSessionComplete }: { onSessionComplete?: (
       />
 
       <div className="text-center space-y-4 mt-8">
-         <h2 className="text-[#4e635a] font-bold text-xs uppercase tracking-[0.4em] opacity-60">مسبحة رفيق الذاكرين</h2>
+         <h2 className="text-[#4e635a] font-bold text-xs uppercase tracking-[0.4em] opacity-60">مسبحة سندك</h2>
          <p className="text-[#1b1c1a] text-2xl font-serif font-bold">
-           {sessionActive ? 'ركز في تسبيحك حتى ينتهي الوقت' : 'حدد وقت وردك المبارك'}
+           {sessionActive ? 'استشعر معية الله بقلبك في كل تسبيحة' : 'ابدأ وردك الهادئ.. القليل الدائم خير من الكثير المنقطع'}
          </p>
          <div className="w-12 h-1 bg-[#d1e8dd] mx-auto rounded-full" />
+         {!sessionActive && (
+           <p className="text-[#655d51] text-xs font-medium">يمكنك ممارسة هذا الذكر سراً في العمل أو المواصلات</p>
+         )}
       </div>
 
       <AnimatePresence mode="wait">

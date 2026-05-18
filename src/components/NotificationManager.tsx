@@ -115,15 +115,25 @@ export default function NotificationManager({ enabled, prayerEnabled = false, co
 
         // Add browser notification for extra visibility
         if (permission === 'granted') {
-          try {
-            new Notification(`حان الآن وقت صلاة ${PrayerService.getPrayerNameAr(key)}`, {
-              body: PrayerService.getPrayerMessage(key),
+          const title = `حان الآن وقت صلاة ${PrayerService.getPrayerNameAr(key)}`;
+          const body = PrayerService.getPrayerMessage(key);
+          const options = {
+              body,
               icon: '/compass.png',
               tag: `prayer_${key}`,
               requireInteraction: true
+          };
+
+          if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.ready.then(reg => {
+              reg.showNotification(title, options);
             });
-          } catch (e) {
-            console.warn("Could not show browser notification", e);
+          } else {
+            try {
+              new Notification(title, options);
+            } catch (e) {
+              console.warn("Could not show browser notification", e);
+            }
           }
         }
 
@@ -137,11 +147,19 @@ export default function NotificationManager({ enabled, prayerEnabled = false, co
       
       if (lastNotified !== todayString) {
         if (permission === 'granted') {
-          new Notification(title, {
+          const options = {
             body,
             icon: '/compass.png',
             tag: title
-          });
+          };
+
+          if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.ready.then(reg => {
+              reg.showNotification(title, options);
+            });
+          } else {
+            new Notification(title, options);
+          }
         }
         localStorage.setItem(`last_notified_${title}`, todayString);
       }

@@ -3,12 +3,17 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Heart, Sparkles, AlertCircle, CheckCircle2, ChevronLeft, ChevronRight, RefreshCcw, ShieldQuestion, Loader2 } from 'lucide-react';
 import { assessmentQuestions, AssessmentQuestion } from '../data/spiritualAssessmentQuestions';
 import { saveAssessment } from '../services/recordService';
+import { analyzeSpiritualState } from '../services/geminiService';
+import { DataExportService } from '../services/dataExportService';
+import { Download } from 'lucide-react';
 
-export const SpiritualMirror: React.FC = () => {
+export const SpiritualMirror: React.FC<{ recentMoods?: string[], recentReflections?: string[] }> = ({ recentMoods = [], recentReflections = [] }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, number>>({});
   const [isFinished, setIsFinished] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [aiInsight, setAiInsight] = useState<any>(null);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
 
   const currentQuestion = assessmentQuestions[currentIndex];
 
@@ -205,6 +210,7 @@ export const SpiritualMirror: React.FC = () => {
         ) : (
           <motion.div
             key="result"
+            id="spiritual-report"
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             className="bg-white rounded-2xl p-8 border border-slate-100 shadow-lg text-right"
@@ -252,13 +258,86 @@ export const SpiritualMirror: React.FC = () => {
               );
             })()}
 
-            <button
-              onClick={reset}
-              className="flex items-center gap-2 mx-auto text-emerald-600 hover:text-emerald-700 font-medium bg-emerald-50 px-6 py-2 rounded-full transition-colors"
-            >
-              <RefreshCcw size={18} />
-              إعادة التحقق
-            </button>
+              <AnimatePresence>
+                {aiInsight ? (
+                  <motion.div 
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="mt-8 space-y-6 border-t pt-8"
+                  >
+                    <div className="bg-[#4e635a]/5 p-6 rounded-[32px] border border-[#4e635a]/10 space-y-4">
+                       <h4 className="font-bold text-[#4e635a] flex items-center gap-2">
+                         <Sparkles size={18} />
+                         تحليل البصيرة العميقة
+                       </h4>
+                       <p className="text-sm leading-relaxed text-[#1b1c1a]/80 italic">
+                         {aiInsight.analysis}
+                       </p>
+                    </div>
+
+                    <div className="bg-emerald-50 p-6 rounded-[32px] border border-emerald-100 space-y-3">
+                       <p className="text-xs font-bold text-emerald-600 uppercase tracking-widest">آية لقلبك</p>
+                       <p className="text-xl font-serif text-emerald-900 leading-loose">
+                         {aiInsight.quranVerse}
+                       </p>
+                    </div>
+
+                    <div className="bg-amber-50 p-6 rounded-[32px] border border-amber-100 space-y-3">
+                       <p className="text-xs font-bold text-amber-600 uppercase tracking-widest">دعاء مخصص</p>
+                       <p className="font-serif text-[#1b1c1a]">
+                         {aiInsight.specialDua}
+                       </p>
+                    </div>
+
+                    <div className="bg-[#1b1c1a] p-6 rounded-[32px] text-white space-y-2">
+                       <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest">بصيرة "سندك"</p>
+                       <p className="text-sm font-medium leading-relaxed italic">
+                         {aiInsight.insightNote}
+                       </p>
+                    </div>
+                  </motion.div>
+                ) : (
+                  <motion.button
+                    whileTap={{ scale: 0.95 }}
+                    onClick={async () => {
+                      setIsAnalyzing(true);
+                      const res = calculateResults();
+                      const eval_res = getOverallEvaluation(res);
+                      const insight = await analyzeSpiritualState(res, eval_res.title, recentMoods, recentReflections);
+                      setAiInsight(insight);
+                      setIsAnalyzing(false);
+                    }}
+                    disabled={isAnalyzing}
+                    className="w-full mt-6 py-4 bg-[#4e635a] text-white rounded-2xl font-black text-sm flex items-center justify-center gap-3 shadow-lg shadow-[#4e635a]/20 disabled:opacity-50"
+                  >
+                    {isAnalyzing ? (
+                      <Loader2 size={20} className="animate-spin" />
+                    ) : (
+                      <Sparkles size={20} />
+                    )}
+                    <span>{isAnalyzing ? 'جاري كشف البصيرة...' : 'كشف البصيرة بالذكاء الاصطناعي'}</span>
+                  </motion.button>
+                )}
+              </AnimatePresence>
+
+              <div className="flex flex-col gap-4 mt-8">
+                <button
+                  onClick={async () => {
+                    await DataExportService.exportToPDF('spiritual-report', `spiritual-report-${Date.now()}`);
+                  }}
+                  className="w-full py-4 bg-[#1b1c1a] text-white rounded-2xl font-black text-sm flex items-center justify-center gap-3 shadow-lg shadow-black/20"
+                >
+                  <Download size={20} />
+                  <span>تحميل تقرير البصيرة PDF</span>
+                </button>
+                <button
+                  onClick={reset}
+                  className="flex-1 flex items-center justify-center gap-2 text-[#4e635a] hover:text-[#4e635a] font-medium bg-[#4e635a]/5 py-4 rounded-2xl transition-colors"
+                >
+                  <RefreshCcw size={18} />
+                  إعادة التحقق
+                </button>
+              </div>
           </motion.div>
         )}
       </AnimatePresence>

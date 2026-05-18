@@ -3,7 +3,7 @@ export const RINGTONES = [
   { 
     id: 'official-prayer', 
     name: 'تنبيه الأذان (رنين)', 
-    url: 'https://ia800904.us.archive.org/30/items/IslamicRingtones_201306/01.mp3'
+    url: 'https://actions.google.com/sounds/v1/alarms/digital_watch_alarm_long.ogg'
   },
   { 
     id: 'spiritual-call', 
@@ -13,7 +13,7 @@ export const RINGTONES = [
   { 
     id: 'faith-alert', 
     name: 'تنبيه إيماني', 
-    url: 'https://ia800904.us.archive.org/30/items/IslamicRingtones_201306/05.mp3'
+    url: 'https://actions.google.com/sounds/v1/alarms/mechanical_clock_ringing_long.ogg'
   },
   { 
     id: 'deep-meditation', 
@@ -23,12 +23,12 @@ export const RINGTONES = [
   { 
     id: 'morning-sun', 
     name: 'ضحى الصباح', 
-    url: 'https://ia800904.us.archive.org/30/items/IslamicRingtones_201306/03.mp3'
+    url: 'https://actions.google.com/sounds/v1/alarms/set_the_alarm.ogg'
   },
   { 
     id: 'sacred-echo', 
     name: 'صدى الخلود', 
-    url: 'https://ia800100.us.archive.org/30/items/nasheed_adel/Salawat.mp3'
+    url: 'https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg'
   },
   { 
     id: 'spiritual-calm', 
@@ -38,7 +38,7 @@ export const RINGTONES = [
   {
     id: 'classic-beep',
     name: 'منبه كلاسيكي',
-    url: 'https://ia800100.us.archive.org/30/items/nasheed_adel/Beep.mp3'
+    url: 'https://actions.google.com/sounds/v1/alarms/beeping_ship_bell.ogg'
   }
 ];
 
@@ -70,23 +70,23 @@ export const NASHEEDS: Nasheed[] = [
     id: 'nasheed-1',
     title: 'جد بلطفك',
     artist: 'أحمد بو خاطر',
-    url: 'https://www.ashefaa.com/enshad/files/Ahmed-Bukhatir/Fartaqi/01-Jod-Belotfak.mp3',
+    url: 'https://www.ashefaa.com/enshad/files/Ahmed-Bukhatir/Jud.Belutfik.mp3',
     urls: [
       'https://ia801908.us.archive.org/28/items/ahmed-bukhatir-fartaqi/01%20Jod%20Belotfak.mp3',
       'https://ia801908.us.archive.org/28/items/ahmed-bukhatir-fartaqi/01%20Jod%20Belotfak.mp3'
     ],
-    cover: 'https://images.unsplash.com/photo-1590076202213-90d65b938f31?q=80&w=200&auto=format&fit=crop'
+    cover: 'https://www.ashefaa.com/enshad/files/Ahmed-Bukhatir/JudBelutfek.jpg'
   },
   {
     id: 'nasheed-2',
     title: 'سجدت لك',
     artist: 'أحمد بو خاطر',
-    url: 'https://www.ashefaa.com/enshad/files/Ahmed-Bukhatir/Fartaqi/03-Sajadto-Laka.mp3',
+    url: 'https://www.ashefaa.com/enshad/files/Ahmed-Bukhatir/Sejadto.mp3',
     urls: [
       'https://ia801908.us.archive.org/28/items/ahmed-bukhatir-fartaqi/03%20Sajadto%20Laka.mp3',
       'https://ia801908.us.archive.org/28/items/ahmed-bukhatir-fartaqi/03%20Sajadto%20Laka.mp3'
     ],
-    cover: 'https://images.unsplash.com/photo-1542810634-71277d95dcbb?q=80&w=200&auto=format&fit=crop'
+    cover: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSJcp335rB0FhaA4oyUufQNJZZe21o3CCyGjw&s'
   },
   {
     id: 'nasheed-3',

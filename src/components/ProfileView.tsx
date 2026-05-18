@@ -4,19 +4,102 @@ import { handleFirestoreError } from '../lib/firestore-errors';
 import { auth, db } from '../lib/firebase';
 import { doc, updateDoc } from 'firebase/firestore';
 import { motion, AnimatePresence } from 'motion/react';
-import { User, Mail, Calendar, LogOut, Shield, Bell, Globe, ChevronLeft, HelpCircle, Map, BookOpen, Award, Check, Edit2, Save, X, Music } from 'lucide-react';
+import { User, Mail, Calendar, LogOut, Shield, Bell, Globe, ChevronLeft, HelpCircle, Map, BookOpen, Award, Check, Edit2, Save, X, Music, Target, RefreshCw, Moon, Sun, Download, FileText, Loader2 } from 'lucide-react';
 import { RINGTONES } from '../constants';
 import { cn } from '../lib/utils';
 import { NotificationService } from '../services/notificationService';
+import { jsPDF } from 'jspdf';
+import html2canvas from 'html2canvas';
+import { collection, query, getDocs, orderBy } from 'firebase/firestore';
 
 export default function ProfileView({ userProfile, onTabChange }: { userProfile: UserProfile | null, onTabChange?: (tab: any) => void }) {
   const [isEditingName, setIsEditingName] = useState(false);
   const [newName, setNewName] = useState(userProfile?.displayName || '');
   const [isSaving, setIsSaving] = useState(false);
 
-  const [activeSettingsTab, setActiveSettingsTab] = useState<'none' | 'notifications' | 'privacy' | 'appearance'>('none');
+  const [activeSettingsTab, setActiveSettingsTab] = useState<'none' | 'notifications' | 'privacy' | 'appearance' | 'location'>('none');
+  const [isUpdatingLocation, setIsUpdatingLocation] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
 
   if (!userProfile) return null;
+
+  const exportDataAsPDF = async () => {
+    if (!auth.currentUser) return;
+    setIsExporting(true);
+    
+    try {
+      const reflectionsRef = collection(db, 'users', auth.currentUser.uid, 'reflections');
+      const q = query(reflectionsRef, orderBy('createdAt', 'desc'));
+      const snapshot = await getDocs(q);
+      const reflections = snapshot.docs.map(doc => doc.data());
+
+      const doc = new jsPDF({
+        orientation: 'p',
+        unit: 'mm',
+        format: 'a4'
+      });
+
+      const exportContainer = document.createElement('div');
+      exportContainer.style.position = 'absolute';
+      exportContainer.style.left = '-9999px';
+      exportContainer.style.width = '800px';
+      exportContainer.style.padding = '40px';
+      exportContainer.style.backgroundColor = '#ffffff';
+      exportContainer.style.direction = 'rtl';
+      
+      exportContainer.innerHTML = `
+        <div style="text-align: center; margin-bottom: 40px; border-bottom: 2px solid #4e635a; padding-bottom: 20px;">
+          <h1 style="color: #4e635a; font-size: 28px; margin-bottom: 10px;">رحلة النور - تقرير البصيرة</h1>
+          <p style="color: #727875; margin: 5px 0;">الاسم: ${userProfile.displayName}</p>
+          <p style="color: #727875; margin: 5px 0;">التاريخ: ${new Date().toLocaleDateString('ar-SA')}</p>
+        </div>
+        <div style="margin-bottom: 30px;">
+          <h2 style="color: #4e635a; border-right: 4px solid #d4a373; padding-right: 14px; margin-bottom: 15px;">إحصائيات الرحلة</h2>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            <p>إجمالي الجلسات: <strong>${userProfile.totalSessions}</strong></p>
+            <p>دقائق الذكر: <strong>${userProfile.dhikrMinutes || 0}</strong></p>
+            <p>دقائق الخلوة: <strong>${userProfile.retreatMinutes || 0}</strong></p>
+            <p>سجل المذكرات: <strong>${reflections.length}</strong></p>
+          </div>
+        </div>
+        <div style="margin-top: 20px;">
+          <h2 style="color: #4e635a; border-right: 4px solid #d4a373; padding-right: 14px; margin-bottom: 20px;">سجل المذكرات والتأملات</h2>
+          ${reflections.length > 0 ? reflections.map((r: any) => `
+            <div style="margin-bottom: 25px; padding: 20px; background-color: #fbf9f6; border-radius: 15px; border-right: 4px solid #4e635a;">
+              <p style="font-size: 16px; line-height: 1.8; margin-bottom: 10px; color: #1b1c1a;">${r.text}</p>
+              <div style="text-align: left; font-size: 11px; color: #999;">
+                ${r.createdAt?.toDate ? r.createdAt.toDate().toLocaleString('ar-SA') : ''}
+              </div>
+            </div>
+          `).join('') : '<p style="text-align: center; color: #999; padding: 40px;">لا يوجد مذكرات بعد في رحلتك.</p>'}
+        </div>
+        <div style="margin-top: 50px; text-align: center; font-size: 12px; color: #727875; border-top: 1px solid #eee; padding-top: 20px;">
+          تم توليد هذا التقرير كذكرى روحية بواسطة تطبيق سندك
+        </div>
+      `;
+
+      document.body.appendChild(exportContainer);
+      const canvas = await html2canvas(exportContainer, { 
+        scale: 2,
+        useCORS: true,
+        allowTaint: true
+      });
+      const imgData = canvas.toDataURL('image/png');
+      const imgProps = doc.getImageProperties(imgData);
+      const pdfWidth = doc.internal.pageSize.getWidth();
+      const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+      
+      doc.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+      doc.save(`Rafeeq_Journey_${userProfile.displayName}.pdf`);
+      document.body.removeChild(exportContainer);
+
+    } catch (error) {
+      console.error("Export error:", error);
+      alert("عذراً، حدث خطأ أثناء تصدير البيانات.");
+    } finally {
+      setIsExporting(false);
+    }
+  };
 
   const updateSettings = async (newSettings: any) => {
     if (!auth.currentUser) return;
@@ -117,7 +200,7 @@ export default function ProfileView({ userProfile, onTabChange }: { userProfile:
     <div className="p-margin-page space-y-section-gap perspective-1000 pb-20">
       <header className="space-y-2">
         <h2 className="text-3xl font-bold text-[#4e635a] font-serif">الملف الشخصي</h2>
-        <p className="text-[#424845] font-medium opacity-60">إدارة حسابك وتفضيلاتك في رفيق الذاكرين</p>
+        <p className="text-[#424845] font-medium opacity-60">إدارة حسابك وتفضيلاتك في سندك</p>
       </header>
 
       {/* User Info Card */}
@@ -308,6 +391,12 @@ export default function ProfileView({ userProfile, onTabChange }: { userProfile:
                   description="تغيير لغة التطبيق وتنسيق التاريخ" 
                   onClick={() => setActiveSettingsTab('appearance')}
                 />
+                <SettingsItem 
+                  icon={<Target size={20} />} 
+                  label="الموقع الجغرافي" 
+                  description="دقة مواقيت الصلاة حسب مدينتك" 
+                  onClick={() => setActiveSettingsTab('location')}
+                />
               </motion.div>
             ) : activeSettingsTab === 'notifications' ? (
               <motion.div 
@@ -413,11 +502,29 @@ export default function ProfileView({ userProfile, onTabChange }: { userProfile:
                   enabled={userProfile.settings?.privacy.shareInsights ?? true} 
                   onChange={(val: boolean) => updateSettings({ privacy: { shareInsights: val } })}
                 />
-                <div className="p-4 bg-red-50 text-red-600 rounded-2xl text-center font-bold cursor-pointer hover:bg-red-100 transition-colors">
-                  حذف كافة البيانات الشخصية
+                
+                <div className="space-y-4 pt-4 border-t border-[#4e635a]/10">
+                   <motion.button 
+                     whileTap={{ scale: 0.95 }}
+                     onClick={exportDataAsPDF}
+                     disabled={isExporting}
+                     className="w-full p-4 glass-3d rounded-2xl flex items-center gap-4 text-right hover:bg-white/40 transition-all disabled:opacity-50"
+                   >
+                     <div className="w-10 h-10 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center shadow-inner">
+                       {isExporting ? <Loader2 size={20} className="animate-spin" /> : <Download size={20} />}
+                     </div>
+                     <div>
+                       <p className="font-bold text-[#1b1c1a]">تصدير سجل الرحلة (PDF)</p>
+                       <p className="text-[10px] text-[#727875] font-bold">تحميل مذكراتك وإحصائياتك كتقرير روحي</p>
+                     </div>
+                   </motion.button>
+
+                   <div className="p-4 bg-red-50 text-red-600 rounded-2xl text-center font-bold cursor-pointer hover:bg-red-100 transition-colors">
+                     حذف كافة البيانات الشخصية
+                   </div>
                 </div>
               </motion.div>
-            ) : (
+            ) : activeSettingsTab === 'appearance' ? (
               <motion.div 
                 key="appearance-settings"
                 initial={{ opacity: 0, x: 20 }}
@@ -425,6 +532,30 @@ export default function ProfileView({ userProfile, onTabChange }: { userProfile:
                 exit={{ opacity: 0, x: -20 }}
                 className="p-4 space-y-6"
               >
+                <div className="flex items-center justify-between p-4 glass-3d rounded-2xl">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-[#4e635a]/10 text-[#4e635a] rounded-xl flex items-center justify-center">
+                        {userProfile.settings?.appearance?.darkMode ? <Moon size={20} /> : <Sun size={20} />}
+                      </div>
+                      <div>
+                        <p className="font-bold text-[#1b1c1a]">الوضع الليلي</p>
+                        <p className="text-[10px] text-[#727875] font-bold">مريح للعين في صلاة الليل والفجر</p>
+                      </div>
+                    </div>
+                    <button 
+                      onClick={() => updateSettings({ appearance: { ...userProfile.settings?.appearance, darkMode: !userProfile.settings?.appearance?.darkMode } })}
+                      className={cn(
+                        "w-14 h-8 rounded-full p-1 transition-colors duration-300",
+                        userProfile.settings?.appearance?.darkMode ? "bg-emerald-600" : "bg-[#e4e2df]"
+                      )}
+                    >
+                      <motion.div 
+                        animate={{ x: userProfile.settings?.appearance?.darkMode ? 24 : 0 }}
+                        className="w-6 h-6 bg-white rounded-full shadow-sm"
+                      />
+                    </button>
+                </div>
+
                 <div className="space-y-3">
                   <p className="text-sm font-bold text-[#727875] mr-2">لغة التطبيق</p>
                   <div className="flex gap-2">
@@ -465,6 +596,61 @@ export default function ProfileView({ userProfile, onTabChange }: { userProfile:
                   </div>
                 </div>
               </motion.div>
+            ) : activeSettingsTab === 'location' ? (
+              <motion.div 
+                key="location-settings"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                className="p-4 space-y-6"
+              >
+                <div className="glass-3d p-6 rounded-3xl bg-[#4e635a]/5 border border-[#4e635a]/10 space-y-4">
+                   <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 bg-[#4e635a] text-white rounded-2xl flex items-center justify-center shadow-lg">
+                        <Target size={24} />
+                      </div>
+                      <div>
+                        <p className="font-black text-[#1b1c1a]">موقعك الحالي</p>
+                        <p className="text-xs text-[#727875] font-bold">للحصول على مواقيت صلاة دقيقة</p>
+                      </div>
+                   </div>
+
+                   <div className="p-4 bg-white/60 backdrop-blur-md rounded-2xl border border-white/40 space-y-2">
+                      <div className="flex justify-between text-xs font-bold text-[#4e635a]">
+                        <span>خط العرض:</span>
+                        <span>{userProfile.coords?.lat?.toFixed(4) || 'غير محدد'}</span>
+                      </div>
+                      <div className="flex justify-between text-xs font-bold text-[#4e635a]">
+                        <span>خط الطول:</span>
+                        <span>{userProfile.coords?.lng?.toFixed(4) || 'غير محدد'}</span>
+                      </div>
+                   </div>
+
+                   <motion.button 
+                     whileTap={{ scale: 0.95 }}
+                     onClick={() => {
+                        setIsUpdatingLocation(true);
+                        window.dispatchEvent(new CustomEvent('request-location-update'));
+                        setTimeout(() => setIsUpdatingLocation(false), 2000);
+                     }}
+                     disabled={isUpdatingLocation}
+                     className="w-full py-4 bg-[#4e635a] text-white rounded-2xl font-black text-sm flex items-center justify-center gap-3 shadow-lg shadow-[#4e635a]/20 disabled:opacity-50"
+                   >
+                     <RefreshCw size={20} className={cn(isUpdatingLocation && "animate-spin")} />
+                     <span>{isUpdatingLocation ? 'جاري التحديث...' : 'تحديث الموقع الآن'}</span>
+                   </motion.button>
+                </div>
+
+                <div className="p-4 bg-amber-50 rounded-2xl border border-amber-100">
+                   <p className="text-xs font-bold text-amber-700 leading-relaxed">
+                     سيتم استخدام موقعك الجغرافي فقط لحساب مواقيت الصلاة بدقة حسب مدينتك الحالية. لا يتم مشاركة موقعك مع أي طرف ثالث.
+                   </p>
+                </div>
+              </motion.div>
+            ) : (
+              <div className="p-8 text-center text-[#727875] font-bold">
+                اختر قسماً من الإعدادات أعلاه
+              </div>
             )}
           </AnimatePresence>
         </div>

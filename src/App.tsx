@@ -24,16 +24,21 @@ import Background3D from './components/Background3D';
 import ChallengeWidget from './components/ChallengeWidget';
 import PWAPrompt from './components/PWAPrompt';
 import TimeFiqhView from './components/TimeFiqhView';
+import { LocationService } from './services/locationService';
 import { useTimeTracking } from './context/TimeTrackingContext';
 import { motion, AnimatePresence } from 'motion/react';
-import { LogIn, Compass, ListChecks, PieChart, VolumeX, Settings, User, BookOpen, Book, Map, HelpCircle, Music, Scale, Clock, Sparkles, Heart } from 'lucide-react';
+import { LogIn, Compass, ListChecks, PieChart, VolumeX, Settings, User, BookOpen, Book, Map, HelpCircle, Music, Scale, Clock, Sparkles, Heart, MessageCircle } from 'lucide-react';
 import { cn } from './lib/utils';
 
 import { ChatBot } from './components/ChatBot';
+import { MiniPlayer } from './components/MiniPlayer';
+
+import PrayerTimesView from './components/PrayerTimesView';
+import notificationSound from './assets/notification.mp3'; // assuming it exists or keeping it generic
 
 export default function App() {
   const [user, loading, error] = useAuthState(auth);
-  const [activeTab, setActiveTab] = useState<'retreat' | 'dhikr' | 'stories' | 'habits' | 'ethics' | 'nasheeds' | 'history' | 'journey' | 'quiz' | 'journal' | 'insights' | 'profile' | 'time' | 'spiritual-mirror' | 'spiritual-insights'>('retreat');
+  const [activeTab, setActiveTab] = useState<'retreat' | 'dhikr' | 'stories' | 'habits' | 'ethics' | 'nasheeds' | 'history' | 'journey' | 'quiz' | 'journal' | 'insights' | 'profile' | 'time' | 'spiritual-mirror' | 'spiritual-insights' | 'prayer-times'>('retreat');
   const [isChatOpen, setIsChatOpen] = useState(false);
   const { setActiveCategory } = useTimeTracking();
 
@@ -48,7 +53,7 @@ export default function App() {
   }, [activeTab, setActiveCategory]);
 
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
-  const [coords, setCoords] = useState<{lat: number, lng: number} | null>(null);
+  const [coords, setCoords] = useState<{lat: number, lng: number} | null>(() => LocationService.getSavedLocation());
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>(() => {
     const saved = localStorage.getItem('sanad_chat');
     return saved ? JSON.parse(saved) : [];
@@ -59,20 +64,47 @@ export default function App() {
   }, [chatMessages]);
 
   useEffect(() => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          setCoords({ lat: position.coords.latitude, lng: position.coords.longitude });
-        },
-        (error) => {
-          console.warn("Geolocation denied or failed. Using default location (Mecca).", error);
-          setCoords({ lat: 21.4225, lng: 39.8262 }); // Mecca as default
-        }
-      );
+    if (userProfile?.settings?.appearance?.darkMode) {
+      document.documentElement.classList.add('dark');
     } else {
-      setCoords({ lat: 21.4225, lng: 39.8262 });
+      document.documentElement.classList.remove('dark');
     }
-  }, []);
+  }, [userProfile?.settings?.appearance?.darkMode]);
+
+  useEffect(() => {
+    // Initial location check if not already set
+    if (!coords) {
+      LocationService.getCurrentLocation()
+        .then(newCoords => setCoords(newCoords))
+        .catch(err => {
+          console.warn("Initial location failed, using default (Mecca).", err);
+          setCoords({ lat: 21.4225, lng: 39.8262 });
+        });
+    }
+
+    const handleUpdateLocation = async () => {
+      try {
+        const newCoords = await LocationService.getCurrentLocation();
+        setCoords(newCoords);
+        if (user && userProfile) {
+          const userRef = doc(db, 'users', user.uid);
+          await updateDoc(userRef, { coords: newCoords });
+        }
+      } catch (err) {
+        console.error("Manual location update failed:", err);
+      }
+    };
+
+    window.addEventListener('request-location-update', handleUpdateLocation);
+    return () => window.removeEventListener('request-location-update', handleUpdateLocation);
+  }, [user, userProfile, coords]);
+
+  useEffect(() => {
+    if (userProfile?.coords && (!coords || (coords.lat !== userProfile.coords.lat || coords.lng !== userProfile.coords.lng))) {
+      setCoords(userProfile.coords);
+      LocationService.saveLocation(userProfile.coords);
+    }
+  }, [userProfile?.coords]);
 
   useEffect(() => {
     if (user) {
@@ -91,7 +123,7 @@ export default function App() {
                 ringtone: 'official-prayer' 
               },
               privacy: { publicProfile: false, shareInsights: true },
-              appearance: { language: 'ar', dateFormat: 'arabic' }
+              appearance: { language: 'ar', dateFormat: 'arabic', darkMode: false }
             };
           }
           setUserProfile(data);
@@ -121,6 +153,7 @@ export default function App() {
                 appearance: {
                   language: 'ar',
                   dateFormat: 'arabic',
+                  darkMode: false,
                 }
               }
             };
@@ -312,7 +345,7 @@ export default function App() {
                  transition={{ delay: 0.2 }}
                  className="text-5xl md:text-6xl font-black text-[#4e635a] font-serif tracking-tight drop-shadow-md"
                >
-                 رفيق الذاكرين
+                 سندك نحو حياة حقيقية
                </motion.h1>
                <motion.p 
                  initial={{ opacity: 0, y: 10 }}
@@ -320,7 +353,7 @@ export default function App() {
                  transition={{ delay: 0.3 }}
                  className="text-[#655d51] text-lg md:text-xl font-medium px-4 leading-relaxed line-clamp-2 md:line-clamp-none overflow-hidden"
                >
-                 خلك قريب من ذكر الله.. وخلّ رفيق الذاكرين بيدك وين ما كنت.
+                 رحلتك نحو السكينة والوعي.. سندك على طريق الخير.
                </motion.p>
              </div>
           </div>
@@ -382,7 +415,7 @@ export default function App() {
           >
             <Compass size={22} />
           </motion.div>
-          <h1 className="text-2xl font-bold tracking-tighter text-[#4e635a] font-serif">رفيق الذاكرين</h1>
+          <h1 className="text-2xl font-bold tracking-tighter text-[#4e635a] font-serif">سندك</h1>
         </div>
         <div className="flex items-center gap-4">
           <button 
@@ -429,6 +462,7 @@ export default function App() {
                 userProfile={userProfile} 
                 chatMessages={chatMessages} 
                 setChatMessages={setChatMessages} 
+                onTabChange={setActiveTab}
               />
             </motion.div>
           )}
@@ -564,7 +598,10 @@ export default function App() {
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 1.1 }}
             >
-              <SpiritualMirror />
+              <SpiritualMirror 
+                recentMoods={chatMessages.filter(m => m.role === 'user').map(m => m.message)}
+                recentReflections={[]} // Simplified for now
+              />
             </motion.div>
           )}
           {activeTab === 'spiritual-insights' && (
@@ -577,29 +614,32 @@ export default function App() {
               <SpiritualInsightsView />
             </motion.div>
           )}
+          {activeTab === 'prayer-times' && (
+            <motion.div
+              key="prayer-times"
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -30 }}
+            >
+              <PrayerTimesView coords={coords} />
+            </motion.div>
+          )}
         </AnimatePresence>
         <DailyInspiration userProfile={userProfile} />
         <ChallengeWidget />
+        <MiniPlayer />
         <PWAPrompt />
         <ChatBot isOpen={isChatOpen} onClose={() => setIsChatOpen(false)} />
       </main>
 
-      <nav className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center h-20 glass-3d rounded-[2.5rem] px-2 w-[calc(100%-2rem)] max-w-[650px] overflow-x-auto scrollbar-hide preserve-3d shadow-[0_20px_50px_rgba(0,0,0,0.2)]">
-        <div className="flex items-center gap-1 min-w-max px-2">
+      <nav className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center h-20 glass-3d rounded-[2.5rem] px-2 w-[calc(100%-2rem)] max-w-[600px] overflow-x-auto scrollbar-hide preserve-3d shadow-[0_20px_50px_rgba(0,0,0,0.2)]">
+        <div className="flex items-center justify-around w-full gap-1 px-2" dir="rtl">
           <NavItem active={activeTab === 'retreat'} onClick={() => setActiveTab('retreat')} icon={<Compass size={22} />} label="الرئيسية" />
-          <NavItem active={activeTab === 'dhikr'} onClick={() => setActiveTab('dhikr')} icon={<ListChecks size={22} />} label="ذكر" />
-          <NavItem active={activeTab === 'stories'} onClick={() => setActiveTab('stories')} icon={<BookOpen size={20} />} label="قصص" />
-          <NavItem active={activeTab === 'habits'} onClick={() => setActiveTab('habits')} icon={<ListChecks size={22} />} label="مختبر البر" />
-          <NavItem active={activeTab === 'ethics'} onClick={() => setActiveTab('ethics')} icon={<Scale size={22} />} label="الميزان" />
-          <NavItem active={activeTab === 'history'} onClick={() => setActiveTab('history')} icon={<Book size={20} />} label="السيرة" />
-          <NavItem active={activeTab === 'nasheeds'} onClick={() => setActiveTab('nasheeds')} icon={<Music size={22} />} label="أناشيد" />
-          <NavItem active={activeTab === 'insights'} onClick={() => setActiveTab('insights')} icon={<PieChart size={22} />} label="إحصائيات" />
-          <NavItem active={activeTab === 'journey'} onClick={() => setActiveTab('journey')} icon={<Map size={22} />} label="رحلتك" />
-          <NavItem active={activeTab === 'spiritual-mirror'} onClick={() => setActiveTab('spiritual-mirror')} icon={<Heart size={22} />} label="مرآة الروح" />
-          <NavItem active={activeTab === 'spiritual-insights'} onClick={() => setActiveTab('spiritual-insights')} icon={<BookOpen size={22} />} label="بصيرة الحق" />
-          <NavItem active={activeTab === 'profile'} onClick={() => setActiveTab('profile')} icon={<User size={22} />} label="أنا" />
-          <NavItem active={activeTab === 'time'} onClick={() => setActiveTab('time')} icon={<Clock size={22} />} label="عمرك أغلى" />
-          <NavItem active={isChatOpen} onClick={() => setIsChatOpen(true)} icon={<Sparkles size={22} />} label="خطوة الإصلاح" />
+          <NavItem active={activeTab === 'dhikr'} onClick={() => setActiveTab('dhikr')} icon={<Sparkles size={22} />} label="مسبحة السر" />
+          <NavItem active={activeTab === 'history'} onClick={() => setActiveTab('history')} icon={<BookOpen size={22} />} label="قصص الأنبياء" />
+          <NavItem active={activeTab === 'spiritual-mirror'} onClick={() => setActiveTab('spiritual-mirror')} icon={<Heart size={22} />} label="مرآة البصيرة" />
+          <NavItem active={isChatOpen} onClick={() => setIsChatOpen(true)} icon={<MessageCircle size={22} />} label="جلسة الإصلاح" />
+          <NavItem active={activeTab === 'profile'} onClick={() => setActiveTab('profile')} icon={<User size={22} />} label="حسابي" />
         </div>
       </nav>
     </div>
