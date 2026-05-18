@@ -4,9 +4,10 @@ import { propheticHabits, PropheticHabit } from '../data/propheticHabits';
 import { 
   Wrench, Hammer, Sun, Heart, RefreshCw, Ship, 
   Target, MessageCircle, CheckCircle2, History, 
-  Sparkles, Trophy, Calendar, Quote, Send 
+  Sparkles, Trophy, Calendar, Quote, Send, Loader2, X 
 } from 'lucide-react';
 import { cn } from '../lib/utils';
+import { toggleHabitPersistence, getHabitsForDate } from '../services/recordService';
 
 const iconMap: any = {
   Wrench, Hammer, Sun, Heart, RefreshCw, Ship, Target, MessageCircle
@@ -18,37 +19,47 @@ export default function HabitTracker({ onActivity }: { onActivity?: () => void }
   const [reflection, setReflection] = useState('');
   const [activeHabit, setActiveHabit] = useState<PropheticHabit | null>(null);
   const [stats, setStats] = useState({ streak: 0, total: 0 });
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const saved = localStorage.getItem('prophetic_habits_completed');
-    if (saved) {
-      const data = JSON.parse(saved);
-      const today = new Date().toDateString();
-      if (data.date === today) {
-        setCompletedToday(data.habits || {});
+    async function loadTodayHabits() {
+      setIsLoading(true);
+      const today = new Date().toISOString().split('T')[0];
+      try {
+        const habits = await getHabitsForDate(today);
+        const map: Record<string, boolean> = {};
+        habits.forEach(h => map[h.habitId] = true);
+        setCompletedToday(map);
+      } catch (error) {
+        console.error("Error loading habits:", error);
+      } finally {
+        setIsLoading(false);
       }
     }
+    loadTodayHabits();
 
     const savedStats = localStorage.getItem('prophetic_habits_stats');
     if (savedStats) setStats(JSON.parse(savedStats));
   }, []);
 
-  const toggleHabit = (id: string) => {
-    const newState = { ...completedToday, [id]: !completedToday[id] };
+  const toggleHabit = async (id: string, title: string) => {
+    const isNowCompleted = !completedToday[id];
+    const newState = { ...completedToday, [id]: isNowCompleted };
     setCompletedToday(newState);
     
-    const today = new Date().toDateString();
-    localStorage.setItem('prophetic_habits_completed', JSON.stringify({
-      date: today,
-      habits: newState
-    }));
+    const today = new Date().toISOString().split('T')[0];
+    
+    try {
+      await toggleHabitPersistence(id, title, today, isNowCompleted);
+    } catch (error) {
+      console.error("Error toggling habit:", error);
+    }
 
-    if (!completedToday[id]) {
+    if (isNowCompleted) {
       const newStats = { ...stats, total: stats.total + 1, streak: stats.streak + 1 };
       setStats(newStats);
       localStorage.setItem('prophetic_habits_stats', JSON.stringify(newStats));
       
-      // Signal activity to global tracker
       if (onActivity) onActivity();
     }
   };
@@ -128,7 +139,7 @@ export default function HabitTracker({ onActivity }: { onActivity?: () => void }
                   <button 
                     onClick={(e) => {
                       e.stopPropagation();
-                      toggleHabit(habit.id);
+                      toggleHabit(habit.id, habit.title);
                     }}
                     className={cn(
                       "w-12 h-12 rounded-2xl flex items-center justify-center transition-all",
@@ -269,7 +280,7 @@ export default function HabitTracker({ onActivity }: { onActivity?: () => void }
                   <div className="flex gap-4">
                     <button 
                       onClick={() => {
-                        toggleHabit(activeHabit.id);
+                        toggleHabit(activeHabit.id, activeHabit.title);
                         setActiveHabit(null);
                       }}
                       className={cn(
@@ -289,24 +300,5 @@ export default function HabitTracker({ onActivity }: { onActivity?: () => void }
         )}
       </AnimatePresence>
     </div>
-  );
-}
-
-function X({ size, className }: { size?: number, className?: string }) {
-  return (
-    <svg 
-      xmlns="http://www.w3.org/2000/svg" 
-      width={size || 24} 
-      height={size || 24} 
-      viewBox="0 0 24 24" 
-      fill="none" 
-      stroke="currentColor" 
-      strokeWidth="2" 
-      strokeLinecap="round" 
-      strokeLinejoin="round" 
-      className={className}
-    >
-      <path d="M18 6 6 18"/><path d="m6 6 12 12"/>
-    </svg>
   );
 }

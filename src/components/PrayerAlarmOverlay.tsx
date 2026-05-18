@@ -32,15 +32,15 @@ export default function PrayerAlarmOverlay({ prayerName, message, isOpen, onClos
       const fallbacks = [
         'https://ia800100.us.archive.org/30/items/nasheed_adel/Salawat.mp3',
         'https://ia800904.us.archive.org/30/items/IslamicRingtones_201306/Spirit.mp3',
-        'https://ia800100.us.archive.org/30/items/nasheed_adel/Beep.mp3',
-        'https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3', // Mixkit bell as a very stable fallback
-        'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3' // Ultimate fallback
+        'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3', // High stability
+        'https://ia800100.us.archive.org/30/items/nasheed_adel/Beep.mp3', // Secondary fallback
+        'https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3' // CDNs are generally more stable
       ];
 
       let fallbackIndex = 0;
 
       const handleAudioError = () => {
-        if (!audioRef.current) return;
+        if (!audioRef.current || !isOpen) return;
 
         if (fallbackIndex < fallbacks.length) {
           const nextFallback = fallbacks[fallbackIndex];
@@ -49,12 +49,15 @@ export default function PrayerAlarmOverlay({ prayerName, message, isOpen, onClos
           console.log(`Trying fallback (${fallbackIndex}/${fallbacks.length}): ${nextFallback}`);
           audioRef.current.src = nextFallback;
           audioRef.current.load();
-          audioRef.current.play().catch((err) => {
-             console.warn('Fallback audio play blocked or failed:', err instanceof Error ? err.message : String(err));
-             if (err.name === 'NotAllowedError') {
-               setIsBlocked(true);
-             }
-          });
+          
+          // Only attempt play if not blocked, otherwise wait for interaction
+          if (!isBlocked) {
+            audioRef.current.play().catch((err) => {
+               if (err.name === 'NotAllowedError') {
+                 setIsBlocked(true);
+               }
+            });
+          }
         } else {
           setAudioError("عذراً، تعذر تحميل صوت التنبيه حالياً");
           console.error('All audio fallbacks failed');
@@ -67,26 +70,40 @@ export default function PrayerAlarmOverlay({ prayerName, message, isOpen, onClos
         try {
           await audio.play();
           setIsBlocked(false);
+          setAudioError(null);
         } catch (err: any) {
-          console.warn('Playback blocked or source invalid:', err instanceof Error ? err.message : String(err));
           if (err.name === 'NotAllowedError') {
             setIsBlocked(true);
+          } else {
+             // If it failed because of source error, handleAudioError will trigger
+             console.warn('Initial play failed for non-block reason:', err.message);
           }
           
           const playOnInteraction = async () => {
             try {
               if (audioRef.current && isOpen) {
+                // If it was in error state, try to reload first
+                if (audioRef.current.error || !audioRef.current.src) {
+                   handleAudioError();
+                }
                 await audioRef.current.play();
                 setIsBlocked(false);
-                window.removeEventListener('click', playOnInteraction);
-                window.removeEventListener('touchstart', playOnInteraction);
-                window.removeEventListener('keydown', playOnInteraction);
+                setAudioError(null);
+                cleanupEvents();
               }
             } catch (e) {
-              console.error('Playback still blocked. Error:', e instanceof Error ? e.message : String(e));
+              console.error('Playback still blocked or failed after interaction. Error:', e instanceof Error ? e.message : String(e));
+              // Trigger another fallback if needed
+              handleAudioError();
             }
           };
           
+          const cleanupEvents = () => {
+            window.removeEventListener('click', playOnInteraction);
+            window.removeEventListener('touchstart', playOnInteraction);
+            window.removeEventListener('keydown', playOnInteraction);
+          };
+
           window.addEventListener('click', playOnInteraction);
           window.addEventListener('touchstart', playOnInteraction);
           window.addEventListener('keydown', playOnInteraction);

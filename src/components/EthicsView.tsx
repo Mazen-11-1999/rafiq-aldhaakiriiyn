@@ -1,13 +1,37 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Scale, Heart, AlertTriangle, Quote, BookOpen, ChevronLeft, ChevronRight, Fingerprint, ShieldCheck, Sparkles, EyeOff, Moon, VenetianMask, Ghost, ShieldAlert, Zap } from 'lucide-react';
+import { Scale, Heart, AlertTriangle, Quote, BookOpen, ChevronLeft, ChevronRight, Fingerprint, ShieldCheck, Sparkles, EyeOff, Moon, VenetianMask, Ghost, ShieldAlert, Zap, Loader2, CheckCircle } from 'lucide-react';
 import { ETHICS_CHALLENGES, HYPOCRISY_TRAITS, HIDDEN_WORSHIP_LIST, REAL_STORIES, PROPHETIC_BOUNDARIES, SELF_CORRECTION_STEPS } from '../data/ethics';
 import { cn } from '../lib/utils';
+import { saveEthicsCommitment, getEthicsCommitments } from '../services/recordService';
 
 export default function EthicsView() {
   const [activeSection, setActiveSection] = useState<'challenges' | 'compass' | 'tazkiyah' | 'stories' | 'digital' | 'boundaries' | 'training'>('challenges');
   const [currentChallengeIndex, setCurrentChallengeIndex] = useState(0);
+  const [commitments, setCommitments] = useState<string[]>([]);
+  const [isCommiting, setIsCommiting] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function loadCommitments() {
+      const comms = await getEthicsCommitments();
+      setCommitments(comms.map(c => c.ethicId));
+    }
+    loadCommitments();
+  }, []);
+
+  const handleCommit = async (id: string, title: string) => {
+    if (commitments.includes(id)) return;
+    setIsCommiting(id);
+    try {
+      await saveEthicsCommitment(id, title);
+      setCommitments([...commitments, id]);
+    } catch (error) {
+      console.error("Error saving commitment:", error);
+    } finally {
+      setIsCommiting(null);
+    }
+  };
 
   const currentChallenge = ETHICS_CHALLENGES[currentChallengeIndex];
 
@@ -348,6 +372,31 @@ export default function EthicsView() {
                       {step.targetMindset}
                     </p>
                   </div>
+
+                  <button
+                    onClick={() => handleCommit(step.id, step.stepName)}
+                    disabled={commitments.includes(step.id) || isCommiting === step.id}
+                    className={cn(
+                      "mt-6 w-full py-4 rounded-3xl font-black text-sm transition-all flex items-center justify-center gap-2",
+                      commitments.includes(step.id) 
+                        ? "bg-emerald-100 text-emerald-700 cursor-default" 
+                        : "bg-orange-600 text-white hover:bg-orange-700 shadow-lg shadow-orange-600/20 active:scale-95"
+                    )}
+                  >
+                    {isCommiting === step.id ? (
+                      <Loader2 size={16} className="animate-spin" />
+                    ) : commitments.includes(step.id) ? (
+                      <>
+                        <CheckCircle size={16} />
+                        امتثلتُ لهذا الخلق
+                      </>
+                    ) : (
+                      <>
+                        <ShieldCheck size={16} />
+                        أعاهد الله على الالتزام
+                      </>
+                    )}
+                  </button>
                 </div>
               ))}
             </div>

@@ -17,6 +17,8 @@ import ProfileView from './components/ProfileView';
 import NasheedView from './components/NasheedView';
 import HabitTracker from './components/HabitTracker';
 import EthicsView from './components/EthicsView';
+import { SpiritualMirror } from './components/SpiritualMirror';
+import { SpiritualInsightsView } from './components/SpiritualInsightsView';
 import NotificationManager from './components/NotificationManager';
 import Background3D from './components/Background3D';
 import ChallengeWidget from './components/ChallengeWidget';
@@ -24,14 +26,14 @@ import PWAPrompt from './components/PWAPrompt';
 import TimeFiqhView from './components/TimeFiqhView';
 import { useTimeTracking } from './context/TimeTrackingContext';
 import { motion, AnimatePresence } from 'motion/react';
-import { LogIn, Compass, ListChecks, PieChart, VolumeX, Settings, User, BookOpen, Book, Map, HelpCircle, Music, Scale, Clock, Sparkles } from 'lucide-react';
+import { LogIn, Compass, ListChecks, PieChart, VolumeX, Settings, User, BookOpen, Book, Map, HelpCircle, Music, Scale, Clock, Sparkles, Heart } from 'lucide-react';
 import { cn } from './lib/utils';
 
 import { ChatBot } from './components/ChatBot';
 
 export default function App() {
   const [user, loading, error] = useAuthState(auth);
-  const [activeTab, setActiveTab] = useState<'retreat' | 'dhikr' | 'stories' | 'habits' | 'ethics' | 'nasheeds' | 'history' | 'journey' | 'quiz' | 'journal' | 'insights' | 'profile' | 'time'>('retreat');
+  const [activeTab, setActiveTab] = useState<'retreat' | 'dhikr' | 'stories' | 'habits' | 'ethics' | 'nasheeds' | 'history' | 'journey' | 'quiz' | 'journal' | 'insights' | 'profile' | 'time' | 'spiritual-mirror' | 'spiritual-insights'>('retreat');
   const [isChatOpen, setIsChatOpen] = useState(false);
   const { setActiveCategory } = useTimeTracking();
 
@@ -555,6 +557,26 @@ export default function App() {
               <TimeFiqhView />
             </motion.div>
           )}
+          {activeTab === 'spiritual-mirror' && (
+            <motion.div
+              key="spiritual-mirror"
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 1.1 }}
+            >
+              <SpiritualMirror />
+            </motion.div>
+          )}
+          {activeTab === 'spiritual-insights' && (
+            <motion.div
+              key="spiritual-insights"
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -30 }}
+            >
+              <SpiritualInsightsView />
+            </motion.div>
+          )}
         </AnimatePresence>
         <DailyInspiration userProfile={userProfile} />
         <ChallengeWidget />
@@ -573,6 +595,8 @@ export default function App() {
           <NavItem active={activeTab === 'nasheeds'} onClick={() => setActiveTab('nasheeds')} icon={<Music size={22} />} label="أناشيد" />
           <NavItem active={activeTab === 'insights'} onClick={() => setActiveTab('insights')} icon={<PieChart size={22} />} label="إحصائيات" />
           <NavItem active={activeTab === 'journey'} onClick={() => setActiveTab('journey')} icon={<Map size={22} />} label="رحلتك" />
+          <NavItem active={activeTab === 'spiritual-mirror'} onClick={() => setActiveTab('spiritual-mirror')} icon={<Heart size={22} />} label="مرآة الروح" />
+          <NavItem active={activeTab === 'spiritual-insights'} onClick={() => setActiveTab('spiritual-insights')} icon={<BookOpen size={22} />} label="بصيرة الحق" />
           <NavItem active={activeTab === 'profile'} onClick={() => setActiveTab('profile')} icon={<User size={22} />} label="أنا" />
           <NavItem active={activeTab === 'time'} onClick={() => setActiveTab('time')} icon={<Clock size={22} />} label="عمرك أغلى" />
           <NavItem active={isChatOpen} onClick={() => setIsChatOpen(true)} icon={<Sparkles size={22} />} label="خطوة الإصلاح" />

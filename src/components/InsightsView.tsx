@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { UserProfile } from '../types';
 import { motion } from 'motion/react';
-import { TrendingUp, Clock, Calendar, Award, Check, Settings, Book, Map } from 'lucide-react';
+import { TrendingUp, Clock, Calendar, Award, Check, Settings, Book, Map, Heart, ShieldCheck, Loader2 } from 'lucide-react';
+import { getLatestAssessment, getEthicsCommitments, getHabitsForDate, AssessmentRecord, EthicsCommitment } from '../services/recordService';
 
 function ActivityBadge({ icon, label }: { icon: React.ReactNode, label: string }) {
   return (
@@ -13,16 +14,60 @@ function ActivityBadge({ icon, label }: { icon: React.ReactNode, label: string }
 }
 
 export default function InsightsView({ userProfile }: { userProfile: UserProfile | null }) {
+  const [assessment, setAssessment] = useState<AssessmentRecord | null>(null);
+  const [commitments, setCommitments] = useState<EthicsCommitment[]>([]);
+  const [todayHabitsCount, setTodayHabitsCount] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadData() {
+      setIsLoading(true);
+      try {
+        const today = new Date().toISOString().split('T')[0];
+        const [latestAss, allComm, todayHab] = await Promise.all([
+          getLatestAssessment(),
+          getEthicsCommitments(),
+          getHabitsForDate(today)
+        ]);
+        setAssessment(latestAss);
+        setCommitments(allComm);
+        setTodayHabitsCount(todayHab.length);
+      } catch (error) {
+        console.error("Error loading insights data:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    loadData();
+  }, []);
+
   if (!userProfile) return null;
+
+  if (isLoading) {
+    return (
+      <div className="min-h-[60vh] flex flex-col items-center justify-center space-y-4">
+        <Loader2 className="w-10 h-10 text-emerald-600 animate-spin" />
+        <p className="text-slate-500 font-medium">جاري وزن الأعمال وتجهيز الميزان...</p>
+      </div>
+    );
+  }
+
+  const categoryLabels: Record<string, string> = {
+    intent: 'صدق النية',
+    ethics: 'الخلق',
+    consistency: 'الاستقامة',
+    ego: 'تزكية النفس',
+    knowledge: 'العلم والعمل'
+  };
 
   return (
     <div className="p-margin-page space-y-section-gap perspective-1000">
       <header className="space-y-2">
-        <h2 className="text-3xl font-bold text-[#4e635a] font-serif">إحصائيات السكون</h2>
-        <p className="text-[#424845] font-medium opacity-60">تتبع رحلتك في رحاب الهدوء والتأمل</p>
+        <h2 className="text-3xl font-bold text-[#4e635a] font-serif">ميزان الهداية</h2>
+        <p className="text-[#424845] font-medium opacity-60">تتبع أثر المجاهدة والعمل في قلبك</p>
       </header>
 
-      <div className="grid grid-cols-2 gap-gutter">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-gutter">
         <StatCard 
           label="إجمالي الدقائق"
           value={userProfile.totalMinutes.toString()}
@@ -31,45 +76,95 @@ export default function InsightsView({ userProfile }: { userProfile: UserProfile
           textColor="text-[#0b1f18]"
         />
         <StatCard 
-          label="أطول سلسلة"
-          value={userProfile.currentStreak.toString()}
-          icon={<TrendingUp size={20} />}
+          label="سنن طبقت اليوم"
+          value={todayHabitsCount.toString()}
+          icon={<Heart size={20} />}
           color="bg-[#f4dfcb]"
           textColor="text-[#241a0e]"
         />
       </div>
 
-      <section className="space-y-stack-md bg-[#4e635a]/5 p-8 rounded-[40px] border border-[#4e635a]/10">
+      {/* Spiritual Mirror Section */}
+      <section className="bg-white rounded-[40px] p-8 border border-slate-100 shadow-sm space-y-6">
         <div className="flex items-center justify-between">
-          <h3 className="text-xl font-bold text-[#4e635a]">إعدادات الالتزام</h3>
-          <Settings size={20} className="text-[#4e635a]/40" />
+          <div className="flex items-center gap-3">
+            <Heart className="text-emerald-600" />
+            <h3 className="text-xl font-bold text-slate-800">نتائج مرآة الروح</h3>
+          </div>
+          {assessment && (
+            <span className="text-xs font-bold text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-100">
+              {assessment.overallTitle}
+            </span>
+          )}
+        </div>
+
+        {assessment ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-4">
+              {Object.entries(assessment.scores).map(([cat, score]) => (
+                <div key={cat} className="space-y-1">
+                  <div className="flex justify-between text-xs font-bold text-slate-500">
+                    <span>{categoryLabels[cat] || cat}</span>
+                    <span>{Math.round(score as number)}%</span>
+                  </div>
+                  <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
+                    <motion.div 
+                      initial={{ width: 0 }}
+                      animate={{ width: `${score}%` }}
+                      className="h-full bg-emerald-500"
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="bg-slate-50 rounded-2xl p-6 flex flex-col justify-center">
+              <p className="text-slate-600 text-sm leading-relaxed text-center">
+                هذه المرآة تعكس حال قلبك في هذه اللحظة. تذكر أن الإصلاح يبدأ من الاعتراف بالقصور في حضرة الله.
+              </p>
+            </div>
+          </div>
+        ) : (
+          <div className="text-center py-10 bg-slate-50 rounded-3xl border border-dashed border-slate-200">
+            <p className="text-slate-500 font-medium italic">لم تقم بتقييم مرآة الروح بعد</p>
+          </div>
+        )}
+      </section>
+
+      {/* Ethics Commitments */}
+      <section className="space-y-6">
+        <div className="flex items-center gap-3">
+          <ShieldCheck className="text-orange-600" />
+          <h3 className="text-xl font-bold text-slate-800">مواثيق الأخلاق</h3>
         </div>
         
-        <div className="space-y-6">
-          <div className="p-6 bg-white rounded-3xl border border-white shadow-sm space-y-4">
-             <div className="flex justify-between items-center">
-               <span className="text-sm font-bold text-[#4e635a]">مدة الخلوة اليومية</span>
-               <span className="text-xs font-bold text-[#8da399]">كل يوم</span>
-             </div>
-             <p className="text-lg font-serif text-[#1b1c1a]">خصص وقت لنفسك مع ربك</p>
-             <div className="h-1 bg-[#fbf9f6] rounded-full overflow-hidden">
-                <div className="h-full bg-[#4e635a] w-1/3" />
-             </div>
-          </div>
-
-          <div className="grid gap-3">
-             <p className="text-xs font-bold text-[#4e635a]/60 uppercase tracking-widest mr-2">أنشطة مقترحة للالتزام</p>
-             <div className="flex flex-wrap gap-2">
-                <ActivityBadge icon={<Book size={14} />} label="قراءة قصص الأنبياء" />
-                <ActivityBadge icon={<Map size={14} />} label="تتبع المسيرة والمنهج" />
-                <ActivityBadge icon={<Clock size={14} />} label="الذكر المستمر" />
-             </div>
-          </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {commitments.length > 0 ? commitments.map((comm) => (
+            <motion.div 
+              key={comm.id}
+              whileHover={{ scale: 1.02 }}
+              className="p-5 bg-white border border-slate-100 rounded-3xl shadow-sm flex items-center gap-4"
+            >
+              <div className="w-10 h-10 rounded-xl bg-orange-50 text-orange-600 flex items-center justify-center shrink-0">
+                <Check size={20} />
+              </div>
+              <div>
+                <p className="font-bold text-slate-800 text-sm">{comm.title}</p>
+                <p className="text-xs text-slate-500">عهد الإصلاح والالتزام</p>
+              </div>
+            </motion.div>
+          )) : (
+            <div className="col-span-full py-10 text-center bg-slate-50 rounded-3xl border border-dashed border-slate-200">
+               <p className="text-slate-400 text-sm italic">لا توجد عهود أخلاقية مسجلة بعد</p>
+            </div>
+          )}
         </div>
       </section>
 
-      <section className="space-y-stack-md">
-        <h3 className="text-xl font-bold text-[#4e635a]">محطات الإنجاز</h3>
+      <section className="space-y-stack-md bg-[#4e635a]/5 p-8 rounded-[40px] border border-[#4e635a]/10">
+        <div className="flex items-center justify-between">
+          <h3 className="text-xl font-bold text-[#4e635a]">محطات الإنجاز</h3>
+          <Award size={20} className="text-[#4e635a]/40" />
+        </div>
         <div className="space-y-stack-sm">
            <AchievementItem 
              title="نور الإقبال"
@@ -77,14 +172,14 @@ export default function InsightsView({ userProfile }: { userProfile: UserProfile
              achieved={userProfile.totalMinutes > 0}
            />
            <AchievementItem 
-             title="غيث السكينة"
-             description="تجاوز 100 دقيقة من الاتصال الروحي"
-             achieved={userProfile.totalMinutes >= 100}
+             title="صادق العهد"
+             description="الالتزام بـ 3 عهود أخلاقية"
+             achieved={commitments.length >= 3}
            />
            <AchievementItem 
-             title="الذاكر الثابت"
-             description="الموافقة على ورد يومي لمدة 7 أيام متتالية"
-             achieved={userProfile.currentStreak >= 7}
+             title="المثابر المستمر"
+             description="تطبيق 5 سنن نبوية في يوم واحد"
+             achieved={todayHabitsCount >= 5}
            />
         </div>
       </section>

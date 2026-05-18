@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { MessageCircle, Send, X, Loader2, Bot, User, Sparkles } from 'lucide-react';
 import { sendChatMessage, ChatMessage } from '../services/chatService';
+import { getUserContext } from '../services/recordService';
 
 interface ChatBotProps {
   isOpen: boolean;
@@ -12,8 +13,23 @@ export const ChatBot: React.FC<ChatBotProps> = ({ isOpen, onClose }) => {
   const [message, setMessage] = useState('');
   const [history, setHistory] = useState<ChatMessage[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [userContext, setUserContext] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (isOpen) {
+      async function loadContext() {
+        try {
+          const ctx = await getUserContext();
+          setUserContext(ctx);
+        } catch (err) {
+          console.error("Error loading context for chatbot:", err);
+        }
+      }
+      loadContext();
+    }
+  }, [isOpen]);
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -33,7 +49,7 @@ export const ChatBot: React.FC<ChatBotProps> = ({ isOpen, onClose }) => {
     setHistory(newHistory);
 
     try {
-      const aiResponse = await sendChatMessage(userMessage, history);
+      const aiResponse = await sendChatMessage(userMessage, history, userContext);
       setHistory([...newHistory, { role: 'model', parts: [{ text: aiResponse }] }]);
     } catch (err: any) {
       setError(err.message || 'حدث خطأ غير متوقع');

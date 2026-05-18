@@ -3,13 +3,13 @@ export interface ChatMessage {
   parts: { text: string }[];
 }
 
-export async function sendChatMessage(message: string, history: ChatMessage[]): Promise<string> {
+export async function sendChatMessage(message: string, history: ChatMessage[], userContext?: any): Promise<string> {
   const response = await fetch('/api/chat', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ message, chatHistory: history }),
+    body: JSON.stringify({ message, chatHistory: history, userContext }),
   });
 
   if (!response.ok) {

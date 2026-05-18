@@ -44,7 +44,7 @@ service cloud.firestore {
       }
 
       match /sessions/{sessionId} {
-        allow list: if isOwner(userId) && resource.data.userId == request.auth.uid;
+        allow list: if isOwner(userId);
         allow get: if isOwner(userId);
         allow create: if isOwner(userId) && isValidSession(request.resource.data);
         allow update, delete: if false; // Sessions are immutable logs
@@ -59,9 +59,51 @@ service cloud.firestore {
       }
 
       match /reflections/{reflectionId} {
-        allow list: if isOwner(userId) && resource.data.userId == request.auth.uid;
+        allow list: if isOwner(userId);
         allow get: if isOwner(userId);
         allow create: if isOwner(userId) && isValidReflection(request.resource.data);
+        allow delete: if isOwner(userId);
+      }
+
+      // --- Assessments Subcollection ---
+      function isValidAssessment(data) {
+        return data.userId == request.auth.uid &&
+               data.scores is map &&
+               data.createdAt == request.time;
+      }
+
+      match /assessments/{assessmentId} {
+        allow list: if isOwner(userId);
+        allow get: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidAssessment(request.resource.data);
+      }
+
+      // --- Habits Subcollection ---
+      function isValidHabit(data) {
+        return data.userId == request.auth.uid &&
+               data.habitId is string &&
+               data.date is string;
+      }
+
+      match /habits/{habitId} {
+        allow list: if isOwner(userId);
+        allow get: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidHabit(request.resource.data);
+        allow delete: if isOwner(userId);
+      }
+
+      // --- Ethics Commitments Subcollection ---
+      function isValidCommitment(data) {
+        return data.userId == request.auth.uid &&
+               data.ethicId is string &&
+               data.status in ['active', 'completed', 'struggling'];
+      }
+
+      match /ethics_commitments/{commId} {
+        allow list: if isOwner(userId);
+        allow get: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidCommitment(request.resource.data);
+        allow update: if isOwner(userId) && isValidCommitment(request.resource.data);
         allow delete: if isOwner(userId);
       }
     }

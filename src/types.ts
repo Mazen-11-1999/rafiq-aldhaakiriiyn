@@ -82,3 +82,17 @@ export interface FirestoreErrorInfo {
     isAnonymous?: boolean | null;
   }
 }
+
+export interface SpiritualInsight {
+  id: string;
+  title: string;
+  category: 'sincerity' | 'integrity' | 'heart-purity';
+  content: string;
+  reflectionQuestion: string;
+}
+
+export interface AssessmentQuestion {
+  id: string;
+  text: string;
+  category: 'intent' | 'consistency' | 'ethics' | 'ego' | 'knowledge';
+}

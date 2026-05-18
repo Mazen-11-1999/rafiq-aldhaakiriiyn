@@ -8,7 +8,7 @@ export const RINGTONES = [
   { 
     id: 'spiritual-call', 
     name: 'نداء الروح (هادئ)', 
-    url: 'https://ia800904.us.archive.org/30/items/IslamicRingtones_201306/Spirit.mp3'
+    url: 'https://actions.google.com/sounds/v1/alarms/bugle_tune.ogg' // Ultra stable
   },
   { 
     id: 'faith-alert', 
@@ -18,7 +18,7 @@ export const RINGTONES = [
   { 
     id: 'deep-meditation', 
     name: 'تأمل عميق', 
-    url: 'https://ia800904.us.archive.org/30/items/IslamicRingtones_201306/02.mp3'
+    url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3'
   },
   { 
     id: 'morning-sun', 
@@ -28,12 +28,12 @@ export const RINGTONES = [
   { 
     id: 'sacred-echo', 
     name: 'صدى الخلود', 
-    url: 'https://ia800904.us.archive.org/30/items/IslamicRingtones_201306/04.mp3'
+    url: 'https://ia800100.us.archive.org/30/items/nasheed_adel/Salawat.mp3'
   },
   { 
     id: 'spiritual-calm', 
     name: 'سكينة روحية', 
-    url: 'https://ia800100.us.archive.org/30/items/nasheed_adel/Salawat.mp3'
+    url: 'https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3'
   },
   {
     id: 'classic-beep',

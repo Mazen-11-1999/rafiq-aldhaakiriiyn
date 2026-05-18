@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Map as MapIcon, Flag, Users, Heart, Target, ChevronRight, Swords, Shield, ScrollText, LayoutList, LocateFixed, ArrowRight, Compass, Youtube } from 'lucide-react';
+import { Map as MapIcon, Flag, Users, Heart, Target, ChevronRight, Swords, Shield, ScrollText, LayoutList, LocateFixed, ArrowRight, Compass, Youtube, Sparkles } from 'lucide-react';
 import { MapContainer, TileLayer, Marker, Popup, useMap, ZoomControl, Polyline } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -39,6 +39,7 @@ interface TimelineEvent {
   companionRole: string;
   story: string;
   manhaj: string;
+  reflectionQuestion: string;
   icon: React.ReactNode;
   color: string;
   description: string;
@@ -79,11 +80,34 @@ export default function HistoryMapView() {
       description: 'أول لقاء مع الوحي الأمين جبريل عليه السلام وبداية بزوغ فجر الإسلام.',
       story: 'كان النبي ﷺ يتعبد في غار حراء، فنزل عليه جبريل بكلمة "اقرأ"، فكانت الانطلاقة الكبرى لأعظم رسالة في التاريخ.',
       manhaj: 'التفكر والخلوة الصادقة مع الله هي أساس الاستعداد لتلقي النور واليقين.',
+      reflectionQuestion: 'لو كنت مكان النبي ﷺ في الغار، هل كنت ستملك الشجاعة لترك "عادات المجتمع" واتباع "نداء الحق" مهما كلفك ذلك؟',
       icon: <ScrollText className="text-white" />,
       color: '#4e635a',
       phaseName: 'رحلة التأسيس',
       phaseColor: '#EAB308',
-      imageUrl: 'https://i.ytimg.com/vi/fNbzxGCZU98/maxresdefault.jpg'
+      imageUrl: 'https://i.ytimg.com/vi/fNbzxGCZU98/maxresdefault.jpg',
+      videos: [
+        {
+          url: 'https://youtu.be/b93KArM0OCI?si=SfR5BxxMtcqn4TcP',
+          title: 'شاهد نداء السكينة والوحي الأول',
+          subtitle: 'من برنامج سواعد الإخاء'
+        },
+        {
+          url: 'https://youtu.be/fjKS8wf3pjQ?si=x4YjjeRhFquoQjXP',
+          title: 'أصعب أيام الإسلام',
+          subtitle: 'وقفات مع السيرة النبوية'
+        },
+        {
+          url: 'https://youtu.be/r-i7DjKT8eQ?si=ePCQQC94aGzmIFay',
+          title: 'عمر وحمزة يسلمان',
+          subtitle: 'قوة الحق وعزة الإسلام'
+        },
+        {
+          url: 'https://youtu.be/h6yacv9hECw?si=aqJCFJYKK0SdMKvn',
+          title: 'رحلة النبي في معجزة الإسراء والمعراج',
+          subtitle: 'رحلة الصعود والسكينة'
+        }
+      ]
     },
     {
       id: 'arqam',
@@ -96,6 +120,7 @@ export default function HistoryMapView() {
       description: 'المقر السري الأول الذي اجتمع فيه النبي ﷺ بأصحابه الأوائل لتعليمهم قيم الوحي وبناء جيل العقيدة.',
       story: 'كانت دار الأرقم هي "الجامعة الصغرى" التي تخرج فيها كبار الصحابة مثل عمر بن الخطاب وحمزة بن عبد المطلب، بعيداً عن أذى قريش.',
       manhaj: 'بناء الأفراد وتزكية النفوس هو اللبنة الأولى في بناء أي حضارة عظيمة. العلم والتربية يأتيان دائماً قبل التمكين والمواجهة.',
+      reflectionQuestion: 'هل تفتح قلبك ومنزلك لبناء الآخرين وتعليمهم، أم أن اهتمامك ينصب فقط على مصلحتك وراحتك الشخصية؟',
       icon: <Users className="text-white" />,
       color: '#4e635a',
       phaseName: 'رحلة التأسيس',
@@ -113,6 +138,7 @@ export default function HistoryMapView() {
       description: 'ثلاث سنوات من الجوع والعزلة في شعب أبي طالب، حيث أكل الصحابة أوراق الشجر ثباتاً على الحق.',
       story: 'تعاهدت قريش على قطع كل صلة وبناء وصناعة مع بني هاشم، فحبسوهم في الشعب، فما وهنوا وما استكانوا حتى أرسل الله "الأرضة" لتأكل صحيفة الظلم.',
       manhaj: 'اليقين لا يتزلزل بالجوع أو الحصار؛ فالمؤمن يعلم أن الرزاق هو الله، وأن بعد كل ضيقٍ مخرجاً ومنحة.',
+      reflectionQuestion: 'في أوقات "الحصار المادي" أو ضيق الرزق، هل تبيع مبادئك من أجل لقمة العيش، أم تثق أن الله سيبطل "صحيفة الظلم" في حياتك؟',
       icon: <Shield className="text-white" />,
       color: '#4e635a',
       phaseName: 'رحلة التأسيس',
@@ -292,6 +318,7 @@ export default function HistoryMapView() {
       description: 'العودة الظافرة إلى مكة بغير قتال وإعلان مبدأ العفو والتسامح الأكبر.',
       story: 'دخول مكة فاتحين متواضعين، وإعلان النبي ﷺ: "اذهبوا فأنتم الطلقاء". انتصار الأخلاق والقيم.',
       manhaj: 'العفو عند المقدرة. القوة الحقيقية في تغيير القلوب لا في الانتقام الجسدي.',
+      reflectionQuestion: 'عندما تملك "القوة" والقدرة على الانتقام ممن ظلمك في الماضي، هل تختار "اذهبوا فأنتم الطلقاء" لتمس قلوبهم، أم تختار التشفي؟',
       icon: <Heart className="text-white" />,
       color: '#10B981',
       phaseName: 'مرحلة الفتح',
@@ -711,6 +738,17 @@ export default function HistoryMapView() {
                        <p className="text-2xl font-bold leading-relaxed font-serif">{selectedEvent.manhaj}</p>
                      </div>
                   </section>
+
+                  <section className="bg-amber-50 p-10 rounded-[48px] text-amber-900 shadow-xl border border-amber-100 relative overflow-hidden text-right group">
+                      <div className="absolute -bottom-10 -left-10 p-8 opacity-10 group-hover:scale-125 transition-transform duration-1000"><Heart size={200} /></div>
+                      <div className="relative z-10 space-y-6">
+                        <h4 className="font-black text-[10px] tracking-[0.3em] uppercase opacity-50 border-b border-amber-200 pb-4 flex items-center justify-end gap-2 text-amber-700">
+                          بصيرة العمل: عيش القصة
+                           <Sparkles size={16} />
+                        </h4>
+                        <p className="text-2xl font-bold leading-relaxed font-serif italic">{selectedEvent.reflectionQuestion ? `"${selectedEvent.reflectionQuestion}"` : "كيف يمكننا تطبيق هذا المنهج في يومنا هذا؟"}</p>
+                      </div>
+                   </section>
 
                   {selectedEvent.videos && selectedEvent.videos.map((video, idx) => (
                     <motion.a
