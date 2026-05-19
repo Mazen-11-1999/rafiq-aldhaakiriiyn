@@ -92,33 +92,29 @@ export const NASHEEDS: Nasheed[] = [
     id: 'nasheed-3',
     title: 'يا حامل القرآن',
     artist: 'أحمد بو خاطر',
-    url: 'https://www.ashefaa.com/enshad/files/Ahmed-Bukhatir/Fartaqi/06-YaHamel-AlQuran.mp3',
-    urls: [
-      'https://ia801908.us.archive.org/28/items/ahmed-bukhatir-fartaqi/06%20Ya%20Hamel%20Al%20Quran.mp3',
-      'https://ia801908.us.archive.org/28/items/ahmed-bukhatir-fartaqi/06%20Ya%20Hamel%20Al%20Quran.mp3'
-    ],
-    cover: 'https://images.unsplash.com/photo-1507615811603-347cf74e1019?q=80&w=200&auto=format&fit=crop'
+    url: 'https://www.ashefaa.com/enshad/files/monaw3at/ya_hamel.mp3',
+    cover: 'https://png.pngtree.com/png-vector/20260228/ourmid/pngtree-young-muslim-boy-in-blue-attire-and-cap-reading-quran-on-png-image_18830778.webp'
   },
   {
     id: 'nasheed-4',
-    title: 'يا نبي سلام عليك',
-    artist: 'ماهر زين',
-    url: 'https://ia800100.us.archive.org/30/items/nasheed_adel/Maher%20Zain%20-%20Ya%20Nabi%20Salam%20Alayka.mp3',
-    cover: 'https://i1.sndcdn.com/artworks-000110795835-whurr8-t500x500.jpg'
+    title: 'مالك غير الله',
+    artist: 'منوعات إيمانية',
+    url: 'https://www.ashefaa.com/enshad/files/monaw3at/malk_ger-allah.mp3',
+    cover: 'https://images.unsplash.com/photo-1518005020480-28564f8606e9?q=80&w=200&auto=format&fit=crop'
   },
   {
     id: 'nasheed-5',
-    title: 'رقت عيناي شوقاً',
-    artist: 'ماهر زين',
-    url: 'https://ia800100.us.archive.org/30/items/nasheed_adel/Maher%20Zain%20-%20Raqqat%20Aynaya%20Shawqan.mp3',
-    cover: 'https://i1.sndcdn.com/artworks-000110795835-whurr8-t500x500.jpg'
+    title: 'طيبة الخير',
+    artist: 'منوعات إيمانية',
+    url: 'https://www.ashefaa.com/enshad/files/monaw3at/ya-taiba-alker.mp3',
+    cover: 'https://images.unsplash.com/photo-1591129841117-3adfd313e34f?q=80&w=200&auto=format&fit=crop'
   },
   {
     id: 'nasheed-6',
-    title: 'تنبيه إيماني',
-    artist: 'منوعات',
-    url: 'https://ia800904.us.archive.org/30/items/IslamicRingtones_201306/05.mp3',
-    cover: 'https://images.unsplash.com/photo-1516062423079-7ca13cdc7f5a?q=80&w=200&auto=format&fit=crop'
+    title: 'يا من عصيت الله',
+    artist: 'منوعات إيمانية',
+    url: 'https://www.ashefaa.com/enshad/files/monaw3at/ya-man-3asayta.mp3',
+    cover: 'https://images.unsplash.com/photo-1499209974431-9dac345f862e?q=80&w=200&auto=format&fit=crop'
   },
   {
     id: 'nasheed-7',
@@ -129,9 +125,9 @@ export const NASHEEDS: Nasheed[] = [
   },
   {
     id: 'nasheed-8',
-    title: 'سدد',
+    title: 'سدد يا ابن القسام',
     artist: 'فرقة الوعد',
-    url: 'https://ia800100.us.archive.org/30/items/nasheed_adel/Sadded.mp3',
+    url: 'https://www.ashefaa.com/enshad/files/alw3d/Sadded.mp3',
     cover: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?q=80&w=200&auto=format&fit=crop'
   },
   {
