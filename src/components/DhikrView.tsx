@@ -235,7 +235,12 @@ export default function DhikrView({ onSessionComplete }: { onSessionComplete?: (
                       key={count}
                       initial={{ scale: 0.8, opacity: 0 }}
                       animate={{ scale: 1, opacity: 1 }}
-                      className="text-9xl font-black text-[#1b1c1a] font-serif"
+                      className={cn(
+                        "text-9xl font-black font-serif transition-colors duration-300",
+                        count > 0 && count % 33 === 0
+                          ? "text-emerald-600 drop-shadow-[0_0_25px_rgba(16,185,129,0.5)] animate-pulse"
+                          : "text-[#1b1c1a]"
+                      )}
                     >
                       {count}
                     </motion.span>

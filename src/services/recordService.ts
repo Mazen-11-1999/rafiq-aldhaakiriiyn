@@ -42,27 +42,34 @@ export interface EthicsCommitment {
   updatedAt: any;
 }
 
-// Assessments
+// Assessments - STRICTLY LOCAL-ONLY (Local Storage) as requested by the user, to guarantee the youth's complete privacy
 export async function saveAssessment(scores: Record<string, number>, overallTitle: string) {
   if (!auth.currentUser) return;
   const userId = auth.currentUser.uid;
-  const colRef = collection(db, 'users', userId, 'assessments');
-  return addDoc(colRef, {
+  const storageKey = `sanad_assessment_${userId}`;
+  const localRecord = {
     userId,
     scores,
     overallTitle,
-    createdAt: serverTimestamp(),
-  });
+    createdAt: new Date().toISOString()
+  };
+  localStorage.setItem(storageKey, JSON.stringify(localRecord));
+  return { id: 'local-id', ...localRecord };
 }
 
 export async function getLatestAssessment() {
   if (!auth.currentUser) return null;
   const userId = auth.currentUser.uid;
-  const colRef = collection(db, 'users', userId, 'assessments');
-  const q = query(colRef, orderBy('createdAt', 'desc'), limit(1));
-  const snap = await getDocs(q);
-  if (snap.empty) return null;
-  return { id: snap.docs[0].id, ...snap.docs[0].data() } as AssessmentRecord;
+  const storageKey = `sanad_assessment_${userId}`;
+  const encoded = localStorage.getItem(storageKey);
+  if (!encoded) return null;
+  try {
+    const data = JSON.parse(encoded);
+    return data as AssessmentRecord;
+  } catch (err) {
+    console.error("Failed to parse local assessment:", err);
+    return null;
+  }
 }
 
 // Habits

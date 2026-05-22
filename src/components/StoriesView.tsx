@@ -4,6 +4,167 @@ import { Book, ChevronLeft, Star, Quote, History, Search, Users, Play, Lightbulb
 import { prophetStories, type Story } from '../data/stories';
 import InsightPanel from './InsightPanel';
 import { useChallenges } from '../context/ChallengeContext';
+import { cn } from '../lib/utils';
+
+function PropheticRoleModels() {
+  const [selectedModel, setSelectedModel] = useState<'yusuf' | 'ibrahim' | 'musa'>('yusuf');
+  const { activeChallenge, acceptChallenge } = useChallenges();
+
+  const models = {
+    yusuf: {
+      name: 'يوسف عليه السلام',
+      title: '👑 قدوة العفة وصدمة الوعي',
+      avatar: '🛡️',
+      fitnah: 'فتنة الإغراء البصري والشهوات الرقمية المعاصرة (تيسير الحرام خلف الشاشات المغلقة والتلصص بالأعين).',
+      story: 'واجه يوسف عليه السلام أعظم فتنة بشرية ممكنة: امرأة ذات منصب وجميل في مكان مغلق، وهي التي دعته وأغلقت الأبواب وقالت "هيت لك"، في زحمة الجاه والسلطان. لكنه انتصر ببشرية طاهرة عبر صدمة الوعي الفورية.',
+      application: 'كلمة "مَعَاذَ اللَّهِ" ليست مجرد تلفظ باللسان، بل هي صدمة وعي يضرب بها المؤمن وسوسة غسيل الدماغ وخداع الشيطان. عندما تغلق باب غرفتك وتأتيك فتن الشاشات، صِح بقلبك "معاذ الله! إني أخاف الله رب العالمين"، وأغلق هاتفك لتربح عزة الأحرار.',
+      color: 'border-emerald-500/20 bg-emerald-500/5 text-emerald-800'
+    },
+    ibrahim: {
+      name: 'إبراهيم عليه السلام',
+      title: '✨ قدوة التحرر من أصنام الوهم',
+      avatar: '🪐',
+      fitnah: 'التعلق المشتت بالأشياء والأوهام الرقمية: الشهرة الافتراضية، اللهث خلف الإعجابات وملاحقة حسابات الفتيات لملء الفراغ النفسي.',
+      story: 'واجه إبراهيم عليه السلام بيئة تعبد أصناماً جامدة وأوهاماً عابرة لا تملك نفعاً ولا ضراً، ورغم طرد قومه له وتهديده بالحرق، وقف حراً مستغنياً بربه لا يعبد إلا الحي القيوم الذي بيده كل شيء.',
+      application: 'الأصنام الرمزية اليوم هي حسابات الشهرة العابرة والافتتان الرقمي الذي يسلب عفتك ووقتك. تحرر من عبودية هذه الشاشات والتفت إلى رب الأحرار ومجدك الحقيقي؛ لا تجعل قلبك يعبد "تفاهة اليوم" واستغنِ بالله.',
+      color: 'border-amber-500/20 bg-amber-500/5 text-amber-800'
+    },
+    musa: {
+      name: 'موسى عليه السلام',
+      title: '🌾 قدوة الشهامة والرجولة العفيفة',
+      avatar: '👣',
+      fitnah: 'سراب العلاقات الدرامية والهواتف المليئة بالمحادثات العبثية والجرأة الزائدة التي تنزع الحياء وتذهب وقار الشاب.',
+      story: 'خرج موسى عليه السلام خائفاً جائعاً غريباً، وعند بئر مدين رأى فتاتين لا تستطيعان السقاية. سارع بشهامة ورجولة بالغة لسقي مواشيهما دون ممازحة، أو محاولة للفت انتباههما، ثم "تولى إلى الظل" مستغنياً غاية الاستغناء بربه.',
+      application: 'الرجولة مواقف وشهامة صامتة. حين تقابل النساء في دراستك أو عملك أو الشارع، صُن عينك وعفتك وتأدّب، وسقِ لهنّ معروفاً ثم "تولَّ فوراً إلى ظل طاعتك" دون فضول أو تطلع لإعجاب. الرجولة شيم يطبعها الخجل والوقار.',
+      color: 'border-blue-500/20 bg-blue-500/5 text-blue-800'
+    }
+  };
+
+  const current = models[selectedModel];
+
+  const challengeText = selectedModel === 'yusuf'
+    ? 'تحدي اليوم: سأضع هاتفي خارج غرفتي قبل النوم بـ 30 دقيقة.. (معاذ الله).'
+    : selectedModel === 'musa'
+    ? 'تحدي اليوم: لن أكتب أي تعليق أو رسالة فيها جرأة إلكترونية أو ممازحة تذهب بوقاري وعفتي.'
+    : 'تحدي اليوم: سأقوم بوقف الإشعارات بالكامل لجميع قنوات ومعرفات الأخبار والتيك توك لمدة يوم كامل لأستعيد تركيز باطني.';
+
+  const isAccepted = activeChallenge?.text === challengeText;
+
+  return (
+    <div className="glass-3d p-8 rounded-[3.5rem] border border-[#4e635a]/10 space-y-6 text-right relative overflow-hidden bg-white/40 mb-8">
+      <div className="absolute top-0 left-0 w-32 h-32 bg-[#4e635a]/5 rounded-bl-[100px] pointer-events-none" />
+      
+      <div className="space-y-2">
+        <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#4e635a]/10 text-[#4e635a] text-xs font-black rounded-full border border-[#4e635a]/20">
+          🛡️ القدوة العملية في مواجهة الفتن
+        </span>
+        <h3 className="text-2xl font-black text-slate-900 font-serif leading-tight">
+          خطى الأنبياء الأحرار: ليسوا تاريخاً فحسب!
+        </h3>
+        <p className="text-[#655d51] text-xs md:text-sm font-bold leading-relaxed max-w-3xl">
+          الأنبياء عليهم السلام لم يكونوا شخصيات معزولة في طيات كتب التاريخ； بل كانوا بشراً واجهوا فتناً وضغوطاً حقيقية وهائلة مثل التي تمر بها اليوم، فانتصروا عليها بصدقهم. تعرّف كيف ترتبط فتنك بالأنبياء وكيف تسير على منهجهم:
+        </p>
+      </div>
+
+      <div className="grid grid-cols-3 gap-3">
+        {(Object.keys(models) as Array<keyof typeof models>).map((key) => {
+          const m = models[key];
+          const isSelected = selectedModel === key;
+          return (
+            <button
+              key={key}
+              onClick={() => setSelectedModel(key)}
+              className={cn(
+                "p-4 rounded-3xl border text-center transition-all flex flex-col items-center justify-center gap-2",
+                isSelected
+                  ? "bg-[#4e635a] text-white border-transparent shadow-xl shadow-[#4e635a]/20 scale-102"
+                  : "bg-white/80 border-[#4e635a]/10 text-[#4e635a] hover:bg-white"
+              )}
+            >
+              <span className="text-2xl">{m.avatar}</span>
+              <span className="text-xs md:text-sm font-black font-serif">{m.name}</span>
+            </button>
+          );
+        })}
+      </div>
+
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={selectedModel}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -10 }}
+          className={cn("p-6 rounded-[2.5rem] border space-y-4 text-right", current.color)}
+        >
+          <div className="space-y-1">
+            <h4 className="text-lg font-black font-serif text-slate-900">{current.title}</h4>
+            <div className="h-[2px] w-12 bg-current opacity-30 rounded-full" />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
+            <div className="space-y-2">
+              <span className="text-xs font-black text-slate-500 block">⚠️ فتنة العصر والشاب المعاصر:</span>
+              <p className="text-sm font-bold text-slate-800 leading-relaxed bg-white/50 p-4 rounded-2xl border border-black/5">
+                {current.fitnah}
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <span className="text-xs font-black text-[#4e635a] block">🛡️ كيف واجهها النبي (كبشر)؟</span>
+              <p className="text-sm font-bold text-slate-800 leading-relaxed bg-white/50 p-4 rounded-2xl border border-black/5">
+                {current.story}
+              </p>
+            </div>
+          </div>
+
+          <div className="bg-white/80 p-5 rounded-2xl border border-black/5 mt-4">
+            <span className="text-xs font-black text-rose-700 block mb-1">💡 منهج التطبيق العملي وصدمة الوعي اليوم:</span>
+            <p className="text-sm font-bold text-slate-900 leading-relaxed font-serif">
+              {current.application}
+            </p>
+          </div>
+
+          {/* زر التحدي التفاعلي اللحظي بضغطة واحدة */}
+          <div className="mt-4 flex flex-col sm:flex-row items-center justify-between gap-4 p-5 bg-white/90 border border-slate-200/50 rounded-[2rem] shadow-sm text-right">
+            <div className="flex items-center gap-3">
+              <span className="text-2xl shrink-0">⚡</span>
+              <div className="text-right">
+                <span className="text-[10px] font-black text-[#4e635a] block uppercase tracking-wider">سلوك فوري لتطبيق العبرة</span>
+                <p className="text-xs md:text-sm font-bold text-slate-800 leading-relaxed">
+                  {challengeText}
+                </p>
+              </div>
+            </div>
+            
+            <button
+              onClick={() => acceptChallenge(challengeText, 'story', `prophet-model-${selectedModel}`)}
+              disabled={isAccepted}
+              className={cn(
+                "px-6 py-3 rounded-xl font-black text-xs transition-all flex items-center gap-2 shrink-0 shadow-md w-full sm:w-auto justify-center",
+                isAccepted
+                  ? "bg-emerald-50 text-emerald-600 border border-emerald-100 shadow-none cursor-default"
+                  : "bg-[#4e635a] hover:bg-[#3d4d46] text-white shadow-[#4e635a]/10 hover:-translate-y-0.5 active:scale-95 cursor-pointer"
+              )}
+            >
+              {isAccepted ? (
+                <>
+                  <CheckCircle2 size={14} className="text-emerald-500" />
+                  <span>تم تفعيل التحدي اليومي</span>
+                </>
+              ) : (
+                <>
+                  <span>تفعيل التحدي بلمسة واحدة</span>
+                  <Sparkles size={12} className="animate-pulse" />
+                </>
+              )}
+            </button>
+          </div>
+        </motion.div>
+      </AnimatePresence>
+    </div>
+  );
+}
+
 
 const StoryCard = React.memo(({ story, onClick }: { story: Story; onClick: (s: Story) => void }) => (
   <motion.button
@@ -83,6 +244,11 @@ export default function StoriesView() {
           </div>
         </div>
       </header>
+
+      {/* قسم القدوة العملية في مواجهة الفتن */}
+      {!selectedStory && (
+        <PropheticRoleModels />
+      )}
 
       {/* Search bar */}
       <div className="relative">

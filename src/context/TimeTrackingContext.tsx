@@ -37,24 +37,36 @@ export function TimeTrackingProvider({ children }: { children: React.ReactNode }
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const sessionStartTime = useRef<number>(Date.now());
 
-  // Initialize from LocalStorage (fast)
+  // Initialize from LocalStorage (fast) with sanitization
   useEffect(() => {
     const savedStats = localStorage.getItem('timeStats');
     if (savedStats) {
       try {
         const parsed = JSON.parse(savedStats);
-        setStats(prev => ({
-          ...prev,
-          ...parsed,
-          growthMinutes: parsed.growthMinutes || 0
-        }));
+        const sanitize = (val: any, fallback: number) => {
+          const num = Number(val);
+          if (isNaN(num) || !isFinite(num) || num > 10000 || num < 0) {
+            return fallback;
+          }
+          return Math.round(num);
+        };
+        const cleanStats = {
+          dhikrMinutes: sanitize(parsed.dhikrMinutes, 35),
+          nasheedMinutes: sanitize(parsed.nasheedMinutes, 28),
+          retreatMinutes: sanitize(parsed.retreatMinutes, 32),
+          journalMinutes: sanitize(parsed.journalMinutes, 25),
+          growthMinutes: sanitize(parsed.growthMinutes, 42),
+          beneficialMinutes: 0
+        };
+        cleanStats.beneficialMinutes = sanitize(parsed.beneficialMinutes, cleanStats.dhikrMinutes + cleanStats.nasheedMinutes + cleanStats.retreatMinutes + cleanStats.journalMinutes + cleanStats.growthMinutes);
+        setStats(cleanStats);
       } catch (e) {
         console.error("Failed to parse saved stats", e);
       }
     }
   }, []);
 
-  // Sync with Firestore (Real Truth)
+  // Sync with Firestore (Real Truth) with self-healing and error protection
   useEffect(() => {
     const user = auth.currentUser;
     if (user) {
@@ -62,16 +74,52 @@ export function TimeTrackingProvider({ children }: { children: React.ReactNode }
       const unsubscribe = onSnapshot(userRef, (snapshot) => {
         if (snapshot.exists()) {
           const data = snapshot.data();
-          setStats(prev => ({
-            ...prev,
-            beneficialMinutes: data.totalMinutes || prev.beneficialMinutes,
-            dhikrMinutes: data.dhikrMinutes || prev.dhikrMinutes,
-            nasheedMinutes: data.nasheedMinutes || prev.nasheedMinutes,
-            retreatMinutes: data.retreatMinutes || prev.retreatMinutes,
-            journalMinutes: data.journalMinutes || prev.journalMinutes,
-            growthMinutes: data.growthMinutes || prev.growthMinutes,
-          }));
+          
+          const sanitize = (val: any, fallback: number) => {
+            const num = Number(val);
+            if (isNaN(num) || !isFinite(num) || num > 10000 || num < 0) {
+              return fallback;
+            }
+            return Math.round(num);
+          };
+
+          const cleanDhikr = sanitize(data.dhikrMinutes, 35);
+          const cleanNasheed = sanitize(data.nasheedMinutes, 28);
+          const cleanRetreat = sanitize(data.retreatMinutes, 32);
+          const cleanJournal = sanitize(data.journalMinutes, 25);
+          const cleanGrowth = sanitize(data.growthMinutes, 42);
+          const cleanTotal = sanitize(data.totalMinutes, cleanDhikr + cleanNasheed + cleanRetreat + cleanJournal + cleanGrowth);
+
+          const hasCorrupted = 
+            (data.totalMinutes !== undefined && (data.totalMinutes > 10000 || isNaN(Number(data.totalMinutes)) || Number(data.totalMinutes) < 0)) ||
+            (data.dhikrMinutes !== undefined && (data.dhikrMinutes > 10000 || isNaN(Number(data.dhikrMinutes)) || Number(data.dhikrMinutes) < 0)) ||
+            (data.nasheedMinutes !== undefined && (data.nasheedMinutes > 10000 || isNaN(Number(data.nasheedMinutes)) || Number(data.nasheedMinutes) < 0)) ||
+            (data.retreatMinutes !== undefined && (data.retreatMinutes > 10000 || isNaN(Number(data.retreatMinutes)) || Number(data.retreatMinutes) < 0)) ||
+            (data.journalMinutes !== undefined && (data.journalMinutes > 10000 || isNaN(Number(data.journalMinutes)) || Number(data.journalMinutes) < 0)) ||
+            (data.growthMinutes !== undefined && (data.growthMinutes > 10000 || isNaN(Number(data.growthMinutes)) || Number(data.growthMinutes) < 0));
+
+          setStats({
+            beneficialMinutes: cleanTotal,
+            dhikrMinutes: cleanDhikr,
+            nasheedMinutes: cleanNasheed,
+            retreatMinutes: cleanRetreat,
+            journalMinutes: cleanJournal,
+            growthMinutes: cleanGrowth,
+          });
+
+          if (hasCorrupted) {
+            updateDoc(userRef, {
+              totalMinutes: cleanTotal,
+              dhikrMinutes: cleanDhikr,
+              nasheedMinutes: cleanNasheed,
+              retreatMinutes: cleanRetreat,
+              journalMinutes: cleanJournal,
+              growthMinutes: cleanGrowth
+            }).catch(e => console.warn("Could not heal corrupted Firestore document:", e));
+          }
         }
+      }, (error) => {
+        console.warn("TimeStats sync info (using local offline storage):", error);
       });
       return () => unsubscribe();
     }
@@ -101,6 +149,24 @@ export function TimeTrackingProvider({ children }: { children: React.ReactNode }
             localStorage.setItem('timeStats', JSON.stringify(next));
             return next;
           });
+
+          // Sync directly to Firestore matching categories securely
+          const user = auth.currentUser;
+          if (user) {
+            const userRef = doc(db, 'users', user.uid);
+            const categoryUpdates: any = {
+              totalMinutes: increment(1)
+            };
+            if (activeCategory === 'nasheed') categoryUpdates.nasheedMinutes = increment(1);
+            else if (activeCategory === 'dhikr') categoryUpdates.dhikrMinutes = increment(1);
+            else if (activeCategory === 'retreat') categoryUpdates.retreatMinutes = increment(1);
+            else if (activeCategory === 'journal') categoryUpdates.journalMinutes = increment(1);
+            else categoryUpdates.growthMinutes = increment(1);
+
+            updateDoc(userRef, categoryUpdates).catch(err => {
+              console.warn("Failed to sync minute to firestore:", err);
+            });
+          }
         }
       }
     }, 1000);

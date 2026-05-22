@@ -149,7 +149,7 @@ export const SpiritualMirror: React.FC<{ recentMoods?: string[], recentReflectio
       <div className="text-center mb-8">
         <h2 className="text-2xl font-bold text-slate-800 flex items-center justify-center gap-2">
           <Heart className="text-emerald-600 fill-emerald-100" />
-          مرآة الروح
+          بصيرة (خلف الشاشات)
         </h2>
         <p className="text-slate-600 mt-2">وقفة صدق مع نفسك.. بعيداً عن أعين الناس</p>
       </div>
@@ -163,6 +163,20 @@ export const SpiritualMirror: React.FC<{ recentMoods?: string[], recentReflectio
             exit={{ opacity: 0, x: -20 }}
             className="bg-white rounded-2xl p-8 border border-slate-100 shadow-sm"
           >
+            {/* تنبيه أخوي صادق يمهد للجلسة وبساطتها */}
+            {currentIndex === 0 && (
+              <div className="bg-emerald-50/70 border border-emerald-100/80 rounded-2xl p-5 mb-8 text-emerald-900 text-sm leading-relaxed text-right relative overflow-hidden shadow-sm">
+                <div className="absolute top-0 right-0 w-1.5 h-full bg-emerald-500" />
+                <p className="font-bold text-emerald-800 mb-1.5 flex items-center gap-1.5">
+                  <span>💡</span>
+                  یا غالي، اقرأ بوجدانك:
+                </p>
+                <p className="text-emerald-950/90 font-medium leading-relaxed">
+                  "يا غالي، هذه الجلسة سرية تماماً بينك وبين ربك، ولا أحد في الكون سيطلع على إجاباتك. تذكر أن <span className="text-emerald-700 font-bold">'الصدق المرّ'</span> مع النفس أول خطوة في طريق إصلاحك وهدايتك، فلا تجمل الإجابات واجه نفسك بصدق."
+                </p>
+              </div>
+            )}
+
             <div className="flex justify-between items-center mb-6">
               <span className="text-xs font-medium text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full">
                 السؤال {currentIndex + 1} من {assessmentQuestions.length}

@@ -5,6 +5,7 @@ import { NASHEEDS } from '../constants';
 import { cn } from '../lib/utils';
 import InsightPanel from './InsightPanel';
 import { useMedia } from '../context/MediaContext';
+import { DAILY_SHINES } from '../data/dailyShines';
 
 export default function NasheedView() {
   const { 
@@ -39,6 +40,13 @@ export default function NasheedView() {
   const [selectedPlaylist, setSelectedPlaylist] = useState<string | null>(null);
   const [newPlaylistName, setNewPlaylistName] = useState('');
   const [isPlaylistModalOpen, setIsPlaylistModalOpen] = useState(false);
+  
+  // Daily Shine state
+  const [shineIndex, setShineIndex] = useState(() => {
+    const dayIndex = Math.floor(Date.now() / (1000 * 60 * 60 * 24));
+    return dayIndex % DAILY_SHINES.length;
+  });
+  const currentShine = DAILY_SHINES[shineIndex];
   
   // Set default track if none playing
   useEffect(() => {
@@ -172,6 +180,49 @@ export default function NasheedView() {
         />
         <div className="absolute inset-0 bg-linear-to-b from-[#fbf9f6]/90 via-transparent to-[#fbf9f6]/90" />
       </div>
+
+      {/* إشراقة اليوم - Daily Motivation Banner */}
+      <motion.div 
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="relative mb-8 overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-[#4e635a] via-[#35453f] to-[#121614] p-6 md:p-8 text-white shadow-2xl border border-white/10"
+      >
+        <div className="absolute top-0 left-0 w-64 h-64 bg-radial-gradient from-white/10 to-transparent rounded-full -ml-20 -mt-20 pointer-events-none" />
+        
+        <div className="relative z-10 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-6">
+          <div className="space-y-3 flex-1 text-right">
+            <div className="flex items-center gap-2">
+              <span className="bg-white/10 text-yellow-300 border border-white/10 px-3.5 py-1 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-1.5 shadow-xs">
+                <Sparkles size={12} className="animate-pulse text-yellow-400" />
+                إشراقة اليوم • {currentShine.focus}
+              </span>
+            </div>
+            <p className="text-lg md:text-xl font-serif font-bold leading-relaxed text-slate-100 drop-shadow-md">
+              "{currentShine.text}"
+            </p>
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 mt-4 bg-white/5 border border-white/10 px-4 py-3 rounded-2xl">
+              <span className="text-xs font-black text-yellow-300 shrink-0">تحدي النهوض اليومي:</span>
+              <p className="text-xs text-slate-200 font-medium">{currentShine.action}</p>
+            </div>
+          </div>
+
+          <div className="flex flex-col justify-center items-center gap-2 shrink-0 w-full md:w-auto">
+            <button 
+              onClick={(e) => {
+                e.stopPropagation();
+                setShineIndex((prev) => (prev + 1) % DAILY_SHINES.length);
+              }}
+              className="px-6 py-4 bg-white text-[#121614] hover:bg-yellow-400 transition-all rounded-2xl font-black text-xs flex items-center justify-center gap-2 shadow-lg hover:shadow-yellow-400/20 active:scale-95 cursor-pointer w-full md:w-auto"
+            >
+              <Sparkles size={14} className="text-yellow-600 group-hover:text-black" />
+              <span>إشراقة أخرى</span>
+            </button>
+            <div className="text-[10px] font-bold text-white/40 text-center uppercase tracking-widest">
+              سند • عفة ورجولة الشاب
+            </div>
+          </div>
+        </div>
+      </motion.div>
 
       <div className="relative group/studio">
         <div className={cn(

@@ -17,5 +17,19 @@ export function handleFirestoreError(error: unknown, operationType: OperationTyp
   
   const errorJson = JSON.stringify(errInfo);
   console.error('Firestore Error: ', errorJson);
+  
+  // Prevent throwing uncaught errors for quota limits or temporary networks so the app stays functional online/offline
+  const errorLower = errorJson.toLowerCase();
+  if (
+    errorLower.includes('quota') || 
+    errorLower.includes('exhausted') || 
+    errorLower.includes('offline') || 
+    errorLower.includes('network') ||
+    errorLower.includes('resource-exhausted')
+  ) {
+    console.warn('Firestore limits/resource exhaustion encountered. App is operating in local/cached mode.', errorJson);
+    return;
+  }
+  
   throw new Error(errorJson);
 }

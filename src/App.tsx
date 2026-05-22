@@ -27,11 +27,12 @@ import TimeFiqhView from './components/TimeFiqhView';
 import { LocationService } from './services/locationService';
 import { useTimeTracking } from './context/TimeTrackingContext';
 import { motion, AnimatePresence } from 'motion/react';
-import { LogIn, Compass, ListChecks, PieChart, VolumeX, Settings, User, BookOpen, Book, Map, HelpCircle, Music, Scale, Clock, Sparkles, Heart, MessageCircle } from 'lucide-react';
+import { LogIn, Compass, ListChecks, PieChart, VolumeX, Settings, User, BookOpen, Book, Map, HelpCircle, Music, Scale, Clock, Sparkles, Heart, MessageCircle, ShieldAlert } from 'lucide-react';
 import { cn } from './lib/utils';
 
 import { ChatBot } from './components/ChatBot';
 import { MiniPlayer } from './components/MiniPlayer';
+import EmergencyModal from './components/EmergencyModal';
 
 import PrayerTimesView from './components/PrayerTimesView';
 import notificationSound from './assets/notification.mp3'; // assuming it exists or keeping it generic
@@ -40,6 +41,7 @@ export default function App() {
   const [user, loading, error] = useAuthState(auth);
   const [activeTab, setActiveTab] = useState<'retreat' | 'dhikr' | 'stories' | 'habits' | 'ethics' | 'nasheeds' | 'history' | 'journey' | 'quiz' | 'journal' | 'insights' | 'profile' | 'time' | 'spiritual-mirror' | 'spiritual-insights' | 'prayer-times'>('retreat');
   const [isChatOpen, setIsChatOpen] = useState(false);
+  const [isEmergencyOpen, setIsEmergencyOpen] = useState(false);
   const { setActiveCategory } = useTimeTracking();
 
   useEffect(() => {
@@ -283,15 +285,35 @@ export default function App() {
     }
   };
 
-  const prevBeneficialMinutes = React.useRef(stats.beneficialMinutes);
-
+  // Clean daily streak check on mount to reward the user when they open the app
   useEffect(() => {
-    if (stats.beneficialMinutes > prevBeneficialMinutes.current) {
-      const diff = stats.beneficialMinutes - prevBeneficialMinutes.current;
-      updateProfileStats(diff, false);
-      prevBeneficialMinutes.current = stats.beneficialMinutes;
+    if (user && userProfile) {
+      const lastActiveDate = userProfile.lastActiveDate?.toDate ? userProfile.lastActiveDate.toDate() : new Date(userProfile.lastActiveDate || 0);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      
+      const lastActive = new Date(lastActiveDate);
+      lastActive.setHours(0, 0, 0, 0);
+      
+      const diffTime = today.getTime() - lastActive.getTime();
+      const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+      
+      if (diffDays > 0 || !userProfile.lastActiveDate) {
+        const userRef = doc(db, 'users', user.uid);
+        let newStreak = userProfile.currentStreak || 0;
+        if (diffDays === 1) {
+          newStreak += 1;
+        } else if (diffDays > 1 || !userProfile.lastActiveDate) {
+          newStreak = 1;
+        }
+        
+        updateDoc(userRef, {
+          currentStreak: newStreak,
+          lastActiveDate: serverTimestamp()
+        }).catch(err => console.warn("Failed to update streak with daily check on mount:", err));
+      }
     }
-  }, [stats.beneficialMinutes, user, activeCategory]);
+  }, [user, userProfile?.uid]);
 
   if (loading) {
     return (
@@ -630,6 +652,24 @@ export default function App() {
         <MiniPlayer />
         <PWAPrompt />
         <ChatBot isOpen={isChatOpen} onClose={() => setIsChatOpen(false)} />
+        <EmergencyModal isOpen={isEmergencyOpen} onClose={() => setIsEmergencyOpen(false)} />
+
+        {/* زر الطوارئ اللحظي لنجدة الشاب في لحظات الضعف أو التشتت */}
+        <div className="fixed bottom-28 left-6 z-50">
+          <motion.button
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => setIsEmergencyOpen(true)}
+            className="relative group bg-gradient-to-br from-rose-600 to-red-600 text-white w-14 h-14 rounded-full flex items-center justify-center shadow-xl shadow-rose-600/30 active:shadow-inner outline-none border border-rose-500/10"
+          >
+            <span className="absolute inset-0 rounded-full bg-rose-500/20 animate-pulse -z-10" />
+            <ShieldAlert size={24} />
+            
+            <span className="absolute left-16 scale-0 group-hover:scale-100 transition-all bg-slate-950 text-slate-100 text-[10px] font-black py-2 px-3 rounded-xl whitespace-nowrap border border-slate-800 pointer-events-none">
+              🚨 ضعفت أو تعبت؟ احمِ عيني الآن!
+            </span>
+          </motion.button>
+        </div>
       </main>
 
       <nav className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center h-20 glass-3d rounded-[2.5rem] px-2 w-[calc(100%-2rem)] max-w-[600px] overflow-x-auto scrollbar-hide preserve-3d shadow-[0_20px_50px_rgba(0,0,0,0.2)]">
@@ -637,7 +677,7 @@ export default function App() {
           <NavItem active={activeTab === 'retreat'} onClick={() => setActiveTab('retreat')} icon={<Compass size={22} />} label="الرئيسية" />
           <NavItem active={activeTab === 'dhikr'} onClick={() => setActiveTab('dhikr')} icon={<Sparkles size={22} />} label="مسبحة السر" />
           <NavItem active={activeTab === 'history'} onClick={() => setActiveTab('history')} icon={<BookOpen size={22} />} label="قصص الأنبياء" />
-          <NavItem active={activeTab === 'spiritual-mirror'} onClick={() => setActiveTab('spiritual-mirror')} icon={<Heart size={22} />} label="مرآة البصيرة" />
+          <NavItem active={activeTab === 'spiritual-mirror'} onClick={() => setActiveTab('spiritual-mirror')} icon={<Heart size={22} />} label="👁️ بصيرة (خلف الشاشات)" />
           <NavItem active={isChatOpen} onClick={() => setIsChatOpen(true)} icon={<MessageCircle size={22} />} label="جلسة الإصلاح" />
           <NavItem active={activeTab === 'profile'} onClick={() => setActiveTab('profile')} icon={<User size={22} />} label="حسابي" />
         </div>

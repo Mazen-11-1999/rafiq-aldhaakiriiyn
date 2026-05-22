@@ -122,20 +122,33 @@ export default function JournalView({ userProfile }: { userProfile: UserProfile 
 
   return (
     <div className="p-margin-page space-y-section-gap pb-12">
-      <header className="flex items-center justify-between">
+      <header className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div className="space-y-4">
-          <h2 className="text-3xl font-bold text-[#4e635a] font-serif">مذكرات النور</h2>
-          <p className="text-[#655d51] font-medium opacity-80">سجل لحظات امتنانك وتأملاتك اليومية لتكون لك نور في دربك .</p>
+          <h2 className="text-3xl font-bold text-[#4e635a] font-serif">المفكرة (مذكرات النور)</h2>
+          <p className="text-[#655d51] font-medium opacity-80 leading-relaxed">هنا مساحتك الخاصة.. اكتب بدون قيود، فكل فكرة تسجلها اليوم هي خطوة في طريق وعيك الحقيقي.</p>
         </div>
         <button 
           onClick={handleExport}
           disabled={isExporting || notes.length === 0}
-          className="flex items-center gap-2 px-6 py-3 bg-[#4e635a] text-white rounded-2xl font-bold hover:bg-[#3d4d46] transition-all disabled:opacity-30 shadow-lg shadow-[#4e635a]/20"
+          className="flex items-center gap-2 px-6 py-3 bg-[#4e635a] hover:bg-[#3d4d46] text-white rounded-2xl font-bold transition-all disabled:opacity-30 shadow-lg shadow-[#4e635a]/20 shrink-0 text-sm"
         >
-          {isExporting ? <div className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin" /> : <Download size={18} />}
-          <span>تصدير PDF</span>
+          {isExporting ? <div className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin" /> : <span>💾</span>}
+          <span>احتفظ بكلماتي (حفظ بصيغة PDF)</span>
         </button>
       </header>
+
+      {/* Gratitude Reminder Box */}
+      <div className="bg-[#f5ece0] border border-[#ecdac2] rounded-[32px] p-6 flex flex-col md:flex-row items-start md:items-center gap-4">
+        <div className="w-12 h-12 rounded-2xl bg-white flex items-center justify-center shrink-0 shadow-sm text-yellow-600">
+          <Sparkles size={24} />
+        </div>
+        <div className="space-y-1">
+          <h4 className="font-bold text-[#4e635a] text-md">لحظة صدق مع نفسك:</h4>
+          <p className="text-[#655d51] text-sm leading-relaxed">
+            "قبل أن تبدأ كتابة يومياتك، خذ نفساً عميقاً، وتذكر ثلاثة أشياء غمرك الله بها اليوم دون أن تسأله هي.. واجعل قلبك يفيض بالحمد أولاً."
+          </p>
+        </div>
+      </div>
 
       {/* Writing Area */}
       <section className="bg-white/60 backdrop-blur-sm p-8 rounded-[40px] border border-white shadow-sm space-y-6">
@@ -143,25 +156,27 @@ export default function JournalView({ userProfile }: { userProfile: UserProfile 
             <div className="p-2 bg-[#d1e8dd] rounded-xl">
               <Feather size={20} />
             </div>
-            <h3 className="font-bold text-lg">بماذا يهمس قلبك الآن؟</h3>
+            <h3 className="font-bold text-lg">✍️ ما الذي يدور في عقلك وقلبك الآن؟ فضفض هنا..</h3>
         </div>
         
-        <div className="relative">
+        <div className="space-y-4">
             <textarea
                 value={reflection}
                 onChange={(e) => setReflection(e.target.value)}
-                placeholder="اكتب هنا ما يمتن له قلبك، أو تأملاً في آية، أو شعوراً ترغب في تدوينه..."
+                placeholder=""
                 className="w-full bg-[#fbf9f6]/80 rounded-[32px] p-6 text-lg text-[#4e635a] placeholder:text-[#4e635a]/30 border-none focus:ring-2 focus:ring-[#4e635a]/20 min-h-[160px] transition-all scrollbar-hide"
             />
-            <motion.button 
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={addReflection}
-                disabled={!reflection.trim()}
-                className="absolute left-4 bottom-4 w-14 h-14 bg-[#4e635a] text-white rounded-2xl flex items-center justify-center shadow-2xl shadow-[#4e635a]/20 transform active:scale-90 transition-all disabled:opacity-30"
-            >
-                <Send size={24} className="translate-x-[-2px] translate-y-[2px]" />
-            </motion.button>
+            <div className="flex justify-end">
+              <motion.button 
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={addReflection}
+                  disabled={!reflection.trim()}
+                  className="flex items-center gap-2 px-8 py-4 bg-[#4e635a] text-white rounded-[20px] font-bold shadow-lg shadow-[#4e635a]/20 transform active:scale-95 transition-all disabled:opacity-30 text-base"
+              >
+                  <span>🚀 احفظ هذه الخاطرة</span>
+              </motion.button>
+            </div>
         </div>
       </section>
 

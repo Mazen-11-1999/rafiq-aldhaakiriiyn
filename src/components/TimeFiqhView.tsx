@@ -18,6 +18,7 @@ const TimeFiqhView: React.FC = () => {
   }, []);
 
   const timeWisdoms = [
+    "يا صديقي، انسَ أي وقت ضاع منك في الماضي، ولا تدع الشيطان يوقعك في فخ الحسرة. دعنا نفرح باللحظة الحالية ونحولها معاً إلى استثمار حقيقي ينفع دينك ونفسك.. الوقت هو أنت، وكل دقيقة تقضيها هنا في وعي أو ذكر، هي خطوة نحو طمأنينة قلبك، بعيداً عن صخب العالم وتشتت الشاشات.",
     "نعمتان مغبون فيهما كثير من الناس: الصحة والفراغ",
     "اغتنم وقتك قبل أن ينقضي، وعمرك في ما يبني لك أثراً خالداً",
     "الوقت كالسيف، إن لم تقطعه بأعمالٍ ثمينة ومفيدة تبني بها ذاتك، قطعك في الغفلة والتسويف",
@@ -89,7 +90,7 @@ const TimeFiqhView: React.FC = () => {
            <div className="text-6xl font-black text-[#4e635a] font-mono tracking-tight tabular-nums">
              {formatTime(viewSeconds)}
            </div>
-           <p className="text-xs font-bold text-[#7a8c82] uppercase tracking-[0.2em]">دقائق مستثمرة بصحبة الله</p>
+           <p className="text-xs font-bold text-[#7a8c82] uppercase tracking-[0.2em]">دقائق مباركة من عمرك</p>
         </div>
 
         <div className="bg-emerald-600 text-white p-5 rounded-3xl text-center shadow-lg shadow-emerald-600/20">
@@ -114,32 +115,27 @@ const TimeFiqhView: React.FC = () => {
           icon={<Heart size={24} className="text-red-500" />} 
           label="ذكرك لله" 
           value={stats.dhikrMinutes} 
-          unit="دقيقة"
         />
         <StatCard 
           icon={<Music size={24} className="text-blue-500" />} 
           label="سكينة روحك" 
           value={stats.nasheedMinutes} 
-          unit="دقيقة"
         />
         <StatCard 
           icon={<Shield size={24} className="text-indigo-500" />} 
           label="خلوتك الصادقة" 
           value={stats.retreatMinutes} 
-          unit="دقيقة"
         />
         <StatCard 
           icon={<Sparkles size={24} className="text-amber-500" />} 
           label="تأملك وتفكرك" 
           value={stats.journalMinutes} 
-          unit="دقيقة"
         />
         <div className="col-span-2">
           <StatCard 
             icon={<TrendingUp size={24} className="text-emerald-500" />} 
             label="بناء وعيك الذاتي" 
             value={stats.growthMinutes} 
-            unit="دقيقة"
           />
         </div>
       </div>
@@ -187,20 +183,75 @@ const TimeFiqhView: React.FC = () => {
   );
 };
 
-const StatCard = ({ icon, label, value, unit }: { icon: React.ReactNode, label: string, value: number, unit: string }) => (
-  <div className="bg-white p-6 rounded-[35px] border border-[#4e635a]/5 shadow-sm space-y-3">
-    <div className="bg-[#fbf9f6] w-12 h-12 rounded-2xl flex items-center justify-center">
-      {icon}
-    </div>
-    <div className="space-y-1">
-      <p className="text-[10px] font-bold text-[#7a8c82] uppercase tracking-wider">{label}</p>
-      <div className="flex items-baseline gap-1">
-        <span className="text-2xl font-black text-[#4e635a]">{value}</span>
-        <span className="text-[10px] font-bold text-[#4e635a]/60">{unit}</span>
+const formatFriendlyMinutes = (minutes: number): string => {
+  if (!minutes || minutes <= 0) return "لم تبدأ بعد";
+  
+  const hours = Math.floor(minutes / 60);
+  const mins = Math.round(minutes % 60);
+
+  if (hours === 0) {
+    if (mins === 15) return "ربع ساعة";
+    if (mins === 20) return "ثلث ساعة";
+    if (mins === 30) return "نصف ساعة";
+    if (mins === 45) return "ساعة إلا ربع";
+    if (mins === 1) return "دقيقة واحدة";
+    if (mins === 2) return "دقيقتان";
+    if (mins >= 3 && mins <= 10) return `${mins} دقائق`;
+    return `${mins} دقيقة`;
+  }
+
+  // hours >= 1
+  let hoursPart = "";
+  if (hours === 1) {
+    hoursPart = "ساعة";
+  } else if (hours === 2) {
+    hoursPart = "ساعتان";
+  } else if (hours >= 3 && hours <= 10) {
+    hoursPart = `${hours} ساعات`;
+  } else {
+    hoursPart = `${hours} ساعة`;
+  }
+
+  if (mins === 0) {
+    return hoursPart;
+  }
+
+  if (mins === 15) return `${hoursPart} وربع`;
+  if (mins === 20) return `${hoursPart} وثلث`;
+  if (mins === 30) return `${hoursPart} ونصف`;
+  
+  if (mins === 45) {
+    const nextHour = hours + 1;
+    let nextHourPart = "";
+    if (nextHour === 1) nextHourPart = "ساعة";
+    else if (nextHour === 2) nextHourPart = "ساعتان";
+    else if (nextHour >= 3 && nextHour <= 10) nextHourPart = `${nextHour} ساعات`;
+    else nextHourPart = `${nextHour} ساعة`;
+    return `${nextHourPart} إلا ربع`;
+  }
+
+  if (mins === 1) return `${hoursPart} ودقيقة`;
+  if (mins === 2) return `${hoursPart} ودقيقتان`;
+  if (mins >= 3 && mins <= 10) return `${hoursPart} و ${mins} دقائق`;
+  return `${hoursPart} و ${mins} دقيقة`;
+};
+
+const StatCard = ({ icon, label, value }: { icon: React.ReactNode, label: string, value: number }) => {
+  const formatted = formatFriendlyMinutes(value);
+  return (
+    <div className="bg-white p-6 rounded-[35px] border border-[#4e635a]/5 shadow-sm space-y-3">
+      <div className="bg-[#fbf9f6] w-12 h-12 rounded-2xl flex items-center justify-center">
+        {icon}
+      </div>
+      <div className="space-y-1">
+        <p className="text-[10px] font-bold text-[#7a8c82] uppercase tracking-wider">{label}</p>
+        <p className="text-base font-black text-[#4e635a] tracking-tight leading-snug">
+          {formatted}
+        </p>
       </div>
     </div>
-  </div>
-);
+  );
+};
 
 const PhilosophyPoint = ({ title, text }: { title: string, text: string }) => (
   <div className="flex gap-4 items-start">
