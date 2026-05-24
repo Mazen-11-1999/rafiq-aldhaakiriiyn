@@ -32,9 +32,9 @@ export default function PrayerAlarmOverlay({ prayerName, message, isOpen, onClos
       const fallbacks = [
         'https://ia800100.us.archive.org/30/items/nasheed_adel/Salawat.mp3',
         'https://ia800904.us.archive.org/30/items/IslamicRingtones_201306/Spirit.mp3',
-        'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3', // High stability
-        'https://ia800100.us.archive.org/30/items/nasheed_adel/Beep.mp3', // Secondary fallback
-        'https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3' // CDNs are generally more stable
+        'https://ia801308.us.archive.org/19/items/Takbeerat_201708/Takbeerat.mp3', // تكبيرات العيد الهادئة والمستقرة
+        'https://ia800100.us.archive.org/30/items/nasheed_adel/Beep.mp3', // جرس هادئ احتياطي
+        'https://ia804703.us.archive.org/4/items/BeautifulAdhan/Beautiful%20Adhan%20-Mukhtar%20Al-Shareef.mp3' // أذان عذب عالي الأمان والاستقرار
       ];
 
       let fallbackIndex = 0;
@@ -137,6 +137,36 @@ export default function PrayerAlarmOverlay({ prayerName, message, isOpen, onClos
   };
 
   const handleStop = () => {
+    try {
+      const todayStr = new Date().toISOString().split('T')[0];
+      const savedFalah = localStorage.getItem(`falah_completed_${todayStr}`);
+      let falahCompleted: Record<string, boolean> = {};
+      if (savedFalah) {
+        falahCompleted = JSON.parse(savedFalah);
+      }
+
+      if (!falahCompleted['falah-prayers']) {
+        falahCompleted['falah-prayers'] = true;
+        localStorage.setItem(`falah_completed_${todayStr}`, JSON.stringify(falahCompleted));
+
+        const savedFalahStats = localStorage.getItem('falah_habits_stats');
+        let falahStats = { streak: 0, total: 0 };
+        if (savedFalahStats) {
+          falahStats = JSON.parse(savedFalahStats);
+        }
+        const newFalahStats = {
+          total: falahStats.total + 1,
+          streak: falahStats.streak + 1
+        };
+        localStorage.setItem('falah_habits_stats', JSON.stringify(newFalahStats));
+
+        // Dispatch custom event to notify components to reload Falah data
+        window.dispatchEvent(new Event('falah-updated'));
+      }
+    } catch (e) {
+      console.error("Error setting falah-prayers on stop alarm:", e);
+    }
+    
     onClose();
   };
 

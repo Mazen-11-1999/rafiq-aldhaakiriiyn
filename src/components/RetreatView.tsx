@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { getSpiritualGuidance } from '../services/geminiService';
-import { Leaf, Mic, Plus, CheckCircle, Rocket, Target, Trash2, Clock, Book, ListChecks, Scale, Music, Map, PieChart, Sparkles } from 'lucide-react';
+import { Leaf, Mic, Plus, Send, CheckCircle, Rocket, Target, Trash2, Clock, Book, ListChecks, Scale, Music, Map, PieChart, Sparkles } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { UserProfile, ChatMessage } from '../types';
 
@@ -149,7 +149,7 @@ export default function RetreatView({ userProfile, chatMessages, setChatMessages
   );
 
   return (
-    <div className="relative min-h-full flex flex-col items-center justify-center p-6 space-y-12 overflow-hidden perspective-1000">
+    <div className="relative min-h-full flex flex-col items-center justify-between md:justify-center p-4 md:p-6 space-y-6 md:space-y-10 overflow-hidden perspective-1000">
       {/* 3D Background Elements */}
       <div className="absolute inset-0 z-0 pointer-events-none opacity-40 preserve-3d">
         <motion.div 
@@ -199,14 +199,14 @@ export default function RetreatView({ userProfile, chatMessages, setChatMessages
                <h3 className="text-3xl font-serif font-bold text-[#4e635a] transform translateZ(20px)">أهلاً بك يا {userProfile?.displayName ? userProfile.displayName.split(' ')[0] : 'رفيق'}</h3>
                <p className="text-[#655d51] mt-4 leading-relaxed font-medium transform translateZ(10px)">أنا "سند"، رفيقك في لحظات الصدق والسكون. تكلم معي عما تشعر به، أو اسألني عما يدور في خاطرك، وسأكون لك مسانداً بإذن الله.</p>
                
-               <div className="grid grid-cols-2 gap-4 mt-8 transform translateZ(5px)">
+               <div className="grid grid-cols-4 gap-2 mt-6 transform translateZ(5px)">
                   {moods.map((m) => (
                     <motion.button
                       key={m.value}
                       whileHover={{ scale: 1.05, translateZ: 10 }}
                       whileTap={{ scale: 0.95 }}
                       onClick={() => handleMoodSelect(m.label)}
-                      className="px-6 py-4 rounded-3xl bg-white/90 border border-white text-[#4e635a] font-bold shadow-xl border-b-4 border-b-[#4e635a]/10"
+                      className="py-1.5 px-1 rounded-xl bg-white/95 border border-white/60 text-[#4e635a] font-bold shadow-xs text-[10.5px] md:text-xs border-b-2 border-b-[#4e635a]/10 hover:border-[#4e635a]/15 transition-all cursor-pointer"
                     >
                       {m.label}
                     </motion.button>
@@ -381,25 +381,28 @@ export default function RetreatView({ userProfile, chatMessages, setChatMessages
           )}
         </AnimatePresence>
 
-        <form onSubmit={handleQuestionSubmit} className="relative group ring-offset-background">
-          <input 
-            type="text"
-            value={question}
-            onChange={(e) => setQuestion(e.target.value)}
-            placeholder="بماذا تريد ان تصلح نفسك..."
-            className="w-full px-8 py-5 rounded-[40px] bg-white/70 backdrop-blur-xl border border-white focus:outline-none focus:ring-2 focus:ring-[#4e635a]/20 shadow-2xl text-[#1b1c1a] placeholder:text-[#4e635a]/20 font-medium transition-all text-lg"
-          />
-          <button 
-            type="submit"
-            disabled={!question.trim() || loadingAi}
-            className="absolute left-3 top-1/2 -translate-y-1/2 w-12 h-12 bg-[#4e635a] text-white rounded-full flex items-center justify-center shadow-lg transform active:scale-95 transition-all disabled:opacity-20"
-          >
-            <Plus className={cn("rotate-45 transition-transform", loadingAi && "animate-spin")} size={28} />
-          </button>
-        </form>
+        <div className="relative p-[3px] rounded-[40px] overflow-hidden bg-gradient-to-r from-red-500 via-orange-400 via-yellow-400 via-green-400 via-[#4e635a] via-blue-500 via-indigo-500 via-purple-500 to-red-500 animate-border-flow shadow-2xl">
+          <form onSubmit={handleQuestionSubmit} className="relative bg-white/95 rounded-[38px] overflow-hidden flex items-center">
+            <input 
+              type="text"
+              value={question}
+              onChange={(e) => setQuestion(e.target.value)}
+              placeholder="بماذا تريد ان تصلح نفسك..."
+              className="w-full pl-14 pr-6 py-5 bg-transparent focus:outline-none text-[#1b1c1a] placeholder:text-[#4e635a]/30 font-medium text-lg leading-normal"
+            />
+            <button 
+              type="submit"
+              disabled={!question.trim() || loadingAi}
+              className="absolute left-3 top-1/2 -translate-y-1/2 w-12 h-12 bg-[#4e635a] text-white rounded-full flex items-center justify-center shadow-lg transform active:scale-95 transition-all disabled:opacity-20 hover:bg-[#3d4f47]"
+              title="إرسال"
+            >
+              <Send className={cn("rotate-180 transition-transform text-white", loadingAi && "animate-spin")} size={22} />
+            </button>
+          </form>
+        </div>
       </div>
       {/* Real-time Voice Interaction */}
-      <div className="z-10 flex flex-col items-center gap-4">
+      <div className="z-10 flex flex-col items-center gap-3">
          <div className="relative">
            <AnimatePresence>
              {isListening && (
@@ -408,7 +411,7 @@ export default function RetreatView({ userProfile, chatMessages, setChatMessages
                  animate={{ scale: [1, 1.4, 1], opacity: [0.5, 0.2, 0.5] }}
                  exit={{ opacity: 0 }}
                  transition={{ duration: 1.5, repeat: Infinity }}
-                 className="absolute inset-0 bg-[#8da399] rounded-full blur-xl"
+                 className="absolute inset-0 bg-[#8da399] rounded-full blur-lg"
                />
              )}
            </AnimatePresence>
@@ -417,19 +420,19 @@ export default function RetreatView({ userProfile, chatMessages, setChatMessages
              whileTap={{ scale: 0.9 }}
              onClick={toggleListening}
              className={cn(
-               "relative w-24 h-24 rounded-full flex items-center justify-center shadow-2xl transition-all duration-500 group",
+               "relative w-12 h-12 rounded-full flex items-center justify-center shadow-2xl transition-all duration-500 group",
                isListening 
                  ? "bg-[#ba1a1a] shadow-[#ba1a1a]/40" 
                  : "bg-[#6b5c4c] shadow-[#6b5c4c]/40"
              )}
            >
-             <Mic size={40} className={cn(
-               "transition-transform",
+             <Mic size={18} className={cn(
+               "transition-transform text-white",
                isListening ? "scale-110 animate-pulse" : "group-hover:scale-110"
              )} />
            </motion.button>
          </div>
-         <span className="text-xs font-bold text-[#4e635a] uppercase tracking-[0.3em] font-serif">
+         <span className="text-xs font-bold text-[#4e635a] tracking-wide font-sans">
            {isListening ? "جاري الاستماع إليك..." : "سندك هنا ، تحدث معي"}
          </span>
       </div>

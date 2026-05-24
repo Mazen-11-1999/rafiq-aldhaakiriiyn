@@ -17,8 +17,8 @@ export const RINGTONES = [
   },
   { 
     id: 'deep-meditation', 
-    name: 'تأمل عميق', 
-    url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3'
+    name: 'تأمل ونقاء (صلوات)', 
+    url: 'https://ia800100.us.archive.org/30/items/nasheed_adel/Salawat.mp3'
   },
   { 
     id: 'morning-sun', 
@@ -32,8 +32,8 @@ export const RINGTONES = [
   },
   { 
     id: 'spiritual-calm', 
-    name: 'سكينة روحية', 
-    url: 'https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3'
+    name: 'سكينة روحانية (تكبيرات)', 
+    url: 'https://ia801308.us.archive.org/19/items/Takbeerat_201708/Takbeerat.mp3'
   },
   {
     id: 'classic-beep',

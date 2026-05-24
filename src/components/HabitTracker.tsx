@@ -144,6 +144,27 @@ export default function HabitTracker({ onActivity }: { onActivity?: () => void }
     setReminderIndex(new Date().getDate() % shaytanReminders.length);
   }, [todayStr]);
 
+  useEffect(() => {
+    const handleFalahUpdated = () => {
+      const savedFalah = localStorage.getItem(`falah_completed_${todayStr}`);
+      if (savedFalah) {
+        setFalahCompleted(JSON.parse(savedFalah));
+      } else {
+        setFalahCompleted({});
+      }
+
+      const savedFalahStats = localStorage.getItem('falah_habits_stats');
+      if (savedFalahStats) {
+        setFalahStats(JSON.parse(savedFalahStats));
+      } else {
+        setFalahStats({ streak: 0, total: 0 });
+      }
+    };
+
+    window.addEventListener('falah-updated', handleFalahUpdated);
+    return () => window.removeEventListener('falah-updated', handleFalahUpdated);
+  }, [todayStr]);
+
   const toggleHabit = async (id: string, title: string) => {
     const isNowCompleted = !completedToday[id];
     const newState = { ...completedToday, [id]: isNowCompleted };

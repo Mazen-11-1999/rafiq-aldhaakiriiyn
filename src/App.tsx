@@ -579,7 +579,7 @@ export default function App() {
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
             >
-              <JourneyMapView userProfile={userProfile} />
+              <JourneyMapView userProfile={userProfile} onTabChange={setActiveTab} />
             </motion.div>
           )}
           {activeTab === 'nasheeds' && (
@@ -676,8 +676,8 @@ export default function App() {
         <div className="flex items-center justify-around w-full gap-1 px-2" dir="rtl">
           <NavItem active={activeTab === 'retreat'} onClick={() => setActiveTab('retreat')} icon={<Compass size={22} />} label="الرئيسية" />
           <NavItem active={activeTab === 'dhikr'} onClick={() => setActiveTab('dhikr')} icon={<Sparkles size={22} />} label="مسبحة السر" />
-          <NavItem active={activeTab === 'history'} onClick={() => setActiveTab('history')} icon={<BookOpen size={22} />} label="قصص الأنبياء" />
-          <NavItem active={activeTab === 'spiritual-mirror'} onClick={() => setActiveTab('spiritual-mirror')} icon={<Heart size={22} />} label="👁️ بصيرة (خلف الشاشات)" />
+          <NavItem active={activeTab === 'history'} onClick={() => setActiveTab('history')} icon={<BookOpen size={22} />} label="على خطى الحبيب" />
+          <NavItem active={activeTab === 'spiritual-mirror'} onClick={() => setActiveTab('spiritual-mirror')} icon={<Heart size={22} />} label="👁️ وقفة صدق" />
           <NavItem active={isChatOpen} onClick={() => setIsChatOpen(true)} icon={<MessageCircle size={22} />} label="جلسة الإصلاح" />
           <NavItem active={activeTab === 'profile'} onClick={() => setActiveTab('profile')} icon={<User size={22} />} label="حسابي" />
         </div>

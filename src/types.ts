@@ -42,6 +42,11 @@ export interface UserProfile {
   coords?: { lat: number, lng: number };
   pushSubscription?: any;
   settings?: UserSettings;
+  demographics?: {
+    gender?: 'male' | 'female';
+    maritalStatus?: 'single' | 'married';
+    job?: 'student' | 'employed' | 'unemployed' | 'business';
+  };
 }
 
 export interface Session {

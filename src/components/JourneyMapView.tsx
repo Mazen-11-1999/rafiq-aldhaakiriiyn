@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { UserProfile } from '../types';
 import { motion, AnimatePresence } from 'motion/react';
-import { Compass, Star, ChevronLeft, Lock, CheckCircle2, ArrowRight, ShieldCheck, Heart, Map as MapIcon, ScrollText } from 'lucide-react';
+import { Compass, Star, Lock, CheckCircle2, ArrowRight, ShieldCheck, Heart, Map as MapIcon, ScrollText } from 'lucide-react';
 import { cn } from '../lib/utils';
 
 interface Station {
@@ -23,130 +23,153 @@ interface Station {
 const STATION_TEMPLATE: Omit<Station, 'status'>[] = [
   {
     id: 'awakening',
-    title: 'اليقظة',
-    description: 'انتباه القلب من غفلته، وهي أولى خطوات السائر إلى الله.',
+    title: 'اليقظة 🌟',
+    description: 'أن يصحو قلبك من دوامة الغفلة وصخب الدنيا، وتلتفت للحظة لتسأل نفسك: إلى أين يمضي عمري؟ وهي أول وأهم خطوة في طريقك إلى الله.',
     color: '#10B981',
     icon: <Star size={24} />,
     lessons: [
-      'التفكر في نعم الله الظاهرة والباطنة',
-      'إدراك قيمة الوقت وقصر العمر',
-      'الانتباه لآثار الذنوب على القلب'
+      'رؤية النعم المستورة: أن تتأمل في نعم الله العظيمة التي غمرك بها في جسدك وحياتك دون أن تطلبها.',
+      'قيمة عمرك: أن تدرك بصدق أن يومك الذي يمر هو جزء من عمرك الغالي، وأنه أثمن من أن يضيع في فراغ.',
+      'صيانة القلب: أن تنتبه للخدوش الصغيرة والآثار التي تتركها العادات السيئة والذنوب على سلامك.'
     ],
     challenges: [
-      'ترك رفقاء السوء وأصحاب الغفلة',
-      'مجاهدة النفس على الاستيقاظ لصلاة الفجر',
-      'التقليل من فضول المباحات (كلام، طعام، نوم)'
+      'التحدي 1: ابعد عن رفقاء السوء والطلعات التي تضيع وقتك ودينك، وابحث عن صحبة تذكرك بالخير وتدعم طموحك.',
+      'التحدي 2: جاهد نفسك بكل شجاعة هذا الأسبوع لكي تستيقظ لصلاة الفجر في وقتها، فهي مفتاح بركة يومك.',
+      'التحدي 3: خفف قليلاً من المبالغة في الأمور العادية (ككثرة السهر، النوم الطويل، وتصفح الشاشات بلا فائدة) لتترك مساحة لروحك لتتنفس.'
     ]
   },
   {
     id: 'repentance',
-    title: 'التوبة',
-    description: 'الرجوع إلى الله وفك عقدة الإصرار على المعاصي.',
+    title: 'التوبة 🔄',
+    description: 'الرجوع الصادق إلى الله وفك عقدة الإصرار على المعاصي والتقصير لتعود لربك خفيفًا طاهرًا.',
     color: '#3B82F6',
     icon: <ShieldCheck size={24} />,
-    requirement: { minutes: 50, sessions: 5 },
+    requirement: { minutes: 15, sessions: 2, streak: 1 },
     lessons: [
-      'شروط التوبة الصادقة',
-      'كيفية رد المظالم إلى أهلها',
-      'تجديد العهد مع الله يومياً'
+      'شروط التوبة الصادقة: الاعتراف بالخطأ والندم بصدق والعزم الأكيد على عدم العودة.',
+      'رد الحقوق المعنوية والمادية: طلب السماح ممن ظلمته أو أسأت إليه وبدء صفحة نقية مع الله والناس.',
+      'الاستغفار الدائم: جعل لسانك رطبًا بطلب المغفرة لكي تذوب ذنوبك وتطمئن روحك.'
     ],
     challenges: [
-      'الثبات أمام الحنين للمعاصي القديمة',
-      'الاعتذار لمن ظلمتهم وبدء صفحة جديدة',
-      'الحفاظ على بيئة تعين على الطاعة'
+      'التحدي 1: الثبات التام والتحمل الصادق أمام حنين النفس للخطأ أو العادات القديمة السيئة.',
+      'التحدي 2: الاعتذار والتصالح مع صديق أو قريب أسأت إليه أو قاطعته في السابق لإرجاع الود.',
+      'التحدي 3: تنظيف حساباتك وتطبيقات شاشتك من أي أمور تخدش سلام وإيمان قلبك لتعيش خلوة طاهرة.'
     ]
   },
   {
     id: 'patience',
-    title: 'الصبر',
-    description: 'حبس النفس عن الجزع ومنع الجوارح من سخط الأقدار.',
+    title: 'الصبر 🛡️',
+    description: 'حبس النفس عن الجزع وكظم الغيظ، والتمسك بالعمل والعبادة بهدوء وثقة كاملة بوعد الله عز وجل.',
     color: '#F59E0B',
     icon: <Lock size={24} />,
-    requirement: { minutes: 200, sessions: 15, streak: 3 },
+    requirement: { minutes: 50, sessions: 4, streak: 2 },
     lessons: [
-      'الفرق بين الصبر والرضا',
-      'الصبر على الطاعة والصبر عن المعصية',
-      'ثواب الصابرين في الدنيا والآخرة'
+      'الصبر على الطاعات: المواظبة الدائمة على السعي اليومي وجلسة الإصلاح اليومية رغم الفتور والكسل.',
+      'الصبر عن المعاصي: بناء درع تقوى صلب يحميك من تشتت الشاشات والوقوع في شرك العادات السيئة.',
+      'الصبر على الأقدار: استقبال تغيرات وهزات الحياة بقلب هادئ متيقن برحمة وتدبير الله الخبير.'
     ],
     challenges: [
-      'كظم الغيظ عند شدة الغضب',
-      'الاستمرار في العبادة رغم الفتور',
-      'عدم الشكوى للخلق إلا لله وحده'
+      'التحدي 1: كظم غيظك هذا الأسبوع بالكامل عند المناقشة مع الأهل أو الأصدقاء والرد بكلمات طيبة.',
+      'التحدي 2: الاستمرار في مسبحة السر والوعي الداخلي لـ 3 أيام متتالية دون انقطاع لتأكيد الانضباط.',
+      'التحدي 3: التوقف الكامل التام عن الشكوى والتذمر للخلق، وحصر بث الهم والحزن لله وحده في السجود.'
     ]
   },
   {
     id: 'gratitude',
-    title: 'الشكر',
-    description: 'ظهور أثر النعمة على لسان العبد ثناءً، وعلى قلبه حباً، وعلى جوارحه طاعة.',
+    title: 'الشكر 🌱',
+    description: 'الشكر ليس مجرد كلمة ترددها باللسان؛ بل هو أن يرى الله أثر نعمته في طيب كلماتك، ونقاء قلبك، واستعمال عافيتك وصحتك في السعي والخير، بدلاً من الكسل والشكوى.',
     color: '#8B5CF6',
     icon: <Heart size={24} />,
-    requirement: { minutes: 500, sessions: 40, streak: 7 },
+    requirement: { minutes: 150, sessions: 10, streak: 3 },
     lessons: [
-      'مراتب الشكر الثلاثة (القلب، اللسان، الجوارح)',
-      'سجود الشكر وأثره في حياة المسلم',
-      'كيف تجعل حياتك كلها شكراً؟'
+      'الحمد الصامت: أن تتعلم كيف تشكر الله على النعم المستورة التي لا يراها الناس فيك (كالعقل، الستر، الأمان، والصحة) قبل النعم الظاهرة.',
+      'بركة الموجود: أن تركز على ما تملكه الآن وتستثمره بذكاء، بدلاً من تضييع عمرك في التذمر والنظر لما في أيدي الآخرين.',
+      'عطاء بدون مقابل: أن تدرك أن قمة الشكر لنعمة الوعي والعلم هي أن تنفع بها من حولك وتدعمهم بكل لطف وبساطة.'
     ],
     challenges: [
-      'البحث عن نعم الله وسط البلاء',
-      'استخدام الجوارح فيما يرضي من أنعم بها',
-      'نشر الإيجابية والأمل بين الناس'
+      'التحدي 1: البحث عن النور وسط التعب - عاهد نفسك هذا الأسبوع، كلما واجهتك مشكلة في دراستك أو عملك أو ضيق في ميزانيتك، ألا تشتكي لأحد؛ بل توقف فوراً واذكر ثلاث نعم عظيمة في حياتك وقل "الحمد لله" بيقين.',
+      'التحدي 2: طهارة الجوارح - صُن عينك ولسانك ويدك عن أي أمر نهى الله عنه هذا الأسبوع. اجعل شكرك لعافية جسدك هو أن تستعمل هذا الجسد في السعي الحلال وبناء مهاراتك لتكون يداً عليا مستغنية.',
+      'التحدي 3: انشر الأمل والخير - كن خفيفاً ومبشراً بين أصحابك وأهلك؛ قل كلمة طيبة، ساعد من يحتاجك بصمت دون كبر أو منّ، واجعل حضورك في المجالس والرسائل يجلب الطمأنينة لا العبء والشكوى.'
     ]
   },
   {
     id: 'contentment',
-    title: 'الرضا',
-    description: 'سكون القلب تحت مجاري الأحكام، وهو جنة الدنيا المستعجلة.',
+    title: 'الرضا ☀️',
+    description: 'سكون القلب واطمئنانه تحت مجاري الأقدار وتدابير الله العليم، وهي جنة الدنيا المستعجلة التي تطيب بها نفسك ويستريح بها وعيك.',
     color: '#EC4899',
     icon: <CheckCircle2 size={24} />,
-    requirement: { minutes: 1000, sessions: 100, streak: 15 },
+    requirement: { minutes: 300, sessions: 20, streak: 5 },
     lessons: [
-      'الرضا بمكروه القضاء',
-      'كيف تصل إلى طمأنينة القلب؟',
-      'الثقة العميقة في حسن تدبير الله'
+      'الرضا بمكروه القضاء: استقبال التحديات والأقدار الصعبة كأنها هدايا مغلفة من الله لتطهيرك واصطفائك.',
+      'طمأنينة التفويض العميقة: تسليم مقاديرك كلها لرب العالمين بوعي تام وزوال القلق النفسي والفكري.',
+      'جنة الاستغناء الصادقة: الشعور بالغنى الكامل بالله واليقين التام بما لديه أكثر مما تملكه يداك.'
     ],
     challenges: [
-      'ترك الاعتراض على تدبير الله في النفس والمال',
-      'الاستغناء بالله عن كل ما سواه',
-      'العيش في لحظتك الحاضرة بروح راضية'
+      'التحدي 1: الرضا التام وعدم الاعتراض على أقدار الله المالية أو الصحية، والتركيز على السعي بابتسامة راضية.',
+      'التحدي 2: التخلص التام من قلق المستقبل والخوف منه، معيشاً يومك الحالي بتمام السلام والإيمان والتوكل.',
+      'التحدي 3: البقاء في خلوة صامتة ونصف ساعة من الذكر الخالص لله للاستغناء بربك الكريم عن كل ما سواه.'
     ]
   }
 ];
 
-export default function JourneyMapView({ userProfile }: { userProfile: UserProfile | null }) {
+export default function JourneyMapView({ 
+  userProfile, 
+  onTabChange 
+}: { 
+  userProfile: UserProfile | null;
+  onTabChange?: (tab: 'retreat' | 'dhikr' | 'stories' | 'habits' | 'ethics' | 'nasheeds' | 'history' | 'journey' | 'quiz' | 'journal' | 'insights' | 'profile' | 'time' | 'spiritual-mirror' | 'spiritual-insights' | 'prayer-times') => void;
+}) {
   const stations = useMemo(() => {
     if (!userProfile) return STATION_TEMPLATE.map(s => ({ ...s, status: 'locked' as const }));
 
     return STATION_TEMPLATE.map((station, index) => {
       let status: 'locked' | 'current' | 'completed' = 'locked';
       
+      const userMins = userProfile.totalMinutes ?? 0;
+      const userStreak = userProfile.currentStreak ?? 0;
+      const userSessions = userProfile.totalSessions ?? 0;
+
       const isMet = !station.requirement || (
-        (userProfile.totalMinutes >= (station.requirement.minutes || 0)) &&
-        ((userProfile.totalSessions || 0) >= (station.requirement.sessions || 0)) &&
-        (userProfile.currentStreak >= (station.requirement.streak || 0))
+        (userMins >= (station.requirement.minutes || 0)) &&
+        (userSessions >= (station.requirement.sessions || 0)) &&
+        (userStreak >= (station.requirement.streak || 0))
       );
 
-      // Simple logic: if requirements met, and next one isn't, it's current.
-      const prevMet = index === 0 || STATION_TEMPLATE.slice(0, index).every(s => 
-        !s.requirement || (
-          userProfile.totalMinutes >= (s.requirement.minutes || 0) && 
-          (userProfile.totalSessions || 0) >= (s.requirement.sessions || 0) &&
-          userProfile.currentStreak >= (s.requirement.streak || 0)
-        )
-      );
-
-      if (isMet) {
-        // Check if next one is met, if so this one is completed
-        const next = STATION_TEMPLATE[index + 1];
+      // Station 0 (Awakening) is unlocked by default
+      if (index === 0) {
+        // Safe check for repentance requirements to determine if completed
+        const next = STATION_TEMPLATE[1];
         const nextMet = next && next.requirement && (
-          userProfile.totalMinutes >= (next.requirement.minutes || 0) &&
-          (userProfile.totalSessions || 0) >= (next.requirement.sessions || 0) &&
-          userProfile.currentStreak >= (next.requirement.streak || 0)
+          userMins >= (next.requirement.minutes || 0) &&
+          userSessions >= (next.requirement.sessions || 0) &&
+          userStreak >= (next.requirement.streak || 0)
         );
         status = nextMet ? 'completed' : 'current';
-      } else if (prevMet) {
-        status = 'current';
       } else {
-        status = 'locked';
+        // Unlocked only if previous one is met
+        const prev = STATION_TEMPLATE[index - 1];
+        const prevMet = !prev.requirement || (
+          userMins >= (prev.requirement.minutes || 0) &&
+          userSessions >= (prev.requirement.sessions || 0) &&
+          userStreak >= (prev.requirement.streak || 0)
+        );
+
+        if (prevMet) {
+          if (isMet) {
+            // Check if next is also met to mark as completed
+            const next = STATION_TEMPLATE[index + 1];
+            const nextMet = next && next.requirement && (
+              userMins >= (next.requirement.minutes || 0) &&
+              userSessions >= (next.requirement.sessions || 0) &&
+              userStreak >= (next.requirement.streak || 0)
+            );
+            status = nextMet ? 'completed' : 'current';
+          } else {
+            status = 'current';
+          }
+        } else {
+          status = 'locked';
+        }
       }
 
       return { ...station, status };
@@ -165,15 +188,15 @@ export default function JourneyMapView({ userProfile }: { userProfile: UserProfi
           className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#4e635a]/10 text-[#4e635a] mb-6 border border-[#4e635a]/20"
         >
           <Compass size={18} className="animate-spin-slow" />
-          <span className="text-[10px] font-black uppercase tracking-[0.2em]">طريق السلوك والترقية</span>
+          <span className="text-[10px] font-black uppercase tracking-[0.2em] font-mono">طريق السلوك والترقية</span>
         </motion.div>
-        <h1 className="text-5xl md:text-7xl font-bold text-[#1b1c1a] font-serif mb-6 leading-tight">رحلة المسافر إلى الله</h1>
-        <p className="text-xl text-[#4e635a]/60 max-w-2xl mx-auto leading-relaxed">
-          خريطة معنوية تعرض لك محطات التزكية ومقامات السير، لتعرف أين أنت وما هو التحدي القادم في رحلتك.
+        <h1 className="text-4xl md:text-6xl font-bold text-[#1b1c1a] font-serif mb-6 leading-tight">رحلة المسافر إلى الله</h1>
+        <p className="text-lg md:text-xl text-[#4e635a]/80 max-w-2xl mx-auto leading-relaxed">
+          خريطة قلبك.. خطوات محددة نمشيها معاً خطوة بخطوة، لتكتشف أين يقف قلبك الآن، وما هو التحدي القادم لترتاح نفسك وتطمئن.
         </p>
       </header>
 
-      <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
+      <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 items-start" dir="rtl">
         {/* The Map / Timeline */}
         <div className="lg:col-span-4 space-y-4 relative">
           {/* Connecting Line */}
@@ -182,15 +205,15 @@ export default function JourneyMapView({ userProfile }: { userProfile: UserProfi
           {stations.map((station, index) => (
             <motion.button
               key={station.id}
-              initial={{ opacity: 0, x: 20 }}
+              initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: index * 0.1 }}
               onClick={() => setSelectedStationId(station.id)}
               className={cn(
                 "w-full flex items-center gap-6 p-6 rounded-[35px] transition-all relative group text-right",
                 selectedStationId === station.id 
-                  ? "bg-white shadow-2xl scale-[1.02] border-r-8" 
-                  : "hover:bg-white/40 grayscale opacity-60"
+                  ? "bg-white shadow-2xl scale-[1.02] border-r-8 border-[#4e635a]" 
+                  : "hover:bg-white/40 opacity-75"
               )}
               style={{ 
                 borderRightColor: selectedStationId === station.id ? station.color : 'transparent' 
@@ -203,15 +226,15 @@ export default function JourneyMapView({ userProfile }: { userProfile: UserProfi
                 )}
                 style={{ backgroundColor: station.status !== 'locked' ? station.color : undefined }}
               >
-                {station.status === 'locked' ? <Lock size={20} /> : station.icon}
+                {station.status === 'locked' ? <Lock size={20} className="text-gray-500" /> : station.icon}
               </div>
-              <div className="text-right">
+              <div className="text-right flex-grow">
                 <h3 className="font-bold text-xl font-serif text-[#1b1c1a]">{station.title}</h3>
-                <span className="text-xs font-bold text-[#4e635a]/40 uppercase tracking-widest">المحطة {index + 1}</span>
+                <span className="text-xs font-bold text-[#4e635a]/60 uppercase tracking-widest">المحطة {index + 1}</span>
               </div>
               
               {station.status === 'completed' && (
-                <div className="absolute left-6 text-green-500">
+                <div className="text-green-500">
                   <CheckCircle2 size={24} />
                 </div>
               )}
@@ -228,7 +251,7 @@ export default function JourneyMapView({ userProfile }: { userProfile: UserProfi
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
-                className="bg-white rounded-[60px] p-10 md:p-16 shadow-2xl border border-[#4e635a]/5 relative overflow-hidden h-full"
+                className="bg-white rounded-[60px] p-10 md:p-16 shadow-2xl border border-[#4e635a]/5 relative overflow-hidden h-full text-right"
               >
                 {/* Decorative Background Icon */}
                 <div 
@@ -238,8 +261,8 @@ export default function JourneyMapView({ userProfile }: { userProfile: UserProfi
                   {selectedStation.icon}
                 </div>
 
-                <div className="relative z-10">
-                  <div className="flex items-center justify-between mb-12">
+                <div className="relative z-10 space-y-8">
+                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                     <div className="flex items-center gap-6">
                       <div 
                         className="w-20 h-20 rounded-[30px] flex items-center justify-center text-white shadow-xl"
@@ -248,8 +271,8 @@ export default function JourneyMapView({ userProfile }: { userProfile: UserProfi
                         {selectedStation.icon}
                       </div>
                       <div>
-                        <h2 className="text-5xl font-bold text-[#1b1c1a] font-serif mb-2">{selectedStation.title}</h2>
-                        <div className="flex items-center gap-2">
+                        <h2 className="text-4xl md:text-5xl font-bold text-[#1b1c1a] font-serif mb-2">{selectedStation.title}</h2>
+                        <div className="flex items-center gap-2 justify-start">
                            <div className="w-2 h-2 rounded-full bg-green-500" />
                            <span className="text-sm font-bold text-[#4e635a]/60 uppercase tracking-widest">مقام القلب</span>
                         </div>
@@ -257,65 +280,109 @@ export default function JourneyMapView({ userProfile }: { userProfile: UserProfi
                     </div>
                   </div>
 
-                  <p className="text-2xl text-[#4e635a] leading-relaxed mb-16 font-medium">
+                  <p className="text-xl md:text-2xl text-[#4e635a] leading-relaxed font-medium">
                     {selectedStation.description}
                   </p>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-                    <section className="bg-gray-50 rounded-[40px] p-10">
-                      <div className="flex items-center gap-3 mb-8 text-[#4e635a]">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-4">
+                    <section className="bg-[#fbf9f6] rounded-[40px] p-8 md:p-10">
+                      <div className="flex items-center gap-3 mb-6 text-[#4e635a]">
                         <ScrollText size={24} />
                         <h3 className="text-xl font-bold font-serif">دروس المحطة</h3>
                       </div>
                       <ul className="space-y-6">
                         {selectedStation.lessons.map((lesson, i) => (
-                          <li key={i} className="flex gap-4 group">
-                             <div className="w-6 h-6 rounded-lg bg-white shadow-sm flex items-center justify-center text-[10px] font-black text-[#4e635a] group-hover:bg-[#4e635a] group-hover:text-white transition-colors border border-[#4e635a]/10">
+                          <li key={i} className="flex gap-4 group items-start">
+                             <div className="w-6 h-6 rounded-lg bg-white shadow-sm flex items-center justify-center text-[10px] font-black text-[#4e635a] shrink-0 border border-[#4e635a]/10">
                                {i + 1}
                              </div>
-                             <p className="text-lg text-[#1b1c1a]/80 font-medium leading-normal">{lesson}</p>
+                             <p className="text-base md:text-lg text-[#1b1c1a]/80 font-medium leading-normal">{lesson}</p>
                           </li>
                         ))}
                       </ul>
                     </section>
 
-                    <section className="bg-red-50/50 rounded-[40px] p-10 border border-red-100/50">
-                      <div className="flex items-center gap-3 mb-8 text-red-700">
+                    <section className="bg-red-50/50 rounded-[40px] p-8 md:p-10 border border-red-100/30">
+                      <div className="flex items-center gap-3 mb-6 text-red-700">
                         <MapIcon size={24} />
                         <h3 className="text-xl font-bold font-serif">تحديات الطريق</h3>
                       </div>
                       <div className="space-y-4">
                         {selectedStation.challenges.map((challenge, i) => (
-                          <div key={i} className="flex items-center gap-4 p-5 rounded-2xl bg-white/60 border border-red-100 hover:border-red-200 transition-all group">
-                             <ArrowRight className="text-red-300 group-hover:translate-x-[-4px] transition-transform" size={18} />
-                             <p className="text-lg text-red-900/80 font-bold">{challenge}</p>
+                          <div key={i} className="flex items-start gap-4 p-5 rounded-2xl bg-white border border-red-100/50 hover:border-red-200 transition-all group">
+                             <ArrowRight className="text-red-300 group-hover:translate-x-[-4px] transition-transform shrink-0 mt-1" size={18} />
+                             <p className="text-base md:text-lg text-red-950 font-bold leading-normal">{challenge}</p>
                           </div>
                         ))}
                       </div>
                     </section>
                   </div>
 
-                  {selectedStation.status === 'locked' && (
-                    <div className="mt-12 p-8 rounded-[40px] bg-gray-900 text-white flex items-center justify-between shadow-xl shadow-gray-900/20">
-                      <div className="flex items-center gap-6">
-                        <div className="w-14 h-14 rounded-2xl bg-white/10 flex items-center justify-center">
+                  {selectedStation.status === 'locked' ? (
+                    <motion.div 
+                      initial={{ scale: 0.95, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      className="mt-12 p-8 rounded-[40px] bg-[#1e2321] text-white flex flex-col md:flex-row items-center justify-between gap-6 shadow-xl shadow-emerald-950/10 border border-white/5"
+                    >
+                      <div className="flex items-start gap-6 leading-relaxed max-w-xl text-right">
+                        <div className="w-14 h-14 rounded-2xl bg-white/10 flex items-center justify-center shrink-0 text-amber-500">
                           <Lock size={24} />
                         </div>
-                        <div>
-                          <p className="font-bold text-xl mb-1">المحطة مقفلة حالياً</p>
-                          <p className="text-sm opacity-60">أكمل التحديات في المحطة السابقة للفتح</p>
+                        <div className="space-y-4 w-full">
+                          <div>
+                            <p className="font-bold text-2xl mb-1 text-amber-500 font-serif">المحطة مقفلة حالياً</p>
+                            <p className="text-sm text-[#c0cfc6] font-medium leading-relaxed">
+                              الارتقاء لا يأتي بالقراءة فقط؛ التحديات تفتح تلقائياً عندما يسجل النظام دقائق استثمارك الحقيقية في خلوتك الصادقة، وبناء وعيك الذاتي، والمحافظة على استمرارك اليومي.
+                            </p>
+                          </div>
+                          
+                          {/* Live requirements stats if present */}
+                          {selectedStation.requirement && (
+                            <div className="bg-[#141816]/80 p-5 rounded-2xl border border-white/5 space-y-4">
+                              <p className="text-xs font-black text-amber-500/80 border-b border-white/10 pb-2">سعي السلوك المطلوب لفتح المحطة:</p>
+                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs font-mono">
+                                <div className="space-y-2">
+                                  <div className="flex justify-between text-white/90">
+                                    <span>مجموع وقت الاستثمار:</span>
+                                    <span>{userProfile?.totalMinutes ?? 0} / {selectedStation.requirement.minutes ?? 0} دقيقة</span>
+                                  </div>
+                                  <div className="w-full bg-white/5 h-2 rounded-full overflow-hidden">
+                                    <div 
+                                      className="bg-emerald-500 h-full rounded-full transition-all duration-500"
+                                      style={{ width: `${Math.min(100, (((userProfile?.totalMinutes ?? 0) / (selectedStation.requirement.minutes || 1)) * 100))}%` }}
+                                    />
+                                  </div>
+                                </div>
+                                <div className="space-y-2">
+                                  <div className="flex justify-between text-white/90">
+                                    <span>أيام الانضباط المتتالية:</span>
+                                    <span>{userProfile?.currentStreak ?? 0} / {selectedStation.requirement.streak ?? 0} يوم</span>
+                                  </div>
+                                  <div className="w-full bg-white/5 h-2 rounded-full overflow-hidden">
+                                    <div 
+                                      className="bg-amber-500 h-full rounded-full transition-all duration-500"
+                                      style={{ width: `${Math.min(100, (((userProfile?.currentStreak ?? 0) / (selectedStation.requirement.streak || 1)) * 100))}%` }}
+                                    />
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          )}
                         </div>
                       </div>
-                      <button className="px-8 py-4 rounded-2xl bg-white text-gray-900 font-black text-sm uppercase tracking-widest hover:bg-yellow-400 transition-all">
-                        ابدأ السلوك
+                      <button 
+                        onClick={() => onTabChange && onTabChange('retreat')}
+                        className="px-8 py-5 rounded-3xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-base transition-all duration-200 shadow-lg shadow-emerald-950/40 shrink-0 w-full md:w-auto hover:scale-[1.03] active:scale-95"
+                      >
+                        🚀 ابدأ السعي الآن
                       </button>
-                    </div>
-                  )}
+                    </motion.div>
+                  ) : null}
                 </div>
               </motion.div>
             ) : (
-              <div className="h-full flex items-center justify-center bg-[#4e635a]/5 rounded-[60px] border-2 border-dashed border-[#4e635a]/10">
-                <p className="text-[#4e635a]/40 font-bold text-xl uppercase tracking-widest">اختر محطة من الخريطة</p>
+              <div className="h-full flex items-center justify-center bg-[#4e635a]/5 rounded-[60px] border-2 border-dashed border-[#4e635a]/10 py-20">
+                <p className="text-[#4e635a]/40 font-bold text-xl uppercase tracking-widest text-center">اختر محطة من الخريطة</p>
               </div>
             )}
           </AnimatePresence>

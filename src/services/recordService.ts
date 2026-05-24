@@ -10,6 +10,7 @@ import {
   serverTimestamp, 
   Timestamp,
   doc,
+  getDoc,
   setDoc,
   updateDoc,
   deleteDoc
@@ -43,7 +44,7 @@ export interface EthicsCommitment {
 }
 
 // Assessments - STRICTLY LOCAL-ONLY (Local Storage) as requested by the user, to guarantee the youth's complete privacy
-export async function saveAssessment(scores: Record<string, number>, overallTitle: string) {
+export async function saveAssessment(scores: Record<string, number>, overallTitle: string, totalScore?: number) {
   if (!auth.currentUser) return;
   const userId = auth.currentUser.uid;
   const storageKey = `sanad_assessment_${userId}`;
@@ -51,6 +52,7 @@ export async function saveAssessment(scores: Record<string, number>, overallTitl
     userId,
     scores,
     overallTitle,
+    totalScore,
     createdAt: new Date().toISOString()
   };
   localStorage.setItem(storageKey, JSON.stringify(localRecord));
@@ -158,10 +160,28 @@ export async function getUserContext() {
     console.error("Some context parts failed to load:", results.filter(r => r.status === 'rejected'));
   }
 
+  let displayName = "ضيف";
+  let demographics = { gender: 'male', maritalStatus: 'single', job: 'student' };
+  try {
+    const userDocSnap = await getDoc(doc(db, 'users', userId));
+    if (userDocSnap.exists()) {
+      const userData = userDocSnap.data();
+      displayName = userData.displayName || "ضيف";
+      if (userData.demographics) {
+        demographics = userData.demographics;
+      }
+    }
+  } catch (err) {
+    console.error("Failed to load user profile in context:", err);
+  }
+
   return {
+    displayName,
+    demographics,
     assessment: assessment ? {
       title: assessment.overallTitle,
-      scores: assessment.scores
+      scores: assessment.scores,
+      totalScore: (assessment as any).totalScore || 0
     } : null,
     todayHabits: habits.map(h => h.habitTitle),
     allCommitments: ethics.map(e => e.title)
