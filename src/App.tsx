@@ -33,6 +33,7 @@ import { cn } from './lib/utils';
 import { ChatBot } from './components/ChatBot';
 import { MiniPlayer } from './components/MiniPlayer';
 import EmergencyModal from './components/EmergencyModal';
+import VigilantLateNightWatcher from './components/VigilantLateNightWatcher';
 
 import PrayerTimesView from './components/PrayerTimesView';
 import notificationSound from './assets/notification.mp3'; // assuming it exists or keeping it generic
@@ -43,6 +44,14 @@ export default function App() {
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [isEmergencyOpen, setIsEmergencyOpen] = useState(false);
   const { setActiveCategory } = useTimeTracking();
+
+  const [noorDays, setNoorDays] = useState<number>(() => {
+    return Number(localStorage.getItem('sanad_challenge_noor_days') || '2');
+  });
+
+  useEffect(() => {
+    localStorage.setItem('sanad_challenge_noor_days', noorDays.toString());
+  }, [noorDays]);
 
   useEffect(() => {
      const categoryMap: Record<string, 'nasheed' | 'dhikr' | 'retreat' | 'journal' | 'general'> = {
@@ -558,7 +567,7 @@ export default function App() {
               exit={{ opacity: 0, x: -50 }}
               transition={{ type: "spring", stiffness: 100, damping: 20 }}
             >
-              <HistoryMapView />
+              <HistoryMapView onTabChange={setActiveTab} />
             </motion.div>
           )}
           {activeTab === 'insights' && (
@@ -600,7 +609,7 @@ export default function App() {
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
               transition={{ type: "spring", stiffness: 100, damping: 20 }}
             >
-              <ProfileView userProfile={userProfile} onTabChange={setActiveTab} />
+              <ProfileView userProfile={userProfile} onTabChange={setActiveTab} noorDays={noorDays} setNoorDays={setNoorDays} />
             </motion.div>
           )}
           {activeTab === 'time' && (
@@ -653,6 +662,7 @@ export default function App() {
         <PWAPrompt />
         <ChatBot isOpen={isChatOpen} onClose={() => setIsChatOpen(false)} />
         <EmergencyModal isOpen={isEmergencyOpen} onClose={() => setIsEmergencyOpen(false)} />
+        <VigilantLateNightWatcher noorDays={noorDays} setNoorDays={setNoorDays} />
 
         {/* زر الطوارئ اللحظي لنجدة الشاب في لحظات الضعف أو التشتت */}
         <div className="fixed bottom-28 left-6 z-50">

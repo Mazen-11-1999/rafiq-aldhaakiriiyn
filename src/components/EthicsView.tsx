@@ -63,7 +63,7 @@ export default function EthicsView() {
           )}
         >
           <Heart size={16} />
-          المبادرة
+          مقام النخوة
         </button>
         <button
           onClick={() => setActiveSection('digital')}
@@ -73,7 +73,7 @@ export default function EthicsView() {
           )}
         >
           <Fingerprint size={16} />
-          أثر البصمة
+          شاهد الأثر
         </button>
         <button
           onClick={() => setActiveSection('tazkiyah')}
@@ -83,7 +83,7 @@ export default function EthicsView() {
           )}
         >
           <Sparkles size={16} />
-          التزكية
+          الطهر
         </button>
         <button
           onClick={() => setActiveSection('stories')}
@@ -103,7 +103,7 @@ export default function EthicsView() {
           )}
         >
           <AlertTriangle size={16} />
-          النفاق
+          بقعة الزيف
         </button>
         <button
           onClick={() => setActiveSection('boundaries')}
@@ -123,7 +123,10 @@ export default function EthicsView() {
           )}
         >
           <Zap size={16} />
-          عود نفسك
+          <div className="flex flex-col items-center leading-none">
+            <span className="font-bold leading-normal">مدرج الالتزام</span>
+            <span className="text-[9px] font-medium opacity-75">عوّد نفسك</span>
+          </div>
         </button>
       </div>
 
@@ -140,7 +143,7 @@ export default function EthicsView() {
               <div className="absolute top-0 right-0 w-32 h-32 bg-[#4e635a]/5 rounded-bl-[100px] -z-10 group-hover:scale-110 transition-transform" />
               <div className="flex justify-between items-start mb-8">
                 <div className="space-y-1">
-                  <span className="text-[#4e635a] font-bold text-sm tracking-widest uppercase opacity-60">كن أنت المُبادر</span>
+                  <span className="text-[#4e635a] font-bold text-sm tracking-widest uppercase opacity-60">مقام النخوة</span>
                   <h3 className="text-2xl font-black text-[#1b1c1a]">{currentChallenge.title}</h3>
                 </div>
                 <div className="flex gap-2">
@@ -203,12 +206,12 @@ export default function EthicsView() {
               <div className="w-16 h-16 bg-blue-500/10 rounded-full flex items-center justify-center mx-auto text-blue-600">
                 <Fingerprint size={32} />
               </div>
-              <h3 className="text-2xl font-black text-blue-900">📋 ميزان الأخلاق: أثر بصمتك</h3>
+              <h3 className="text-2xl font-black text-blue-900">📋 ميزان الأخلاق: شاهد الأثر</h3>
               <p className="text-blue-800/70 max-w-2xl mx-auto italic font-bold">
                 قال تعالى: "مَا يَلْفِظُ مِن قَوْلٍ إِلَّا لَدَيْهِ رَقِيبٌ عَتِيدٌ"
               </p>
               <p className="text-blue-800/60 leading-relaxed max-w-xl mx-auto text-sm font-semibold">
-                كل تعليق، أو إعجاب، أو إعادة نشر هو "أثر" تتركه في صحيفتك الرقمية. فهل بصمتك اليوم تمهد لك طريق الجنة، أم هي عبء ثقيل ستُسأل عنه؟
+                كل تعليق، أو إعجاب، أو إعادة نشر هو "أثر" تتركه في صحيفتك الرقمية. فهل أثرك اليوم يمهد لك طريق الجنة، أم هو عبء ثقيل ستُسأل عنه؟
               </p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -391,9 +394,9 @@ export default function EthicsView() {
               <div className="w-16 h-16 bg-amber-500/10 rounded-full flex items-center justify-center mx-auto text-amber-600">
                 <Sparkles size={32} className="animate-pulse" />
               </div>
-              <h3 className="text-2xl font-black text-amber-900">التبويب الثالث: تزكية النفس وبناء العزيمة</h3>
-              <p className="text-amber-800/70 max-w-2xl mx-auto">
-                مساحة مخصصة للتحرر من عبودية الشهوات الخفية والخداع الرقمي، لتبني في خلوتك همة ناصعة تليق بقلبك النقي.
+              <h3 className="text-2xl font-black text-amber-900">تزكية النفس وبناء العزيمة</h3>
+              <p className="text-amber-800/70 max-w-2xl mx-auto font-serif font-medium leading-relaxed">
+                التزكية هي صيانة عينك وقلبك في خلوتك. طهر سرك غيباً واقطع حبال العلاقات والأوهام الرقمية التي تسرق عفتك ونقاء قلبك، سواء كنت شاباً يحفظ مروءته أو فتاة تصون حياءها.
               </p>
             </div>
 
@@ -410,7 +413,7 @@ export default function EthicsView() {
                   tazkiyahSub === 'pacts' ? "bg-amber-600 text-white shadow-md" : "text-amber-800 hover:text-amber-600"
                 )}
               >
-                مواثيق بطاقات التزكية 🛡️
+                ميثاق التزكية 🛡️
               </button>
               <button
                 onClick={() => {
@@ -689,7 +692,7 @@ export default function EthicsView() {
               <div className="w-16 h-16 bg-orange-500/10 rounded-full flex items-center justify-center mx-auto text-orange-600">
                 <Zap size={32} />
               </div>
-              <h3 className="text-2xl font-black text-orange-900">عوّد نفسك (خطواتك العملية للتحرر)</h3>
+              <h3 className="text-2xl font-black text-orange-900">مدرج الالتزام (عوّد نفسك)</h3>
               <p className="text-orange-800/70 max-w-2xl mx-auto font-medium leading-relaxed">
                 هنا نبدأ معاً رحلة التغيير؛ خطوات محددة ومجربة لنواجه بها وساوس الشيطان الخفية، ونحول المعرفة إلى سلوك يومي يملأ حياتك بالبركة والنور.
               </p>

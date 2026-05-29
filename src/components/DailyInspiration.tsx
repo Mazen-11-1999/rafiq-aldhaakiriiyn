@@ -194,7 +194,7 @@ export default function DailyInspiration({ userProfile }: { userProfile: UserPro
 
             <div className="absolute bottom-8 flex items-center gap-2 opacity-30 text-[10px] font-bold uppercase tracking-widest">
               <Heart size={12} fill="currentColor" />
-              <span>سند - رفيقك الروحي</span>
+              <span>سند - رفيقك في الاستقامة</span>
             </div>
           </motion.div>
 

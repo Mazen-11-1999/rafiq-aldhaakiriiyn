@@ -5,7 +5,7 @@ const modelName = "gemini-3-flash-preview";
 
 export interface Insight {
   coreMessage: string;
-  universalLaw: string; // القانون الكوني
+  universalLaw: string; // كيف تكون حياتك بتقدير الله وتدبيره
   modernLessons: string[];
   practicalChallenge: string;
 }
@@ -21,7 +21,7 @@ export async function getTrackInsight(title: string, artist: string): Promise<In
     - لا تستخدم لغة الرموز أو الاختصارات مثل (ﷺ) أو التشكيلات والزخارف، اجعل النص يبدو كأنه مكتوب يدوياً من شخص يحب الخير لصديقه.
     - ابتعد تماماً عن أسلوب الذكاء الاصطناعي (مثل: "بناءً على المعطيات.."، "النقاط التالية هي..").
     - ركز على "مفاهيم الأمور" و "العبرة من الحياة" وكيف يربط ما سمعه بواقعه اليومي.
-    - **الجديد والمهم**: استخرج "القانون الكوني" أو "السنة الإلهية" من المقطع (مثلاً: من يتقِ ويصبر فإن الله لا يضيع أجر المحسنين، أو أن الفرج مع الكرب).
+    - **الجديد والمهم**: استخرج الدرس الإيماني الذي يمثل "كيف تسير الحياة بتقدير الله وتدبيره وحكمته سبحانه" من المقطع (مثلاً: من يتقِ ويصبر فإن الله لا يضيع أجر المحسنين، أو أن الفرج مع الكرب، وكيف يظهر هذا التقدير الإلهي في حياة الفرد).
     
     تذكر: لا تتصرف كآلة، تصرف كإنسان ناصح مشفق، لغتك سليمة وبسيطة في آن واحد.
   `;
@@ -36,7 +36,7 @@ export async function getTrackInsight(title: string, artist: string): Promise<In
           type: Type.OBJECT,
           properties: {
             coreMessage: { type: Type.STRING, description: "الرسالة الأساسية من القلب" },
-            universalLaw: { type: Type.STRING, description: "القانون الكوني أو السنة الإلهية" },
+            universalLaw: { type: Type.STRING, description: "كيف تظهر حكمة تقدير الله وتدبيره سبحانه في هذا الجانب" },
             modernLessons: { 
               type: Type.ARRAY, 
               items: { type: Type.STRING },
@@ -70,7 +70,7 @@ export async function getTrackInsight(title: string, artist: string): Promise<In
     console.error("Error generating insight:", error);
     return {
       coreMessage: "التأمل في كلام الله والذكر هو باب الهداية الأول.",
-      universalLaw: "قانون 'تذكر الله يذكرك': الصدق في الرخاء يفتح لك أبواب النجاة في الشدة.",
+      universalLaw: "تقدير الله في 'من يذكر الله يذكره': الصدق في الرخاء يفتح لك أبواب النجاة في الشدة.",
       modernLessons: ["العمل بما نعلم هو زكاة العلم", "القصص مواقيت للتدبر وليس للتسلية", "التغيير يبدأ من الداخل"],
       practicalChallenge: "حاول أن تستخرج فكرة واحدة من هذا المقطع وتطبقها في أول موقف يواجهك اليوم."
     };

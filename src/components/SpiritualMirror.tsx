@@ -156,11 +156,11 @@ export const SpiritualMirror: React.FC<{ recentMoods?: string[], recentReflectio
   };
 
   const categoryNames: Record<string, string> = {
-    intent: 'إخلاص النية',
-    ethics: 'صدق المعاملة',
-    consistency: 'المنهج والواقع',
-    ego: 'سلامة النفس',
-    knowledge: 'ثمرة العلم',
+    intent: 'الكلام بلا فعل والنفاق السلوكي',
+    ethics: 'الاستدانة الاستعراضية والمظاهر الكاذبة',
+    consistency: 'الانخداع بفتن العصر والقعود',
+    ego: 'تزييف المظاهر والكذب الرقمي',
+    knowledge: 'الاتكالية والهروب من المسؤولية',
   };
 
   const getOverallEvaluation = (totalScore: number) => {

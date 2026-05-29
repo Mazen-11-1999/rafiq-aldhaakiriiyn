@@ -129,7 +129,7 @@ export default function InsightPanel({ isOpen, onClose, trackTitle, trackArtist 
                   >
                     <div className="flex items-center gap-2 mb-2 text-[#4e635a]">
                       <Scale size={18} />
-                      <span className="font-bold text-xs uppercase tracking-wider">القانون الكوني (سنة الله)</span>
+                      <span className="font-bold text-xs uppercase tracking-wider">كيف تكون حياتك بتقدير الله وتدبيره</span>
                     </div>
                     <p className="text-[#4e635a] font-bold leading-relaxed">
                       {insight.universalLaw}

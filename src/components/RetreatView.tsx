@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { getSpiritualGuidance } from '../services/geminiService';
-import { Leaf, Mic, Plus, Send, CheckCircle, Rocket, Target, Trash2, Clock, Book, ListChecks, Scale, Music, Map, PieChart, Sparkles } from 'lucide-react';
+import { Leaf, Mic, Plus, Send, CheckCircle, Rocket, Target, Trash2, Clock, Book, BookOpen, ListChecks, Scale, Music, Map, PieChart, Sparkles } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { UserProfile, ChatMessage } from '../types';
 
@@ -136,15 +136,19 @@ export default function RetreatView({ userProfile, chatMessages, setChatMessages
     setShowClearConfirm(false);
   };
 
-  const ToolCard = ({ icon, label, onClick }: { icon: React.ReactNode, label: string, onClick: () => void }) => (
+  const ToolCard = ({ icon, label, subLabel, onClick }: { icon: React.ReactNode, label: string, subLabel?: string, onClick: () => void }) => (
     <motion.button
       whileHover={{ scale: 1.05, y: -2 }}
       whileTap={{ scale: 0.95 }}
       onClick={onClick}
-      className="flex flex-col items-center justify-center p-3 rounded-2xl bg-white border border-[#4e635a]/5 shadow-sm space-y-2 hover:shadow-md transition-all h-20"
+      className={cn(
+        "flex flex-col items-center justify-center p-2 rounded-2xl bg-white border border-[#4e635a]/5 shadow-sm transition-all text-center cursor-pointer min-h-[5rem]",
+        subLabel ? "space-y-0.5 justify-center py-1.5" : "space-y-2 py-3"
+      )}
     >
       <div className="text-[#4e635a] opacity-80">{icon}</div>
-      <span className="text-[10px] font-bold text-[#6b5c4c]">{label}</span>
+      <span className="text-[10px] font-black text-[#6b5c4c] block leading-tight">{label}</span>
+      {subLabel && <span className="text-[8.5px] font-medium text-[#8da399] block leading-tight">{subLabel}</span>}
     </motion.button>
   );
 
@@ -220,7 +224,7 @@ export default function RetreatView({ userProfile, chatMessages, setChatMessages
                     <div className="h-[1px] flex-1 bg-[#4e635a]/10" />
                   </div>
                   
-                  <div className="grid grid-cols-4 gap-2">
+                  <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2">
                     <ToolCard icon={<Clock size={16} />} label="المواقيت" onClick={() => onTabChange('prayer-times')} />
                     <ToolCard icon={<Book size={16} />} label="المفكرة" onClick={() => onTabChange('journal')} />
                     <ToolCard icon={<ListChecks size={16} />} label="المختبر" onClick={() => onTabChange('habits')} />
@@ -229,6 +233,7 @@ export default function RetreatView({ userProfile, chatMessages, setChatMessages
                     <ToolCard icon={<Music size={16} />} label="أناشيد" onClick={() => onTabChange('nasheeds')} />
                     <ToolCard icon={<Map size={16} />} label="الرحلة" onClick={() => onTabChange('journey')} />
                     <ToolCard icon={<PieChart size={16} />} label="النمو" onClick={() => onTabChange('insights')} />
+                    <ToolCard icon={<BookOpen size={16} />} label="سفينة النجاة" subLabel="خذ العبرة" onClick={() => onTabChange('stories')} />
                   </div>
                 </div>
             </motion.div>

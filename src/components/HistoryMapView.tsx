@@ -64,7 +64,11 @@ function MapController({ center, zoom }: { center: [number, number], zoom?: numb
   return null;
 }
 
-export default function HistoryMapView() {
+interface HistoryMapViewProps {
+  onTabChange?: (tab: 'retreat' | 'dhikr' | 'stories' | 'habits' | 'ethics' | 'nasheeds' | 'history' | 'journey' | 'quiz' | 'journal' | 'insights' | 'profile' | 'time' | 'spiritual-mirror' | 'spiritual-insights' | 'prayer-times') => void;
+}
+
+export default function HistoryMapView({ onTabChange }: HistoryMapViewProps) {
   const [selectedEvent, setSelectedEvent] = useState<TimelineEvent | null>(null);
   const [viewMode, setViewMode] = useState<'map' | 'list'>('map');
 
@@ -444,6 +448,15 @@ export default function HistoryMapView() {
           className="flex flex-col sm:flex-row gap-3 items-end self-end w-full sm:w-auto"
         >
           <div className="flex flex-wrap gap-1.5 items-center justify-end w-full sm:w-auto">
+            {onTabChange && (
+              <button
+                onClick={() => onTabChange('stories')}
+                className="flex items-center gap-2 px-3 py-2 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-800 border border-amber-500/20 transition-all font-black text-[11px] sm:text-xs group shadow-sm cursor-pointer"
+              >
+                <BookOpen size={16} className="group-hover:scale-110 transition-transform text-amber-600" />
+                <span>🛡️ سفينة النجاة (عِبر الأنبياء)</span>
+              </button>
+            )}
             <a
               href="https://youtube.com/playlist?list=PLebiqPvxbGTa24tSS1SFJP1W9HU_7KZyz&si=hHoxtHIS1gduJXzE"
               target="_blank"

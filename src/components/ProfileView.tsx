@@ -9,7 +9,7 @@ import {
   HelpCircle, Map, BookOpen, Award, Check, Edit2, Save, X, Music, 
   Target, RefreshCw, Moon, Sun, Download, FileText, Loader2,
   Flame, Sparkles, Coins, Trash2, Heart, HeartHandshake, EyeOff, Plus, RotateCcw, ShieldCheck, ShieldAlert,
-  Compass
+  Compass, Lock
 } from 'lucide-react';
 import { RINGTONES } from '../constants';
 import { cn } from '../lib/utils';
@@ -19,7 +19,17 @@ import html2canvas from 'html2canvas';
 import { collection, query, getDocs, orderBy } from 'firebase/firestore';
 import { getLatestAssessment, saveEthicsCommitment } from '../services/recordService';
 
-export default function ProfileView({ userProfile, onTabChange }: { userProfile: UserProfile | null, onTabChange?: (tab: any) => void }) {
+export default function ProfileView({ 
+  userProfile, 
+  onTabChange,
+  noorDays: propsNoorDays,
+  setNoorDays: propsSetNoorDays
+}: { 
+  userProfile: UserProfile | null; 
+  onTabChange?: (tab: any) => void;
+  noorDays?: number;
+  setNoorDays?: React.Dispatch<React.SetStateAction<number>>;
+}) {
   const [isEditingName, setIsEditingName] = useState(false);
   const [newName, setNewName] = useState(userProfile?.displayName || '');
   const [isSaving, setIsSaving] = useState(false);
@@ -36,9 +46,25 @@ export default function ProfileView({ userProfile, onTabChange }: { userProfile:
   const [qatDays, setQatDays] = useState<number>(() => {
     return Number(localStorage.getItem('sanad_challenge_qat_days') || '4');
   });
-  const [noorDays, setNoorDays] = useState<number>(() => {
+  const [localNoorDays, localSetNoorDays] = useState<number>(() => {
     return Number(localStorage.getItem('sanad_challenge_noor_days') || '2');
   });
+
+  const noorDays = propsNoorDays !== undefined ? propsNoorDays : localNoorDays;
+  const setNoorDays = propsSetNoorDays !== undefined ? propsSetNoorDays : localSetNoorDays;
+
+  // --- Chastity, Relationships & Escape States ---
+  const [gazeCount, setGazeCount] = useState<number>(() => {
+    return Number(localStorage.getItem('sanad_chastity_gaze') || '0');
+  });
+  const [altCount, setAltCount] = useState<number>(() => {
+    return Number(localStorage.getItem('sanad_chastity_alt') || '0');
+  });
+  const [patienceCount, setPatienceCount] = useState<number>(() => {
+    return Number(localStorage.getItem('sanad_chastity_patience') || '0');
+  });
+  const [relTab, setRelTab] = useState<'husband' | 'wife'>('husband');
+  const [weaknessOpen, setWeaknessOpen] = useState<boolean>(false);
 
   // Debts States
   interface Debt {
@@ -73,8 +99,8 @@ export default function ProfileView({ userProfile, onTabChange }: { userProfile:
       if (stored) return JSON.parse(stored);
     } catch (e) {}
     return [
-      { id: 'tazkiyah-gaze', title: 'ميثاق طهارة العين وغض البصر', status: 'not_vowed', days: 0 },
-      { id: 'tazkiyah-heart', title: 'ميثاق طهارة السر والمفسدات الرقمية', status: 'not_vowed', days: 0 }
+      { id: 'tazkiyah-gaze', title: 'تعهد غض البصر وحفظ العين', status: 'not_vowed', days: 0 },
+      { id: 'tazkiyah-heart', title: 'تعهد طهارة السر والسريرة', status: 'not_vowed', days: 0 }
     ];
   });
 
@@ -83,17 +109,26 @@ export default function ProfileView({ userProfile, onTabChange }: { userProfile:
     id: string;
     text: string;
     completed: boolean;
+    consecutiveDays: number; // For the strict 7-day rule
+    minutes?: number; // Minutes spent on the practice (for fajr-dhikr)
   }
   const [agreements, setAgreements] = useState<Agreement[]>(() => {
     try {
       const stored = localStorage.getItem('sanad_agreements_states');
-      if (stored) return JSON.parse(stored);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        return parsed.map((item: any) => ({
+          ...item,
+          consecutiveDays: typeof item.consecutiveDays === 'number' ? item.consecutiveDays : (item.completed ? 7 : 3),
+          minutes: item.id === 'fajr-dhikr' ? (typeof item.minutes === 'number' ? item.minutes : 0) : undefined
+        }));
+      }
     } catch (e) {}
     return [
-      { id: 'rule-48h', text: 'قاعدة الـ 48 ساعة للتأني ومقاطعة الشراء الكمالي والمظاهر', completed: true },
-      { id: 'fajr-dhikr', text: 'الاستغفار الكثيف والسكينة (100 مرة) في خلوة الفجر', completed: false },
-      { id: 'no-screens-midnight', text: 'إغلاق الشاشات تماماً بعد منتصف الليل لحماية نفسك', completed: false },
-      { id: 'kinship-call', text: 'الاتصال برحم أو صديق قديم بنية التقرب دون مصلحة مادية', completed: true }
+      { id: 'rule-48h', text: 'قاعدة الـ 48 ساعة للتأني ومقاطعة الشراء الكمالي والمظاهر', completed: true, consecutiveDays: 7 },
+      { id: 'fajr-dhikr', text: 'الاستغفار الكثيف والسكينة في خلوة الفجر (تخصيص وقت للذكر والهدوء بالدقائق وليس بالعدد)', completed: false, consecutiveDays: 3, minutes: 0 },
+      { id: 'no-screens-midnight', text: 'إغلاق الشاشات تماماً بعد منتصف الليل لحماية نفسك', completed: false, consecutiveDays: 5 },
+      { id: 'kinship-call', text: 'الاتصال برحم أو صديق قديم بنية التقرب دون مصلحة مادية', completed: true, consecutiveDays: 7 }
     ];
   });
 
@@ -131,6 +166,18 @@ export default function ProfileView({ userProfile, onTabChange }: { userProfile:
   }, [noorDays]);
 
   useEffect(() => {
+    localStorage.setItem('sanad_chastity_gaze', gazeCount.toString());
+  }, [gazeCount]);
+
+  useEffect(() => {
+    localStorage.setItem('sanad_chastity_alt', altCount.toString());
+  }, [altCount]);
+
+  useEffect(() => {
+    localStorage.setItem('sanad_chastity_patience', patienceCount.toString());
+  }, [patienceCount]);
+
+  useEffect(() => {
     localStorage.setItem('sanad_challenge_debts', JSON.stringify(debts));
   }, [debts]);
 
@@ -146,24 +193,24 @@ export default function ProfileView({ userProfile, onTabChange }: { userProfile:
 
   const isFemale = userProfile.demographics?.gender === 'female';
 
-  const getSpiritualMaqam = () => {
+  const getBehavioralCommitment = () => {
     const hasBrokenPact = pacts.some(p => p.status === 'broken');
     const hasActivePact = pacts.some(p => p.status === 'active');
     const totalMins = userProfile.totalMinutes || 0;
     const currentStreak = userProfile.currentStreak || 0;
 
     if (hasBrokenPact) {
-      return isFemale ? 'مقام النهوض والترميم الطاهر' : 'مقام النهوض والترميم الشريف';
+      return 'مرحلة استدراك التقصير وترميم العهد';
     }
     
     if (!hasActivePact && currentStreak === 0 && totalMins === 0) {
-      return isFemale ? 'مقام اليقظة والعودة الصادقة' : 'مقام اليقظة والعودة';
+      return 'مرحلة البداية وتحديد الثغور';
     }
 
-    return isFemale ? 'مقام الثبات وصيانة العهد الشريف' : 'مقام الثبات وصيانة العهد';
+    return 'مرحلة السعي ومجاهدة النفس';
   };
 
-  const spiritualMaqam = getSpiritualMaqam();
+  const behavioralCommitment = getBehavioralCommitment();
 
   const exportDataAsPDF = async () => {
     if (!auth.currentUser) return;
@@ -216,7 +263,7 @@ export default function ProfileView({ userProfile, onTabChange }: { userProfile:
           `).join('') : '<p style="text-align: center; color: #999; padding: 40px;">لا يوجد مذكرات بعد في رحلتك.</p>'}
         </div>
         <div style="margin-top: 50px; text-align: center; font-size: 12px; color: #727875; border-top: 1px solid #eee; padding-top: 20px;">
-          تم توليد هذا التقرير كذكرى روحية بواسطة تطبيق سندك
+          تم توليد هذا التقرير لتوثيق مسيرتك واستقامتك بواسطة تطبيق سندك
         </div>
       `;
 
@@ -411,11 +458,11 @@ export default function ProfileView({ userProfile, onTabChange }: { userProfile:
                       </button>
                     </div>
 
-                    {/* Dynamic Spiritual Maqam Display */}
-                    <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-amber-500/10 to-emerald-500/10 border border-amber-500/15 rounded-xl text-amber-950 font-serif font-black text-xs md:text-sm shadow-xs mb-1">
+                    {/* Dynamic Behavioral Commitment Display */}
+                    <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-amber-500/10 to-emerald-500/10 border border-emerald-500/15 rounded-xl text-amber-950 font-serif font-black text-xs md:text-sm shadow-xs mb-1">
                       <Sparkles size={14} className="text-amber-500 animate-pulse" />
-                      <span>مقام السلوك الحالي:</span>
-                      <span className="text-emerald-800 font-bold underline decoration-wavy decoration-amber-500">{spiritualMaqam}</span>
+                      <span>مسار ومجاهدة النفس:</span>
+                      <span className="text-emerald-800 font-bold underline decoration-wavy decoration-amber-500">{behavioralCommitment}</span>
                     </div>
                   </div>
                 )}
@@ -475,7 +522,7 @@ export default function ProfileView({ userProfile, onTabChange }: { userProfile:
         </div>
       </div>
 
-      {/* 📜 شريط التحول الشريف - رسالة من أخ كبير ورفيق ناصح (Honorable Transformation ribbon) */}
+      {/* 📜 بوصلة الاستقامة - رسالة من أخ كبير ورفيق ناصح (The Compass of Integrity/Uprightness) */}
       <motion.div
         initial={{ opacity: 0, scale: 0.98 }}
         whileInView={{ opacity: 1, scale: 1 }}
@@ -491,17 +538,7 @@ export default function ProfileView({ userProfile, onTabChange }: { userProfile:
             <Sparkles size={24} className="animate-pulse text-amber-400" />
           </div>
           <div>
-            <h3 className="text-2xl font-black font-serif text-amber-300">شريط التحول الشريف</h3>
-            <p className="text-xs text-slate-400 font-bold">رسالة حيّة وتوجيه تربوي متغيّر يقرأ واقعك وجهادك اليومي</p>
-          </div>
-        </div>
-
-        <div className="space-y-4 font-serif text-sm md:text-base leading-relaxed text-slate-200">
-          <p className="text-lg font-black text-amber-100">
-            {isFemale ? "أختي الفاضلة المصونة" : "يا صاحبي الشريف الأبي"} <span className="underline decoration-amber-500 decoration-wavy font-serif text-xl text-yellow-300 font-black">{userProfile.displayName}</span>، {isFemale ? "رعاكِ الله" : "رعاكَ الله"} وسدد همتك..
-          </p>
-          
-          <div className="border-r-3 border-amber-500/40 pr-5 py-2 space-y-3 font-serif">
+            <h3 className="text-2xl font-black font-serif text-amber-300">بوصلة الاستقامة</h3>
             {(() => {
               const elements: string[] = [];
 
@@ -529,14 +566,14 @@ export default function ProfileView({ userProfile, onTabChange }: { userProfile:
               // 2. Noor Days & Qat Days
               if (qatDays > 0) {
                 elements.push(isFemale
-                  ? `صمدتِ في تحدي نقاء الروح متجاوزة تشتت النفس ومناهضةً عوائق الشغف ومضيعات الساعات خلف البثوث ومفسدات الوعي لـ ${qatDays} أيام متتالية متحررة بكرامة.`
-                  : `صمدتَ شجاعاً بظهر مفرود لـ ${qatDays} أيام متتالية في تحدي نقاء اليوم، متحرراً من غمار سموم القات والفتور والتبذير الذي يوهن سعي الرجال الصادقين.`
+                  ? `صمدتِ في تحدي نقاء الروح متجاوزة تشتت النفس ومناهضةً عوائق الشغف ومضيعات الساعات خلف البثوث ومفسدات الوعي لـ ${qatDays} أيام متتالية متحررة.`
+                  : `صمدتَ شجاعاً بظهر مفرود لـ ${qatDays} أيام متتالية في تحدي نقاء اليوم، متحرراً من فخاخ التشتت الرقمي والملهيات والفتور الذي يوهن سعي الرجال الصادقين.`
                 );
               }
               if (noorDays > 0) {
                 elements.push(isFemale
-                  ? `وحميتِ بصيرتكِ وخلوتكِ في خلوة النور لـ ${noorDays} ليالٍ طاهرة، عازلةً حواسكِ عن سرقة الشاشات السامة وصخب السوشيال ميديا بعد منتصف الليل.`
-                  : `وحميتَ وعيكَ وبصيرتكَ في خلوة النور لـ ${noorDays} ليالٍ طاهرة، معافى من استعباد شاشات الهواتف ومتابعة التوافه بعد منتصف الليل لتظفر بسكينة نومك ونور فجرك.`
+                  ? `وحميتِ بصيرتكِ وخلوتكِ في خلوة النور لـ ${noorDays} ليالٍ طاهرة، عازلةً حواسكِ عن سرقة الشاشات السامة وصخب السوشيال ميديا لتظفري بصدق السَّريرة ونور فجرك وعفتكِ.`
+                  : `وحميتَ وعيكَ وبصيرتكَ في خلوة النور لـ ${noorDays} ليالٍ طاهرة، معافى من استعباد شاشات الهواتف ومتابعة التوافه لتظفر بصدق السَّريرة ونور فجرك وعفتكَ ونقائك.`
                 );
               }
 
@@ -551,14 +588,31 @@ export default function ProfileView({ userProfile, onTabChange }: { userProfile:
 
               if (gazeActive && gazePact) {
                 elements.push(isFemale
-                  ? `وحظيتِ بنقاء الحواس بالوفاء بميثاق طهارة العين وغض البصر منذ ${gazePact.days} أيام صيانةً لحيائكِ وعقدكِ الشريف مع ربكِ وبصيرتكِ المتقدة.`
-                  : `وحظيتَ بنقاء الجوارح في الوفاء بميثاق طهارة العين وغض البصر منذ ${gazePact.days} أيام، حامياً نظراتكَ من السقوط وصائناً لعين طهرك ونخوتكَ الشهمة.`
+                  ? `وحظيتِ بنقاء الحواس بالوفاء بتعهد غض البصر وحفظ العين منذ ${gazePact.days} أيام صيانةً لحيائكِ وبصيرتكِ المتقدة.`
+                  : `وحظيتَ بنقاء الجوارح في الوفاء بتعهد غض البصر وحفظ العين منذ ${gazePact.days} أيام، حامياً نظراتكَ من السقوط وصائناً لعفتك ونخوتكَ.`
                 );
               }
               if (heartActive && heartPact) {
                 elements.push(isFemale
-                  ? `وتلتزمين بنبل بميثاق طهارة السر لمنع المفسدات الرقمية وحراسة قلبكِ سراً لترتقي في مراتب العفة الطاهرة.`
-                  : `وتلتزم بصدق وشهامة بميثاق طهارة السر لإفراغ قلبكَ من المفسدات وحسابات الغواية، حارساً لصدركَ في جوف الغيب وكأنك من أنبياء الله المخلصين صفاءً ونوراً.`
+                  ? `وتلتزمين بنبل بتعهد طهارة السر والسريرة لمنع المفسدات الرقمية وحراسة قلبكِ سراً لترتقي في مراتب العفة الصالحة.`
+                  : `وتلتزم بصدق بتعهد طهارة السر والسريرة لإفراغ قلبكَ من المفسدات وحسابات الغواية، حارساً لصدركَ في الغيب، تبتغي العفة الواقعية المقرونة بالعمل والصدق مع الله.`
+                );
+              }
+
+              // 3.5. Completed Covenants (7-day rule) praise
+              const completedAgreements = agreements.filter(ag => ag.completed);
+              if (completedAgreements.length > 0) {
+                const ruleNames = completedAgreements.map(ag => {
+                  if (ag.id === 'rule-48h') return 'قاعدة الـ 48 ساعة للتأني ومقاطعة الشراء الاستعراضي';
+                  if (ag.id === 'fajr-dhikr') return 'خلوة الفجر الاستغفارية الماحية للفتور';
+                  if (ag.id === 'no-screens-midnight') return 'حسم خلوة النور وإغلاق الشاشات بعد منتصف الليل';
+                  if (ag.id === 'kinship-call') return 'طهارة الرحم والصلة بلا مصلحة';
+                  return ag.text.substring(0, 15);
+                }).join(' و ');
+
+                elements.push(isFemale
+                  ? `وبكل عزة ووقار، ثبَتِّ أسبوعاً راسخاً في الوفاء لعهودكِ الشريفة وسجل عهود سند السلوكية (خاصة بـ ${ruleNames})؛ مبرهنةً بفعلكِ وصدقكِ الواقعي على الترفع عن تفاهات السوشيال ميديا وموضات العصر، صائنةً وعيكِ وحيائكِ الناصع وثباتكِ العفيف بظهر مفرود دون سقوط أو تزييف.`
+                  : `وبشهامة ونخوة الرجال الأباة، أكملتَ أسبوعاً متكاملاً من الصمود الواقعي في عهود سند السلوكية (خاصة بـ ${ruleNames})؛ كاسراً موضات العصر وتزييف المظاهر والكلام العقيم، وعامراً خلواتك بظهر مفرود وثبات الرجال القلائل الذين يقرنون الكلمة بالعمل الفعلي، مقتدياً بصدق ونزاهة الأنبياء.`
                 );
               }
 
@@ -584,8 +638,8 @@ export default function ProfileView({ userProfile, onTabChange }: { userProfile:
                   timeText += `${mins} ${mins === 1 ? 'دقيقة' : mins === 2 ? 'دقيقتين' : 'دقائق'}`;
                 }
                 elements.push(isFemale
-                  ? `وقد وهبتِ لروحكِ مساحة من النقاء بلغت ${timeText} من السكينة وعزل الحواس، مطهرةً مسمعكِ بذكر الله وعبر الأنبياء بدلاً من التشتت الضائع.`
-                  : `وقد منحتَ روحكَ مساحة من الصفاء بلغت ${timeText} من السكينة وعزل الحواس، مغذياً سمعكَ وقلبكَ بقصص الأنبياء وسكينة المعرفة مقتدياً بسيرهم العطرة ليكون يومك متصلاً بربك.`
+                  ? `وقد وهبتِ لروحكِ مساحة من النقاء بلغت ${timeText} من السكينة وعزل الحواس، مطهرةً مسمعكِ بعبر الأنبياء والصالحات، ومقتديةً بخطاهم كواقع وعمل يحمي قلبكِ من زيف الفتن الآن.`
+                  : `وقد منحتَ روحكَ مساحة من الصفاء بلغت ${timeText} من السكينة وعزل الحواس، مغذياً سمعك وقلبك بعبر الأنبياء، ناقلاً سيرتهم من مجرد قصص تُحفظ في السطور، إلى مواقف حية وتطبيق عملي يكسر الفتن ويقود يومك الآن برضا ربك.`
                 );
               }
 
@@ -638,8 +692,8 @@ export default function ProfileView({ userProfile, onTabChange }: { userProfile:
               <ShieldCheck size={26} className="text-[#4e635a]" />
             </div>
             <div>
-              <h3 className="text-2xl font-black text-[#1b1c1a] font-serif">أختام ومواثيق الشرف الموثقة</h3>
-              <p className="text-xs text-[#727875] font-bold">مواثيق التزكية سراً بينك وبين جوارحك؛ يتوهج الختم ذهبياً طالما وفيت، وينطفئ رماداً إن خدشت في الطريق حتى تجدد توبتك بكرامة</p>
+              <h3 className="text-2xl font-black text-[#1b1c1a] font-serif">سجل تعهدات الاستقامة الذاتية</h3>
+              <p className="text-xs text-[#727875] font-bold">التزامات عملية بينك وبين نفسك للاستقامة؛ يحتسب العداد فترة استمرارك بنجاح في الحفاظ على تعهدك، ويتيح لك البدء من جديد عند أي تعثر.</p>
             </div>
           </div>
         </div>
@@ -673,9 +727,9 @@ export default function ProfileView({ userProfile, onTabChange }: { userProfile:
                       isBroken && "bg-[#efeeeb] text-neutral-600",
                       isNotVowed && "bg-[#4e635a]/5 text-[#4e635a]"
                     )}>
-                      {isVowed && `✦ ميثاق فعّال وناصع (${p.days} أيام)`}
-                      {isBroken && "🔒 العهد مخدوش (توبة في المدارج)"}
-                      {isNotVowed && "المبايعة والعهد سري"}
+                      {isVowed && `التزام نشط وفعّال (${p.days} أيام)`}
+                      {isBroken && "🔒 تعثر مؤقت غيباً لتصحيح المسار"}
+                      {isNotVowed && "التعهد غير مبرم بعد"}
                     </span>
                     
                     {/* Golden / Charcoal Glowing Wax Seal Element */}
@@ -693,9 +747,9 @@ export default function ProfileView({ userProfile, onTabChange }: { userProfile:
                   
                   <div className="p-4 rounded-2xl bg-black/5 text-xs text-slate-700 dark:text-slate-800 font-bold leading-relaxed space-y-1">
                     {p.id === 'tazkiyah-gaze' ? (
-                      <p>"ميثاق طهارة العين وغض البصر هو قطع النظر لسرقة الشهوات وحظر مفسدات الوعي الرقمية تماماً وصيانة ملامحك الطاهرة بنور ربك."</p>
+                      <p>"تعهد غض البصر وصون العين هو السعي الجاد لتجنب مشاهدة الحرام وحظر مفسدات الوعي على الهاتف، وحفظ جوارحك ونقاء قلبك."</p>
                     ) : (
-                      <p>"ميثاق طهارة الخلوة والسر هو السعي لإصلاح ما تبطن وتطهير أسرارك الرقمية من حسابات معطلة أو تمرير عاصٍ في دياجير الليل."</p>
+                      <p>"تعهد طهارة السر والسريرة هو السعي الدائم لإصلاح حالك في الخلوة وتطهير أجهرتك الرقمية من سائر الملهيات وعابرات الفتن سراً."</p>
                     )}
                   </div>
                 </div>
@@ -705,7 +759,7 @@ export default function ProfileView({ userProfile, onTabChange }: { userProfile:
                   {isVowed && (
                     <div className="space-y-2">
                       <p className="text-xs font-bold text-amber-800 text-center leading-relaxed font-serif">
-                        🎖️ "عهدك ميثاقه نور جوارحك وصحة قلبك وعزتك أمام الفتن"
+                        🎖️ "تعهدك هو حماية لنفسك وغذاء لقلبك وثمرة لصدقك"
                       </p>
                       <button
                         onClick={() => {
@@ -715,7 +769,7 @@ export default function ProfileView({ userProfile, onTabChange }: { userProfile:
                         className="w-full py-3 bg-[#e53e3e]/10 text-red-700 hover:bg-[#e53e3e]/20 rounded-2xl font-black text-xs transition-colors flex items-center justify-center gap-2 cursor-pointer"
                       >
                         <Flame size={14} className="animate-pulse" />
-                        عثرتُ في المدارج واعترفت بالخدش لـ "سند" سراً 🔒
+                        تسجيل تعثر مؤقت وتعديل حالة الالتزام سراً 🔒
                       </button>
                     </div>
                   )}
@@ -723,7 +777,7 @@ export default function ProfileView({ userProfile, onTabChange }: { userProfile:
                   {isBroken && (
                     <div className="space-y-3">
                       <p className="text-xs font-bold text-[#727875] leading-relaxed text-right">
-                        🖤 "لا تبتئس يا صاحبي، سقوطك ما هو إلا كبوة فارس والباب مفتوح للتوبة والاستغفار؛ 'التائب من الذنب كمن لا ذنب له'."
+                        🖤 "التعثر كبوة عابرة والنهوض مجدداً هو دليل القوة والصدق؛ الباب مفتوح دائماً لتصحيح المسار والاستمرار."
                       </p>
                       <button
                         onClick={() => {
@@ -733,7 +787,7 @@ export default function ProfileView({ userProfile, onTabChange }: { userProfile:
                         className="w-full py-3 bg-amber-600 hover:bg-amber-700 text-white rounded-2xl font-black text-xs transition-colors shadow-md flex items-center justify-center gap-2 cursor-pointer"
                       >
                         <RotateCcw size={14} />
-                        طلب تجديد العهد والنهوض مجدداً بقوة 🌅
+                        تجديد التعهد وبدء فترة التزام جديدة 🌅
                       </button>
                     </div>
                   )}
@@ -747,7 +801,7 @@ export default function ProfileView({ userProfile, onTabChange }: { userProfile:
                       className="w-full py-3 bg-[#4e635a] hover:bg-[#3d4d46] text-white rounded-2xl font-black text-xs transition-colors shadow-md flex items-center justify-center gap-2 cursor-pointer"
                     >
                       <Check size={14} />
-                      إبرام ميثاق الشرف والالتزام سراً الآن
+                      تفعيل تعهد الاستقامة والبدء بالالتزام سراً الآن
                     </button>
                   )}
                 </div>
@@ -757,7 +811,7 @@ export default function ProfileView({ userProfile, onTabChange }: { userProfile:
         </div>
       </motion.div>
 
-      {/* 3️⃣ لوحة "تحديات الأمانة وشرف النفس" النشطة (Behavioral Challenges Tracker) */}
+      {/* 3️⃣ لوحة "تحديات الأمانة وشرف النفس" (Behavioral Challenges Tracker) */}
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
@@ -771,8 +825,8 @@ export default function ProfileView({ userProfile, onTabChange }: { userProfile:
               <Target size={26} className="animate-spin-slow" />
             </div>
             <div>
-              <h3 className="text-2xl font-black text-[#1b1c1a] font-serif">تحديات الأمانة وشرف النفس النشطة</h3>
-              <p className="text-xs text-[#727875] font-bold">لوحة عملية لمواجهة السلوكيات والديون وساعات الالتزام المتفق عليها مع "سند"</p>
+              <h3 className="text-2xl font-black text-[#1b1c1a] font-serif">مواثيق الصدق وجرد الحياة</h3>
+              <p className="text-xs text-[#727875] font-bold">واجه سلوكياتك، وتتبع ديونك بشرف، والتزم بمقدار سكينة يومك المتفق عليه مع "سند"</p>
             </div>
           </div>
           {debts.length === 0 && !showAddDebtForm && (
@@ -799,11 +853,11 @@ export default function ProfileView({ userProfile, onTabChange }: { userProfile:
                 </span>
                 <span className="text-[10px] uppercase font-black text-emerald-800">تحدي نقاء اليوم</span>
               </div>
-              <h4 className="text-xl font-serif font-black text-emerald-950">مناهضة عوائق الشغف والقات والمنشطات الملهية</h4>
+              <h4 className="text-xl font-serif font-black text-emerald-950">مواجهة ملهيات العصر والتحرر من فخاخ التشتت الرقمي والشهوات</h4>
               
               <div className="bg-emerald-50/50 p-4 rounded-2xl border border-emerald-100 text-center font-bold">
                 <p className="text-sm text-emerald-900 leading-relaxed font-serif">
-                  🌱 "أتممتُ <span className="text-emerald-600 font-serif text-lg font-black">{qatDays}</span> أيام بظهر مفرود وجيب نقي متحرر!"
+                  🌱 "أتممتُ <span className="text-emerald-600 font-serif text-lg font-black">{qatDays}</span> أيام بوعي مستيقظ وقرب من الله متحرراً من زيف الملهيات!"
                 </p>
               </div>
             </div>
@@ -956,7 +1010,7 @@ export default function ProfileView({ userProfile, onTabChange }: { userProfile:
               
               <div className="bg-indigo-50/50 p-4 rounded-2xl border border-indigo-100 text-center font-bold">
                 <p className="text-sm text-indigo-900 leading-relaxed font-serif">
-                  🌌 "حققتُ <span className="text-indigo-600 font-serif text-lg font-black">{noorDays}</span> ليالٍ طاهرة من العفة والعزيمة والنوم الصحي غيباً!"
+                  🌌 "حققتُ <span className="text-indigo-600 font-serif text-lg font-black">{noorDays}</span> ليالٍ طاهرة من العفة والعزيمة وصدق السَّريرة غيباً!"
                 </p>
               </div>
             </div>
@@ -974,6 +1028,335 @@ export default function ProfileView({ userProfile, onTabChange }: { userProfile:
               >
                 إعادة ضبط العداد لشحذ الهمة
               </button>
+            </div>
+          </div>
+        </div>
+      </motion.div>
+
+      {/* 3.5 سياج العفة وميثاق مودة العلاقات */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        id="chastity-relationships-section"
+        className="glass-3d p-8 rounded-[40px] shadow-2xl border-2 border-indigo-500/10 space-y-8 relative overflow-hidden text-right"
+      >
+        <div className="absolute top-0 left-0 w-32 h-32 bg-indigo-500/5 rounded-br-[100px] -z-10" />
+        
+        {/* Header */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-[#efeeeb] pb-6">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 bg-rose-500/10 text-rose-600 rounded-2xl flex items-center justify-center">
+              <ShieldCheck size={26} className="animate-pulse" />
+            </div>
+            <div>
+              <h3 className="text-2xl font-black text-[#1b1c1a] font-serif">سياج العفة وميثاق مودة العلاقات</h3>
+              <p className="text-xs text-[#727875] font-bold">منهجية عملية لمواجهة فتنة العلاقات، وهم الشهوات، وبناء البيت السليم على نور الله</p>
+            </div>
+          </div>
+          
+          {/* Emergency Alert Button */}
+          <button
+            onClick={() => setWeaknessOpen(!weaknessOpen)}
+            className="px-5 py-3 bg-red-500/10 hover:bg-red-500/20 text-red-700 border border-red-500/20 text-xs font-black rounded-2xl transition-all cursor-pointer inline-flex items-center gap-2 self-start md:self-auto shadow-xs"
+          >
+            <ShieldAlert size={14} className="text-red-600 animate-bounce" />
+            ⚠️ أشعر بالضعف أو التشتت اليوم أمام شهوتي
+          </button>
+        </div>
+
+        {/* Dynamic Emergency Rescue Panel */}
+        <AnimatePresence>
+          {weaknessOpen && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              className="overflow-hidden"
+            >
+              <div className="p-6 md:p-8 bg-gradient-to-br from-red-50 to-amber-50 rounded-3xl border-2 border-red-200 space-y-6 relative">
+                <div className="absolute top-4 left-4 pt-1">
+                  <span className="text-xs bg-red-100 text-red-800 font-bold px-3 py-1 rounded-full">مَدَد طارئ وعصمة سنوية</span>
+                </div>
+                
+                <h4 className="text-lg font-black text-red-950 font-serif flex items-center gap-2">
+                  <span>⚓ خطة النجاة الفورية والدوران السريع</span>
+                </h4>
+                
+                <p className="text-sm font-bold text-red-900 leading-relaxed">
+                  يا رفيقي ويا زهرة شباب اليوم، إن الله تبارك وتعالى ينظر بنقاء لقلبك الضعيف والمحارب الآن. الشيطان يزين الفراغ والعلاقات المؤقتة ليفسد طهارة سرك. خذ بيدي الآن خطوة بخطوة:
+                </p>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
+                  <div className="bg-white p-5 rounded-2xl border border-red-100 flex flex-col items-start gap-2">
+                    <span className="w-8 h-8 rounded-lg bg-red-50 border border-red-100 flex items-center justify-center font-black text-red-600 text-sm">١</span>
+                    <h5 className="font-black text-red-950 text-sm">قم من مكانك وتوضأ الآن</h5>
+                    <p className="text-xs font-bold text-[#727875] leading-relaxed">
+                      الوضوء بماء بارد يطفئ لهب الشهوة ويهدئ نبض عروقك الثائرة فوراً ويطرد كيد وسوسة الشيطان الماكر.
+                    </p>
+                  </div>
+
+                  <div className="bg-white p-5 rounded-2xl border border-red-100 flex flex-col items-start gap-2">
+                    <span className="w-8 h-8 rounded-lg bg-red-50 border border-red-100 flex items-center justify-center font-black text-red-600 text-sm">٢</span>
+                    <h5 className="font-black text-red-950 text-sm">اترك الجوال خارج غرفتك</h5>
+                    <p className="text-xs font-bold text-[#727875] leading-relaxed">
+                      ضع هاتف الجوال بعيداً تماماً، وافرغ غرفتك من مصادر التشتت السائل، واقفل الشاشة فوراً واقلبه على وجهه.
+                    </p>
+                  </div>
+
+                  <div className="bg-white p-5 rounded-2xl border border-red-100 flex flex-col items-start gap-2">
+                    <span className="w-8 h-8 rounded-lg bg-red-50 border border-red-100 flex items-center justify-center font-black text-red-600 text-sm">٣</span>
+                    <h5 className="font-black text-red-950 text-sm">تذكر عفة نبي الله يوسف</h5>
+                    <p className="text-xs font-bold text-[#727875] leading-relaxed">
+                      واجه سيدة ممتلئة بالجاه والجمال فاعتصم بربه وقال: <span className="text-emerald-700 font-serif font-black">{`{مَعَاذَ اللَّهِ}`}</span>.. البطولة الشامخة والرجولة الحرة يحفظها الله لجيل الغد.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex justify-end pt-3">
+                  <button
+                    onClick={() => {
+                      setWeaknessOpen(false);
+                      setPatienceCount(prev => prev + 1);
+                    }}
+                    className="px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-xl font-black text-xs cursor-pointer shadow-md transition-all"
+                  >
+                    ✓ استرجعتُ وعيي وهزمت الشيطان بفضل الله
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Core Layout: Grid of Covenants */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          
+          {/* Card left: مواثيق طهارة مواجهة الغفلات */}
+          <div className="bg-white p-6 rounded-[35px] border border-[#4e635a]/10 flex flex-col justify-between shadow-xs space-y-6">
+            <div className="space-y-4">
+              <div className="flex items-center gap-3">
+                <span className="w-10 h-10 bg-indigo-500/10 text-indigo-600 rounded-xl flex items-center justify-center">
+                  <Lock size={18} />
+                </span>
+                <h4 className="text-lg font-serif font-black text-indigo-950">ميثاق كسر أصنام الشهوة ومواجهة الغفلات</h4>
+              </div>
+              
+              <p className="text-xs font-medium text-[#727875] leading-relaxed">
+                في هذا الزمان، زين لنا الشيطان ملاحقة فتنة الشاشات والصور وتخدير الهمم. كسر أصنام الملهيات يبدأ من ميثاق طهارة صارم يضمن عفة بصرك وصون خلوتك غيباً:
+              </p>
+
+              <div className="space-y-3 pt-2">
+                <div className="p-3 bg-slate-50 rounded-2xl border border-gray-100 flex items-start gap-3 text-right text-xs">
+                  <span className="text-base">🛡️</span>
+                  <div>
+                    <h5 className="font-black text-[#1b1c1a]">ميثاق كسر أصنام الشهوة المقنعة</h5>
+                    <p className="font-bold text-[#727875] leading-relaxed mt-0.5">
+                      عدم الاستسلام للأوهام الرقمية والتخيلات الفارغة التي تسرق عفة الوعي وتمرر ساعاتك في اللا طائل. طهر قناعاتك واقطع حبال التشتت.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="p-3 bg-slate-50 rounded-2xl border border-gray-100 flex items-start gap-3 text-right text-xs">
+                  <span className="text-base">🌙</span>
+                  <div>
+                    <h5 className="font-black text-[#1b1c1a]">ميثاق طهارة مواجهة الغفلات</h5>
+                    <p className="font-bold text-[#727875] leading-relaxed mt-0.5">
+                      مناهضة البقعة العمياء بحجب الشاشات السامة فوراً وتطهير شاشة هاتفك غيباً من برامج التشتت والصور الهابطة، صائناً مروءتك وشرفك.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Micro daily chastity trackers */}
+            <div className="bg-indigo-50/50 p-4 rounded-2xl border border-indigo-100 space-y-3">
+              <p className="text-[10px] font-black text-indigo-900 block tracking-wider uppercase mb-1">منهجية الاستقامة والتعفف اليومية غيباً:</p>
+              
+              <div className="space-y-2">
+                <div className="flex items-center justify-between text-xs bg-white p-2.5 rounded-xl border border-indigo-50/30">
+                  <span className="font-bold text-slate-800">👁️ حجْب النظرة الأولى وحفظ البصر:</span>
+                  <div className="flex items-center gap-2">
+                    <span className="font-semibold text-indigo-600 font-mono text-sm">{gazeCount} مرات</span>
+                    <button
+                      onClick={() => setGazeCount(gazeCount + 1)}
+                      className="px-2.5 py-1 bg-indigo-600 text-white rounded-lg text-[10px] font-black hover:bg-indigo-700 transition"
+                    >
+                      +1 بنجاح
+                    </button>
+                    {gazeCount > 0 && (
+                      <button
+                        onClick={() => setGazeCount(0)}
+                        className="text-[9px] text-[#727875] hover:text-red-500 font-bold"
+                      >
+                        تصفير
+                      </button>
+                    )}
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between text-xs bg-white p-2.5 rounded-xl border border-indigo-50/30">
+                  <span className="font-bold text-slate-800">🔨 عمارة الوقت بالبديل الحقيقي:</span>
+                  <div className="flex items-center gap-2">
+                    <span className="font-semibold text-indigo-600 font-mono text-sm">{altCount} مرات</span>
+                    <button
+                      onClick={() => setAltCount(altCount + 1)}
+                      className="px-2.5 py-1 bg-indigo-600 text-white rounded-lg text-[10px] font-black hover:bg-indigo-700 transition"
+                    >
+                      +1 عملي
+                    </button>
+                    {altCount > 0 && (
+                      <button
+                        onClick={() => setAltCount(0)}
+                        className="text-[9px] text-[#727875] hover:text-red-500 font-bold"
+                      >
+                        تصفير
+                      </button>
+                    )}
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between text-xs bg-white p-2.5 rounded-xl border border-indigo-50/30">
+                  <span className="font-bold text-slate-800">🌅 الصبر الجميل ولجام النفس:</span>
+                  <div className="flex items-center gap-2">
+                    <span className="font-semibold text-indigo-600 font-mono text-sm">{patienceCount} مرات</span>
+                    <button
+                      onClick={() => setPatienceCount(patienceCount + 1)}
+                      className="px-2.5 py-1 bg-indigo-600 text-white rounded-lg text-[10px] font-black hover:bg-indigo-700 transition"
+                    >
+                      +1 ثبات
+                    </button>
+                    {patienceCount > 0 && (
+                      <button
+                        onClick={() => setPatienceCount(0)}
+                        className="text-[9px] text-[#727875] hover:text-red-500 font-bold"
+                      >
+                        تصفير
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Card right: مرآة الصدق في العلاقات (منهجية للمتزوجين والمقبلين على الزواج) */}
+          <div className="bg-white p-6 rounded-[35px] border border-[#4e635a]/10 flex flex-col justify-between shadow-xs space-y-6">
+            <div className="space-y-4">
+              <div className="flex items-center gap-3">
+                <span className="w-10 h-10 bg-emerald-500/10 text-emerald-600 rounded-xl flex items-center justify-center">
+                  <Heart size={18} />
+                </span>
+                <h4 className="text-lg font-serif font-black text-emerald-950">مرآة الصدق في العلاقات وصناعة السكينة</h4>
+              </div>
+
+              <p className="text-xs font-medium text-[#727875] leading-relaxed">
+                تصحيح مفهوم التعامل مع شريكة الحياة. لنهدم كلياً النظرة المادية النفعية (حين لا يعرف الرجل امرأته أو الزوجة زوجها إلا وقت الحاجة والعبدية لغرائز فارغة)، ونبني بيتاً مؤسساً على ميثاق غليظ وقوامة مودة وسكينة:
+              </p>
+
+              {/* Selector Tabs: Husband vs Wife */}
+              <div className="flex gap-2 p-1 bg-slate-100 rounded-xl text-center">
+                <button
+                  type="button"
+                  onClick={() => setRelTab('husband')}
+                  className={cn(
+                    "flex-1 py-1.5 rounded-lg text-[11px] font-black transition-all cursor-pointer",
+                    relTab === 'husband' ? "bg-emerald-600 text-white shadow-xs" : "text-[#727875] hover:text-emerald-700"
+                  )}
+                >
+                  صيانة مروءة وعهود الزوج 🧔
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setRelTab('wife')}
+                  className={cn(
+                    "flex-1 py-1.5 rounded-lg text-[11px] font-black transition-all cursor-pointer",
+                    relTab === 'wife' ? "bg-emerald-600 text-white shadow-xs" : "text-[#727875] hover:text-emerald-700"
+                  )}
+                >
+                  صيانة سكينة ووداد الزوجة 👩
+                </button>
+              </div>
+
+              {/* Dual Content with full-blown instructions and steps */}
+              <AnimatePresence mode="wait">
+                {relTab === 'husband' ? (
+                  <motion.div
+                    key="husbandCon"
+                    initial={{ opacity: 0, x: 10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -10 }}
+                    className="space-y-3"
+                  >
+                    <div className="p-3 bg-emerald-50/50 rounded-2xl border border-emerald-100 text-xs text-right space-y-1">
+                      <h5 className="font-black text-emerald-950 flex items-center gap-1">
+                        <span>🔨</span> كسر الفكرة النفعية المادية
+                      </h5>
+                      <p className="font-medium text-emerald-900/80 leading-relaxed">
+                        عاهد وجدانك ألا تكون نفعياً بارداً؛ امنح زوجتك الحب والتقدير طوال اليوم بالكلمات الطيبة ومشاركة أعباء الحياة عوضاً عن الهرب لعزلة الشاشات.
+                      </p>
+                    </div>
+
+                    <div className="p-3 bg-emerald-50/50 rounded-2xl border border-emerald-100 text-xs text-right space-y-1">
+                      <h5 className="font-black text-emerald-950 flex items-center gap-1">
+                        <span>🕌</span> إقامة عهد وطاعة مشتركة
+                      </h5>
+                      <p className="font-medium text-emerald-900/80 leading-relaxed">
+                        اعمر بيتك بعبادة جماعية (صلاة ركعتي خفاء، أو تلاوة ورد يومي سوياً، أو جلسة ذكر هادئة تلم شمل القلوب بنور التقوى والهدى).
+                      </p>
+                    </div>
+
+                    <div className="p-3 bg-emerald-50/50 rounded-2xl border border-emerald-100 text-xs text-right space-y-1">
+                      <h5 className="font-black text-emerald-950 flex items-center gap-1">
+                        <span>✨</span> المعاشرة بالمعروف واللطف
+                      </h5>
+                      <p className="font-medium text-emerald-900/80 leading-relaxed">
+                        السؤال عن تيسير يومها، إعنتها، تقدير تعبها، وغض بصرك عن غيرها صوناً لثنايا البيت؛ لأن الصادقين يحمون كرامتهم بغض طرف قلوبهم أولاً.
+                      </p>
+                    </div>
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    key="wifeCon"
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: 10 }}
+                    className="space-y-3"
+                  >
+                    <div className="p-3 bg-emerald-50/50 rounded-2xl border border-emerald-100 text-xs text-right space-y-1">
+                      <h5 className="font-black text-emerald-950 flex items-center gap-1">
+                        <span>🌸</span> صناعة واحة السكينة والتقدير
+                      </h5>
+                      <p className="font-medium text-emerald-900/80 leading-relaxed">
+                        استقبلي سعيه وعودته بابتسامة المودة والرضا الصادق، مقدرة كفاحه لبناء لقمة عيش حلال نظيفة وبظهر مفرود بعيداً عن كدر مقارنة المظاهر.
+                      </p>
+                    </div>
+
+                    <div className="p-3 bg-emerald-50/50 rounded-2xl border border-emerald-100 text-xs text-right space-y-1">
+                      <h5 className="font-black text-emerald-950 flex items-center gap-1">
+                        <span>🕌</span> معاضدة الهمة والالتزام
+                      </h5>
+                      <p className="font-medium text-emerald-900/80 leading-relaxed">
+                        ذكري زوجك بالصلاة في وقتها، وادفعي همته وسعيه لطلب الرزق وبناء كرامته حية، وكوني عوناً لثباته في غمار فتن ومغريات هذا العصر.
+                      </p>
+                    </div>
+
+                    <div className="p-3 bg-emerald-50/50 rounded-2xl border border-emerald-100 text-xs text-right space-y-1">
+                      <h5 className="font-black text-emerald-950 flex items-center gap-1">
+                        <span>🤝</span> ميثاق التراحم وخفض الجناح
+                      </h5>
+                      <p className="font-medium text-emerald-900/80 leading-relaxed">
+                        صيانة كرامة زوجك بالستر، والرفق بالقول عند نزول ضيق الصدر أو الشدة لتبقيا سنداً شامخاً مستمسكاً بحبل الله المتين.
+                      </p>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+            </div>
+
+            <div className="pt-2 text-center text-[10px] font-bold text-emerald-700 italic border-t border-[#efeeeb]">
+              "إن البيوت السليمة الواعية هي النور والدرع الأول لإنقاذ جيل كامل يعفُّ عن التوافه ويسري لله"
             </div>
           </div>
         </div>
@@ -1006,19 +1389,21 @@ export default function ProfileView({ userProfile, onTabChange }: { userProfile:
           ) : (() => {
             // Find weakest category
             const categoriesMap: Record<string, string> = {
-              intent: 'إخلاص النية وبواعث السمعة والرياء',
-              ethics: 'صدق المعاملة والوفاء بالعهود المالية وحقوق العباد',
-              consistency: 'منهج المواظبة والفتور والواقع والعمل الفردي',
-              ego: 'سلامة النفس والغرور الروحي وتفضيل الذات',
-              knowledge: 'العمل بالعلم وتطبيق المواعظ بدلاً من جمع الردود'
+              intent: 'ثغرة الكلام بلا فعل والنفاق السلوكي',
+              ethics: 'ثغرة الاستدانة الاستعراضية والمظاهر الكاذبة',
+              consistency: 'ثغرة الانخداع بفتن العصر والقعود',
+              ego: 'ثغرة تزييف المظاهر والكذب الرقمي',
+              knowledge: 'ثغرة الاتكالية والهروب من المسؤولية'
             };
 
             const recommendationsMap: Record<string, string> = {
-              intent: 'قم بأداء عبادة سرية بالكامل اليوم لا تشاركها مع أي مخلوق إنساني. ركعتان بالخلوة أو مساعدة محتاج سراً لتبني إخلاصاً نقياً.',
-              ethics: 'سند يوصيك بالبدء الفوري بترتيب الديون؛ اكتب قائمة بدائن غيباً، تواصل مع من تستطيع معتذراً باللين، وسدد ما تيسر مع حفظ كرامتك وتجنب السلف المظهر الزائل.',
-              consistency: 'اختر طاعة هينة جداً (كورد استغفار 100 مرة) وابكِ على الالتزام بها كفرض ثابت لا ترخص فيه يوماً لتكسر الفتور.',
-              ego: 'جالس البسطاء طويلاً اليوم أو تفقد والديّك بقبلة رأس بوقار وتذلل، واعلم أن عاصياً يئنّ نادماً قد يسبقك في المنازل غيباً.',
-              knowledge: 'توقف تماماً عن تتبع المواعظ والمقاطع اليوم وغداً؛ والتزم فوراً بتطبيق خُلُق واحد أو مبادرة بر حقيقية في خلوتك لترقية علمك.'
+              intent: 'انزل لأرض الواقع الآن، واجعل دينك سلوكاً يراه الناس في أمانتك وكفّ أذاك، مقتدياً بنبي الله شعيب الذي بدأ الإصلاح من نفسه وخلوته قبل لسانه.',
+              ethics: 'اقطع حبل الدين الاستعراضي؛ واجه واقعك المالي بصدق واستغناء، وسدد ذمتك بعزة النفس التي لا تقبل تزييفاً للمظهر على حساب حقوق العباد وطهارة عهدك.',
+              consistency: 'أنت في زمن فتن وتزييف؛ اعزل حواسك في خلوة النور، واستمسك بعزيمة أولي العزم من الرسل لتصنع لنفسك حياة حقيقية صلبة لا تهزها فتن هذا الزمن.',
+              ego: 'امسح زيف المنصات؛ واجه ربك في خلوتك بذات الحقيقة دون تجميل، واعلم أن عزة الصدّيقين تبدأ من طهارة السر لا من ثناء البشر.',
+              knowledge: isFemale
+                ? 'انفضي غبار الكسل، وتذكري عهد النبوة والشهامة؛ قومي بقوة لبناء فكركِ وعقلكِ الشريف بنبذ الكسل، ومقاومة تميع الشغف، وبناء الوعي والثقافة بظهر مفرود وعقل ناضج، اقتداءً بالصالحات، وبعيداً عن اتكالية المظاهر التافهة ومجاراة الصخب.'
+                : 'اقطع دابر العجز؛ قم وابنِ حياتك وجيبك الشريف بيدك وبظهر مفرود، مقتدياً بنبي الله داوود الذي كان يأكل من كد يده، فالرجال لا تلتفت للخلف.'
             };
 
             const scores = assessment.scores || {};
@@ -1103,47 +1488,178 @@ export default function ProfileView({ userProfile, onTabChange }: { userProfile:
             <div 
               key={ag.id}
               className={cn(
-                "p-5 rounded-3xl border-2 transition-all flex items-center justify-between gap-4",
+                "p-5 md:p-6 rounded-3xl border-2 transition-all flex flex-col gap-4 shadow-xs",
                 ag.completed 
-                  ? "bg-[#d1e8dd]/20 border-emerald-500/20 text-[#1b1c1a]" 
-                  : "bg-white border-[#4e635a]/5 hover:border-[#4e635a]/25 text-[#727875]"
+                  ? "bg-emerald-500/5 border-emerald-500/30 text-[#1b1c1a]" 
+                  : "bg-white border-[#4e635a]/5 hover:border-[#4e635a]/15 text-[#727875]"
               )}
             >
-              <div className="flex items-center gap-4 text-right">
-                <button
-                  onClick={() => {
-                    const nextCompletedState = !ag.completed;
-                    const updated = agreements.map(it => it.id === ag.id ? { ...it, completed: nextCompletedState } : it);
-                    setAgreements(updated);
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div className="flex items-start gap-4 text-right">
+                  <button
+                    onClick={() => {
+                      if (ag.completed) {
+                        const updated = agreements.map(it => it.id === ag.id ? { ...it, completed: false, consecutiveDays: 0 } : it);
+                        setAgreements(updated);
+                        return;
+                      }
 
-                    if (nextCompletedState) {
-                      setAgreementToast(`طوبى لك يا بطل! خلوتك اليوم نور وبراءتك عزّ ولا فخر في عهد الوفاء.`);
+                      // Check 7 days limit
+                      if (ag.consecutiveDays < 7) {
+                        const msg = isFemale
+                          ? "تمهّلي يا صاحبتي الشريفة؛ لا تقطفي الثمر قبل نضجه. صامدةٌ أنتِ في مدارج المجاهدة، لكن أتمّي أسبوعكِ (7 أيام متتالية) لتثبتي لنفسكِ ولسند أنكِ تجاوزتِ زيف العادة ودخلتِ مرحلة التغيير الحقيقي بصدق."
+                          : "تمهّل يا صاحبي الشريف؛ الرجال لا تقطف الثمار قبل نضجها. صامدٌ أنت في مدارج المجاهدة، لكن أتمم أسبوعك (7 أيام متتالية) لتثبت لنفسك ولسند أنك تجاوزت زيف العادة ودخلت مرحلة التغيير الحقيقي بصدق.";
+                        setAgreementToast(msg);
+                        setTimeout(() => {
+                          setAgreementToast(null);
+                        }, 8000);
+                        return;
+                      }
+
+                      const updated = agreements.map(it => it.id === ag.id ? { ...it, completed: true } : it);
+                      setAgreements(updated);
+
+                      const successMsg = isFemale
+                        ? `طوبى لبيانكِ الصادق وعفتكِ العالية! أسبوع كامل صامد بدون زيف، صائنةً لوعيكِ وطهر قلبكِ ترفُّعاً عن تفاهات الزمن رعاكِ الله 🛡️`
+                        : `طوبى لشهامتكَ الشريفة ومروءتكَ! أكملتَ أسبوعاً كاملاً من الطهر والصمود في الواقع بظهر مفرود وعزم الأنبياء والرجال الصادقين 🛡️`;
+                      setAgreementToast(successMsg);
                       setTimeout(() => {
                         setAgreementToast(null);
-                      }, 5000);
-                    }
-                  }}
-                  className={cn(
-                    "w-8 h-8 rounded-xl flex items-center justify-center transition-all cursor-pointer shadow-xs",
-                    ag.completed 
-                      ? "bg-emerald-500 text-white" 
-                      : "bg-[#4e635a]/5 border-2 border-[#4e635a]/10 text-transparent"
+                      }, 6000);
+                      
+                      // Trigger custom event to notify other parts
+                      window.dispatchEvent(new Event('assessment-updated'));
+                    }}
+                    className={cn(
+                      "w-9 h-9 md:w-10 md:h-10 rounded-2xl flex items-center justify-center transition-all cursor-pointer shadow-xs shrink-0",
+                      ag.completed 
+                        ? "bg-emerald-600 text-white hover:bg-emerald-700" 
+                        : "bg-amber-500/5 hover:bg-amber-500/10 border-2 border-amber-500/30 text-amber-500"
+                    )}
+                  >
+                    {ag.completed ? <Check size={20} className="stroke-[3]" /> : <Lock size={16} />}
+                  </button>
+                  <div className="space-y-2">
+                    <p className={cn("text-sm md:text-base font-serif font-black leading-snug", ag.completed ? "text-emerald-950 font-bold" : "text-[#1b1c1a]")}>
+                      {ag.text}
+                    </p>
+                    
+                    {/* Visual Progress Bar of the 7 Days */}
+                    <div className="flex flex-col gap-1 w-full max-w-sm">
+                      <div className="flex items-center justify-between text-xs font-bold text-slate-500">
+                        <span>مرحلة الصمود: {ag.consecutiveDays} من 7 أيام متتالية</span>
+                        {ag.consecutiveDays >= 7 && <span className="text-emerald-600 font-extrabold flex items-center gap-1">🔓 جاهز للتوثيق</span>}
+                      </div>
+                      <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
+                        <div 
+                          className={cn(
+                            "h-full rounded-full transition-all duration-300",
+                            ag.completed ? "bg-emerald-500" : ag.consecutiveDays >= 7 ? "bg-emerald-400" : "bg-amber-500"
+                          )}
+                          style={{ width: `${(ag.consecutiveDays / 7) * 100}%` }}
+                        />
+                      </div>
+                    </div>
+
+                    {ag.id === 'fajr-dhikr' && (
+                      <div className="mt-3 p-3 bg-amber-500/5 border border-amber-500/15 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 max-w-sm">
+                        <div className="flex items-center gap-2">
+                          <span className="text-xl">⏱️</span>
+                          <div className="text-right">
+                            <h4 className="text-[10px] sm:text-xs font-black text-slate-800">دقائق الذكر والسكينة المتراكمة</h4>
+                            <p className="text-xs sm:text-sm font-black text-amber-900 font-mono">
+                              {ag.minutes || 0} دقيقة مقضاة في خلوة الفجر
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-1.5 self-end sm:self-auto">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              const currentMinutes = ag.minutes || 0;
+                              const updated = agreements.map(it => it.id === ag.id ? { ...it, minutes: Math.max(0, currentMinutes - 5) } : it);
+                              setAgreements(updated);
+                            }}
+                            className="w-8 h-8 rounded-xl bg-white hover:bg-slate-100 border border-slate-200 text-slate-800 font-black text-xs flex items-center justify-center cursor-pointer transition-colors shadow-xs"
+                            title="تقليل ٥ دقائق"
+                          >
+                            -٥
+                          </button>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              const currentMinutes = ag.minutes || 0;
+                              const updated = agreements.map(it => it.id === ag.id ? { ...it, minutes: currentMinutes + 5 } : it);
+                              setAgreements(updated);
+                              
+                              const msg = `أضفتَ ٥ دقائق لتصبح خلوتكَ الفجرية ${currentMinutes + 5} دقيقة طاهرة من الذكر والسكينة 🌅`;
+                              setAgreementToast(msg);
+                              setTimeout(() => setAgreementToast(null), 4000);
+                            }}
+                            className="px-2.5 py-1.5 bg-amber-600 hover:bg-amber-700 text-white rounded-xl font-black text-xs flex items-center justify-center gap-1 cursor-pointer transition-all shadow-xs"
+                          >
+                            +٥ دقائق
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div className="flex flex-col items-end gap-2 shrink-0 self-stretch justify-center md:self-auto">
+                  <span className={cn(
+                    "px-3 py-1.5 text-[10px] md:text-xs font-black rounded-xl shadow-xs whitespace-nowrap",
+                    ag.completed ? "bg-emerald-500/20 text-emerald-800 border border-emerald-500/35" : "bg-amber-500/10 text-amber-700 border border-amber-500/20"
+                  )}>
+                    {ag.completed ? "🤝 تم بحمد الله" : "🛡️ جهاد وتطبيق واقعي"}
+                  </span>
+
+                  {/* Increment day of commitment button */}
+                  {!ag.completed && ag.consecutiveDays < 7 && (
+                    <button
+                      onClick={() => {
+                        const nextDays = Math.min(7, ag.consecutiveDays + 1);
+                        const updated = agreements.map(it => it.id === ag.id ? { ...it, consecutiveDays: nextDays } : it);
+                        setAgreements(updated);
+
+                        const logMsg = isFemale
+                          ? `سُجِّل صمود اليوم بعفة! عفاكِ الله وثبَّتكِ في مدارج الطهر الحقيقي لتنالي التغيير الفعلي (${nextDays}/7)`
+                          : `سُجِّل صمود اليوم بمروءة رجولية! وثَّقنا جهادك بظهر مفرود وقوة حقيقية (${nextDays}/7)`;
+                        setAgreementToast(logMsg);
+                        setTimeout(() => {
+                          setAgreementToast(null);
+                        }, 5000);
+                        
+                        window.dispatchEvent(new Event('assessment-updated'));
+                      }}
+                      className="px-2.5 py-1.5 bg-linear-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-slate-950 text-[10px] font-black rounded-lg transition-all shadow-xs shrink-0 cursor-pointer"
+                    >
+                      سجل يوم صمودك
+                    </button>
                   )}
-                >
-                  <Check size={18} />
-                </button>
-                <div>
-                  <p className={cn("text-sm md:text-base font-serif font-black", ag.completed ? "text-emerald-950 font-bold" : "text-[#1b1c1a] opacity-80")}>
-                    {ag.text}
-                  </p>
+                  {/* Reset/Restart Button for the Covenant */}
+                  {(ag.completed || ag.consecutiveDays > 0) && (
+                    <button
+                      onClick={() => {
+                        const updated = agreements.map(it => it.id === ag.id ? { ...it, completed: false, consecutiveDays: 0 } : it);
+                        setAgreements(updated);
+                        const resetMsg = isFemale
+                          ? `أُعيد تصفير العهد؛ عودي للمجاهدة رعاكِ الله، والترميم باب شريف لا يُغلق.`
+                          : `أُعيد تصفير العهد؛ عُد للمجاهدة بظهر مفرود، فالترميم والنهوض شرف يمحو العثرات.`;
+                        setAgreementToast(resetMsg);
+                        setTimeout(() => {
+                          setAgreementToast(null);
+                        }, 5000);
+                        
+                        window.dispatchEvent(new Event('assessment-updated'));
+                      }}
+                      className="text-[10px] font-black hover:underline text-red-500 cursor-pointer"
+                    >
+                      إعادة تصفير العداد 🔄
+                    </button>
+                  )}
                 </div>
               </div>
-              <span className={cn(
-                "px-3 py-1 text-[10px] font-black rounded-lg whitespace-nowrap",
-                ag.completed ? "bg-emerald-500/20 text-emerald-800" : "bg-gray-100 text-[#727875]"
-              )}>
-                {ag.completed ? "تم بحمد الله" : "قيد التنفيذ اليوم"}
-              </span>
             </div>
           ))}
         </div>
@@ -1205,7 +1721,7 @@ export default function ProfileView({ userProfile, onTabChange }: { userProfile:
            />
            <AchievementItemMini 
              title="غيث السكينة"
-             description="تجاوز 100 دقيقة من الاتصال الروحي"
+             description="تجاوز 100 دقيقة من السكينة والذكر والصفاء"
              achieved={userProfile.totalMinutes >= 100}
            />
            <AchievementItemMini 
@@ -1384,7 +1900,7 @@ export default function ProfileView({ userProfile, onTabChange }: { userProfile:
                      </div>
                      <div>
                        <p className="font-bold text-[#1b1c1a]">تصدير سجل الرحلة (PDF)</p>
-                       <p className="text-[10px] text-[#727875] font-bold">تحميل مذكراتك وإحصائياتك كتقرير روحي</p>
+                       <p className="text-[10px] text-[#727875] font-bold">تحميل مذكراتك وإحصائياتك لرحلة الاستقامة</p>
                      </div>
                    </motion.button>
 
