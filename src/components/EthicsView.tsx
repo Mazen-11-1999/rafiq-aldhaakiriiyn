@@ -47,7 +47,7 @@ export default function EthicsView() {
         >
           <Scale size={32} />
         </motion.div>
-        <h2 className="text-3xl font-black text-[#4e635a] font-serif">ميزان الأخلاق</h2>
+        <h2 className="text-2xl sm:text-3xl font-black text-[#4e635a] font-serif">ميزان الأخلاق</h2>
         <p className="text-[#655d51] text-lg max-w-xl mx-auto">
           التركيز على جوهر الدين وهو الأخلاق، وليس فقط المظاهر والادعاءات.
         </p>

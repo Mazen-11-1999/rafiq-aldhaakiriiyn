@@ -233,7 +233,7 @@ export const NASHEEDS: Nasheed[] = [
     title: 'شهادة الإباه',
     artist: 'منوعات',
     url: 'https://www.ashefaa.com/enshad/files/jihad/%D8%B4%D9%87%D8%A7%D8%AF%D8%A9_%D8%A7%D9%84%D8%A3%D8%A8%D8%A7%D9%87.mp3',
-    cover: 'https://images.unsplash.com/photo-1493225255756-d9584f8606e9?q=80&w=200&auto=format&fit=crop'
+    cover: 'https://www.ashefaa.com/enshad/files/jihad/%D8%B4%D9%87%D8%A7%D8%AF%D8%A9_%D8%A7%D9%84%D8%A3%D8%A8%D8%A7%D9%87.jpg'
   },
   {
     id: 'nasheed-24',
@@ -1036,6 +1036,41 @@ export const NASHEEDS: Nasheed[] = [
     cover: 'https://ar.assabile.com/media/person/200x256/abdulqader-qawza.png'
   },
   {
+    id: 'nasheed-150',
+    title: 'حبيب الله',
+    artist: 'عبد القادر قوزع',
+    url: 'https://samaanetwork.net/Artists.2026/Abdulqader.Qawza/Habib.Allah(Samaa.Network).mp3',
+    cover: 'https://play.samaanetwork.net/wp-content/uploads/edd/2026/05/habibAllahS.jpeg'
+  },
+  {
+    id: 'nasheed-151',
+    title: 'لا ريب فيه',
+    artist: 'عبد القادر قوزع',
+    url: 'https://server3.samaanetwork.net/05-May/La.Raiba.Feeh(Samaa.Network).mp3',
+    cover: 'https://play.samaanetwork.net/wp-content/uploads/edd/2017/05/LaRaibaFeeh.jpg'
+  },
+  {
+    id: 'nasheed-153',
+    title: 'الله الله',
+    artist: 'عبد القادر قوزع',
+    url: 'https://server2.samaanetwork.net/for.shabab1(Percussion)/07--Allah-Allah(Samaa.Network).mp3',
+    cover: 'https://play.samaanetwork.net/wp-content/uploads/edd/2016/10/4shabab.jpg'
+  },
+  {
+    id: 'nasheed-154',
+    title: 'نحمده الله',
+    artist: 'عبد القادر قوزع',
+    url: '/api/soundcloud-stream?url=https://soundcloud.com/qawza/nahmadu-allah',
+    cover: 'https://i1.sndcdn.com/avatars-000084135253-ubagwx-t500x500.jpg'
+  },
+  {
+    id: 'nasheed-155',
+    title: 'ويبقى النور',
+    artist: 'عبد القادر قوزع',
+    url: '/api/soundcloud-stream?url=https://soundcloud.com/qawza/wayabqa-alnoor',
+    cover: 'https://i1.sndcdn.com/artworks-czzxAqjDzjDpUZra-2n4I2g-t500x500.jpg'
+  },
+  {
     id: 'nasheed-148',
     title: 'هو الحب',
     artist: 'عبد الرحمن الخضر',
@@ -1117,174 +1152,174 @@ export const NASHEEDS: Nasheed[] = [
     title: 'Ya Nabi',
     artist: 'سامي يوسف',
     url: 'https://abd.albumaty.com/uploads/songs/SamiYusuf/2016%20-%20Barakah%20(Deluxe%20Edition)/05.%20Ya%20Nabi.mp3',
-    cover: 'https://www.albumaty.com/a/uploads/albums/rspg8hlzf3.jpg'
+    cover: 'https://i1.sndcdn.com/artworks-000009906912-548wa5-t500x500.jpg'
   },
   {
     id: 'nasheed-162',
     title: 'Ya Hayyu Ya Qayyum',
     artist: 'سامي يوسف',
     url: 'https://abd.albumaty.com/uploads/songs/SamiYusuf/2016%20-%20Barakah%20(Deluxe%20Edition)/11.%20Ya%20Hayyu%20Ya%20Qayyum.mp3',
-    cover: 'https://www.albumaty.com/a/uploads/albums/rspg8hlzf3.jpg'
+    cover: 'https://i1.sndcdn.com/artworks-000009906912-548wa5-t500x500.jpg'
   },
   {
     id: 'nasheed-163',
     title: 'Come See',
     artist: 'سامي يوسف',
     url: 'https://abd.albumaty.com/uploads/songs/SamiYusuf/2016%20-%20Barakah%20(Deluxe%20Edition)/06.%20Come%20See.mp3',
-    cover: 'https://www.albumaty.com/a/uploads/albums/rspg8hlzf3.jpg'
+    cover: 'https://i1.sndcdn.com/artworks-000009906912-548wa5-t500x500.jpg'
   },
   {
     id: 'nasheed-164',
     title: 'Fiyyashiyya',
     artist: 'سامي يوسف',
     url: 'https://abd.albumaty.com/uploads/songs/SamiYusuf/2016%20-%20Barakah%20(Deluxe%20Edition)/04.%20Fiyyashiyya.mp3',
-    cover: 'https://www.albumaty.com/a/uploads/albums/rspg8hlzf3.jpg'
+    cover: 'https://i1.sndcdn.com/artworks-000009906912-548wa5-t500x500.jpg'
   },
   {
     id: 'nasheed-165',
     title: 'Ya Rasul Allah, Pt. 2',
     artist: 'سامي يوسف',
     url: 'https://abd.albumaty.com/uploads/songs/SamiYusuf/2016%20-%20Barakah%20(Deluxe%20Edition)/03.%20Ya%20Rasul%20Allah,%20Pt.%202.mp3',
-    cover: 'https://www.albumaty.com/a/uploads/albums/rspg8hlzf3.jpg'
+    cover: 'https://i1.sndcdn.com/artworks-000009906912-548wa5-t500x500.jpg'
   },
   {
     id: 'nasheed-166',
     title: 'Taha',
     artist: 'سامي يوسف',
     url: 'https://abd.albumaty.com/uploads/songs/SamiYusuf/2016%20-%20Barakah%20(Deluxe%20Edition)/10.%20Taha.mp3',
-    cover: 'https://www.albumaty.com/a/uploads/albums/rspg8hlzf3.jpg'
+    cover: 'https://i1.sndcdn.com/artworks-000009906912-548wa5-t500x500.jpg'
   },
   {
     id: 'nasheed-167',
     title: 'Lovers',
     artist: 'سامي يوسف',
     url: 'https://abd.albumaty.com/uploads/songs/SamiYusuf/2016%20-%20Barakah%20(Deluxe%20Edition)/09.%20Lovers.mp3',
-    cover: 'https://www.albumaty.com/a/uploads/albums/rspg8hlzf3.jpg'
+    cover: 'https://i1.sndcdn.com/artworks-000009906912-548wa5-t500x500.jpg'
   },
   {
     id: 'nasheed-168',
     title: 'I Only Knew Love',
     artist: 'سامي يوسف',
     url: 'https://abd.albumaty.com/uploads/songs/SamiYusuf/2016%20-%20Barakah%20(Deluxe%20Edition)/08.%20I%20Only%20Knew%20Love.mp3',
-    cover: 'https://www.albumaty.com/a/uploads/albums/rspg8hlzf3.jpg'
+    cover: 'https://i1.sndcdn.com/artworks-000009906912-548wa5-t500x500.jpg'
   },
   {
     id: 'nasheed-169',
     title: 'Awake',
     artist: 'سامي يوسف',
     url: 'https://abd.albumaty.com/uploads/songs/SamiYusuf/2016%20-%20Barakah%20(Deluxe%20Edition)/01.%20Awake.mp3',
-    cover: 'https://www.albumaty.com/a/uploads/albums/rspg8hlzf3.jpg'
+    cover: 'https://i1.sndcdn.com/artworks-000009906912-548wa5-t500x500.jpg'
   },
   {
     id: 'nasheed-170',
     title: 'Mast Qalandar',
     artist: 'سامي يوسف',
     url: 'https://abd.albumaty.com/uploads/songs/SamiYusuf/2016%20-%20Barakah%20(Deluxe%20Edition)/07.%20Mast%20Qalandar.mp3',
-    cover: 'https://www.albumaty.com/a/uploads/albums/rspg8hlzf3.jpg'
+    cover: 'https://i1.sndcdn.com/artworks-000009906912-548wa5-t500x500.jpg'
   },
   {
     id: 'nasheed-171',
     title: 'Jaaneh Jaanaan',
     artist: 'سامي يوسف',
     url: 'https://abd.albumaty.com/uploads/songs/SamiYusuf/2014%20-%20The%20Centre/04.%20Jaaneh%20Jaanaan.mp3',
-    cover: 'https://is1-ssl.mzstatic.com/image/thumb/Music4/v4/71/34/46/71344697-3f36-9b51-37d4-8d96078db7f8/source/600x600bb.jpg'
+    cover: 'https://i1.sndcdn.com/artworks-000009906912-548wa5-t500x500.jpg'
   },
   {
     id: 'nasheed-172',
     title: 'Circle',
     artist: 'سامي يوسف',
     url: 'https://abd.albumaty.com/uploads/songs/SamiYusuf/2014%20-%20The%20Centre/01.%20Circle.mp3',
-    cover: 'https://is1-ssl.mzstatic.com/image/thumb/Music4/v4/71/34/46/71344697-3f36-9b51-37d4-8d96078db7f8/source/600x600bb.jpg'
+    cover: 'https://i1.sndcdn.com/artworks-000009906912-548wa5-t500x500.jpg'
   },
   {
     id: 'nasheed-173',
     title: 'Khorasan (Arabic Version)',
     artist: 'سامي يوسف',
     url: 'https://abd.albumaty.com/uploads/songs/SamiYusuf/2014%20-%20The%20Centre/05.%20Khorasan%20(Arabic%20Version)%20[Bonus%20Track].mp3',
-    cover: 'https://is1-ssl.mzstatic.com/image/thumb/Music4/v4/71/34/46/71344697-3f36-9b51-37d4-8d96078db7f8/source/600x600bb.jpg'
+    cover: 'https://i1.sndcdn.com/artworks-000009906912-548wa5-t500x500.jpg'
   },
   {
     id: 'nasheed-174',
     title: 'Prism',
     artist: 'سامي يوسف',
     url: 'https://abd.albumaty.com/uploads/songs/SamiYusuf/2014%20-%20The%20Centre/09.%20Prism.mp3',
-    cover: 'https://is1-ssl.mzstatic.com/image/thumb/Music4/v4/71/34/46/71344697-3f36-9b51-37d4-8d96078db7f8/source/600x600bb.jpg'
+    cover: 'https://i1.sndcdn.com/artworks-000009906912-548wa5-t500x500.jpg'
   },
   {
     id: 'nasheed-175',
     title: 'Pearl',
     artist: 'سامي يوسف',
     url: 'https://abd.albumaty.com/uploads/songs/SamiYusuf/2014%20-%20The%20Centre/08.%20Pearl.mp3',
-    cover: 'https://is1-ssl.mzstatic.com/image/thumb/Music4/v4/71/34/46/71344697-3f36-9b51-37d4-8d96078db7f8/source/600x600bb.jpg'
+    cover: 'https://i1.sndcdn.com/artworks-000009906912-548wa5-t500x500.jpg'
   },
   {
     id: 'nasheed-176',
     title: 'Wherever you are (Arabic)',
     artist: 'سامي يوسف',
     url: 'https://abd.albumaty.com/uploads/songs/SamiYusuf/2012%20-%20Saalam/13.%20Wherever%20you%20are%20[Acoustic%20-%20Arabic]%20[Bonus].mp3',
-    cover: 'https://is1-ssl.mzstatic.com/image/thumb/Music/v4/7e/68/7d/7e687d0c-8367-bf24-7473-0428669527f4/source/600x600bb.jpg'
+    cover: 'https://i1.sndcdn.com/artworks-000009906912-548wa5-t500x500.jpg'
   },
   {
     id: 'nasheed-177',
     title: 'Happiness',
     artist: 'سامي يوسف',
     url: 'https://abd.albumaty.com/uploads/songs/SamiYusuf/2012%20-%20Saalam/01.%20Happiness.mp3',
-    cover: 'https://is1-ssl.mzstatic.com/image/thumb/Music/v4/7e/68/7d/7e687d0c-8367-bf24-7473-0428669527f4/source/600x600bb.jpg'
+    cover: 'https://i1.sndcdn.com/artworks-000009906912-548wa5-t500x500.jpg'
   },
   {
     id: 'nasheed-178',
     title: 'Forgotten promises',
     artist: 'سامي يوسف',
     url: 'https://abd.albumaty.com/uploads/songs/SamiYusuf/2012%20-%20Saalam/08.%20Forgotten%20promises.mp3',
-    cover: 'https://is1-ssl.mzstatic.com/image/thumb/Music/v4/7e/68/7d/7e687d0c-8367-bf24-7473-0428669527f4/source/600x600bb.jpg'
+    cover: 'https://i1.sndcdn.com/artworks-000009906912-548wa5-t500x500.jpg'
   },
   {
     id: 'nasheed-179',
     title: 'Hear your call',
     artist: 'سامي يوسف',
     url: 'https://abd.albumaty.com/uploads/songs/SamiYusuf/2012%20-%20Saalam/12.%20Hear%20your%20call.mp3',
-    cover: 'https://is1-ssl.mzstatic.com/image/thumb/Music/v4/7e/68/7d/7e687d0c-8367-bf24-7473-0428669527f4/source/600x600bb.jpg'
+    cover: 'https://i1.sndcdn.com/artworks-000009906912-548wa5-t500x500.jpg'
   },
   {
     id: 'nasheed-180',
     title: 'Wherever You Are (Farsi)',
     artist: 'سامي يوسف',
     url: 'https://abd.albumaty.com/uploads/songs/SamiYusuf/2012%20-%20Saalam/17.%20Wherever%20You%20Are%20(Acoustic%20Farsi%20Version).mp3',
-    cover: 'https://is1-ssl.mzstatic.com/image/thumb/Music/v4/7e/68/7d/7e687d0c-8367-bf24-7473-0428669527f4/source/600x600bb.jpg'
+    cover: 'https://i1.sndcdn.com/artworks-000009906912-548wa5-t500x500.jpg'
   },
   {
     id: 'nasheed-181',
     title: 'Salaam',
     artist: 'سامي يوسف',
     url: 'https://abd.albumaty.com/uploads/songs/SamiYusuf/2012%20-%20Saalam/02.%20Salaam.mp3',
-    cover: 'https://is1-ssl.mzstatic.com/image/thumb/Music/v4/7e/68/7d/7e687d0c-8367-bf24-7473-0428669527f4/source/600x600bb.jpg'
+    cover: 'https://i1.sndcdn.com/artworks-000009906912-548wa5-t500x500.jpg'
   },
   {
     id: 'nasheed-182',
     title: 'Allahu',
     artist: 'سامي يوسف',
     url: 'https://abd.albumaty.com/uploads/songs/SamiYusuf/2003%20-%20Al-Mu\'Allim/03.%20Allahu.mp3',
-    cover: 'https://is1-ssl.mzstatic.com/image/thumb/Music/v4/91/97/81/91978161-0428-6695-27f4-7e687d0c8367/source/600x600bb.jpg'
+    cover: 'https://i1.sndcdn.com/artworks-000009906912-548wa5-t500x500.jpg'
   },
   {
     id: 'nasheed-183',
     title: 'O Allah',
     artist: 'سامي يوسف و مسعود كرتس',
     url: 'https://abd.albumaty.com/uploads/songs/SamiYusuf/2003%20-%20Al-Mu\'Allim/10.%20Mesut%20Kurtis%20feat.%20Sami%20Yusuf%20-%20O%20Allah%20(Bonus).mp3',
-    cover: 'https://is1-ssl.mzstatic.com/image/thumb/Music/v4/91/97/81/91978161-0428-6695-27f4-7e687d0c8367/source/600x600bb.jpg'
+    cover: 'https://i1.sndcdn.com/artworks-000009906912-548wa5-t500x500.jpg'
   },
   {
     id: 'nasheed-184',
     title: 'Ya Mustafa',
     artist: 'سامي يوسف',
     url: 'https://abd.albumaty.com/uploads/songs/SamiYusuf/2003%20-%20Al-Mu\'Allim/05.%20Ya%20Mustafa.mp3',
-    cover: 'https://is1-ssl.mzstatic.com/image/thumb/Music/v4/91/97/81/91978161-0428-6695-27f4-7e687d0c8367/source/600x600bb.jpg'
+    cover: 'https://i1.sndcdn.com/artworks-000009906912-548wa5-t500x500.jpg'
   },
   {
     id: 'nasheed-185',
     title: 'أنشودة',
     artist: 'سامي يوسف',
     url: 'https://abd.albumaty.com/uploads/songs/abdwap2.com_18422.mp3',
-    cover: 'https://www.albumaty.com/a/uploads/singers/452.jpg'
+    cover: 'https://i1.sndcdn.com/artworks-000009906912-548wa5-t500x500.jpg'
   }
 ];

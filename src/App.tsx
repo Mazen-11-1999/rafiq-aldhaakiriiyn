@@ -39,7 +39,25 @@ import PrayerTimesView from './components/PrayerTimesView';
 import notificationSound from './assets/notification.mp3'; // assuming it exists or keeping it generic
 
 export default function App() {
-  const [user, loading, error] = useAuthState(auth);
+  const [firebaseUser, loading, error] = useAuthState(auth);
+  const [guestUser, setGuestUser] = useState<any | null>(() => {
+    try {
+      const saved = localStorage.getItem('sanad_guest_active');
+      if (saved === 'true') {
+        return {
+          uid: 'guest-uid',
+          email: 'guest@sanad.local',
+          displayName: 'رفيق درب كرام',
+          photoURL: 'https://api.dicebear.com/7.x/adventurer/svg?seed=spiritual-companion',
+        };
+      }
+    } catch {
+      // ignore
+    }
+    return null;
+  });
+  const user = firebaseUser || guestUser;
+
   const [activeTab, setActiveTab] = useState<'retreat' | 'dhikr' | 'stories' | 'habits' | 'ethics' | 'nasheeds' | 'history' | 'journey' | 'quiz' | 'journal' | 'insights' | 'profile' | 'time' | 'spiritual-mirror' | 'spiritual-insights' | 'prayer-times'>('retreat');
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [isEmergencyOpen, setIsEmergencyOpen] = useState(false);
@@ -119,6 +137,49 @@ export default function App() {
 
   useEffect(() => {
     if (user) {
+      if (user.uid === 'guest-uid') {
+        const savedProfile = localStorage.getItem('sanad_guest_profile');
+        if (savedProfile) {
+          try {
+            setUserProfile(JSON.parse(savedProfile));
+          } catch {
+            // ignore
+          }
+        } else {
+          const guestProfile: UserProfile = {
+            uid: 'guest-uid',
+            email: 'guest@sanad.local',
+            displayName: 'رفيق درب كرام',
+            photoURL: 'https://api.dicebear.com/7.x/adventurer/svg?seed=spiritual-companion',
+            createdAt: new Date().toISOString(),
+            totalMinutes: 0,
+            totalSessions: 0,
+            currentStreak: 1,
+            settings: {
+              notifications: {
+                enabled: true,
+                dhikrReminders: true,
+                retreatReminders: true,
+                prayerTimes: true,
+                ringtone: 'official-prayer',
+              },
+              privacy: {
+                publicProfile: false,
+                shareInsights: false,
+              },
+              appearance: {
+                language: 'ar',
+                dateFormat: 'arabic',
+                darkMode: false,
+              }
+            }
+          };
+          setUserProfile(guestProfile);
+          localStorage.setItem('sanad_guest_profile', JSON.stringify(guestProfile));
+        }
+        return;
+      }
+
       const userRef = doc(db, 'users', user.uid);
       
       const unsubscribe = onSnapshot(userRef, (docSnap) => {
@@ -233,18 +294,66 @@ export default function App() {
     }
   };
 
+  const handleGuestLogin = () => {
+    localStorage.setItem('sanad_guest_active', 'true');
+    const guestUserObj = {
+      uid: 'guest-uid',
+      email: 'guest@sanad.local',
+      displayName: 'رفيق درب كرام',
+      photoURL: 'https://api.dicebear.com/7.x/adventurer/svg?seed=spiritual-companion',
+    };
+    setGuestUser(guestUserObj);
+  };
+
+  useEffect(() => {
+    const handleGuestProfileUpdate = (e: Event) => {
+      const customEvent = e as CustomEvent;
+      setUserProfile(customEvent.detail);
+    };
+    const handleGuestLogout = () => {
+      setGuestUser(null);
+      setUserProfile(null);
+      setActiveTab('retreat');
+    };
+    window.addEventListener('update-guest-profile', handleGuestProfileUpdate);
+    window.addEventListener('guest-logged-out', handleGuestLogout);
+    return () => {
+      window.removeEventListener('update-guest-profile', handleGuestProfileUpdate);
+      window.removeEventListener('guest-logged-out', handleGuestLogout);
+    };
+  }, []);
+
   const { stats, activeCategory } = useTimeTracking();
 
   const updateProfileStats = async (minutesToAdd: number, isSessionComplete: boolean = false) => {
     if (!user || !userProfile) return;
-    
+
+    if (user.uid === 'guest-uid') {
+      const updatedProfile = { ...userProfile };
+      if (minutesToAdd > 0) {
+        updatedProfile.totalMinutes = (updatedProfile.totalMinutes || 0) + minutesToAdd;
+        if (activeCategory === 'nasheed') updatedProfile.nasheedMinutes = (updatedProfile.nasheedMinutes || 0) + minutesToAdd;
+        else if (activeCategory === 'dhikr') updatedProfile.dhikrMinutes = (updatedProfile.dhikrMinutes || 0) + minutesToAdd;
+        else if (activeCategory === 'retreat') updatedProfile.retreatMinutes = (updatedProfile.retreatMinutes || 0) + minutesToAdd;
+        else if (activeCategory === 'journal') updatedProfile.journalMinutes = (updatedProfile.journalMinutes || 0) + minutesToAdd;
+        else updatedProfile.growthMinutes = (updatedProfile.growthMinutes || 0) + minutesToAdd;
+      }
+      if (isSessionComplete) {
+        updatedProfile.totalSessions = (updatedProfile.totalSessions || 0) + 1;
+      }
+      updatedProfile.lastActiveDate = new Date().toISOString();
+      setUserProfile(updatedProfile);
+      localStorage.setItem('sanad_guest_profile', JSON.stringify(updatedProfile));
+      return;
+    }
+
     const userRef = doc(db, 'users', user.uid);
-    
+
     // Prepare dynamic update object
     const categoryUpdates: any = {};
     if (minutesToAdd > 0) {
       categoryUpdates.totalMinutes = increment(minutesToAdd);
-      
+
       // Update specific category if active
       if (activeCategory === 'nasheed') categoryUpdates.nasheedMinutes = increment(minutesToAdd);
       else if (activeCategory === 'dhikr') categoryUpdates.dhikrMinutes = increment(minutesToAdd);
@@ -254,22 +363,22 @@ export default function App() {
         categoryUpdates.growthMinutes = increment(minutesToAdd);
       }
     }
-    
+
     if (isSessionComplete) {
       categoryUpdates.totalSessions = increment(1);
     }
-    
+
     // Streak logic
     const lastActiveDate = userProfile.lastActiveDate?.toDate ? userProfile.lastActiveDate.toDate() : new Date(userProfile.lastActiveDate || 0);
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    
+
     const lastActive = new Date(lastActiveDate);
     lastActive.setHours(0, 0, 0, 0);
-    
+
     const diffTime = today.getTime() - lastActive.getTime();
     const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-    
+
     let newStreak = userProfile.currentStreak || 0;
     if (diffDays === 1) {
       newStreak += 1;
@@ -300,14 +409,31 @@ export default function App() {
       const lastActiveDate = userProfile.lastActiveDate?.toDate ? userProfile.lastActiveDate.toDate() : new Date(userProfile.lastActiveDate || 0);
       const today = new Date();
       today.setHours(0, 0, 0, 0);
-      
+
       const lastActive = new Date(lastActiveDate);
       lastActive.setHours(0, 0, 0, 0);
-      
+
       const diffTime = today.getTime() - lastActive.getTime();
       const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-      
+
       if (diffDays > 0 || !userProfile.lastActiveDate) {
+        if (user.uid === 'guest-uid') {
+          let newStreak = userProfile.currentStreak || 0;
+          if (diffDays === 1) {
+            newStreak += 1;
+          } else if (diffDays > 1 || !userProfile.lastActiveDate) {
+            newStreak = 1;
+          }
+          const updatedObj = {
+            ...userProfile,
+            currentStreak: newStreak,
+            lastActiveDate: new Date().toISOString()
+          };
+          setUserProfile(updatedObj);
+          localStorage.setItem('sanad_guest_profile', JSON.stringify(updatedObj));
+          return;
+        }
+
         const userRef = doc(db, 'users', user.uid);
         let newStreak = userProfile.currentStreak || 0;
         if (diffDays === 1) {
@@ -315,7 +441,7 @@ export default function App() {
         } else if (diffDays > 1 || !userProfile.lastActiveDate) {
           newStreak = 1;
         }
-        
+
         updateDoc(userRef, {
           currentStreak: newStreak,
           lastActiveDate: serverTimestamp()
@@ -403,13 +529,22 @@ export default function App() {
             <motion.button 
               whileHover={{ scale: 1.02, y: -4 }}
               whileTap={{ scale: 0.98 }}
-              onClick={handleLogin}
-              disabled={isLoggingIn}
-              className="w-full flex items-center justify-center gap-3 bg-[#4e635a] text-white py-5 rounded-[22px] font-black text-lg md:text-xl hover:bg-[#3d4d46] transition-all disabled:opacity-50 shadow-lg shadow-[#4e635a]/20 cursor-pointer"
+              onClick={handleGuestLogin}
+              className="w-full flex items-center justify-center gap-3 bg-[#4e635a] text-white py-5 rounded-[22px] font-black text-lg md:text-xl hover:bg-[#3d4d46] transition-all shadow-lg shadow-[#4e635a]/20 cursor-pointer animate-pulse-slow"
             >
-              <LogIn size={24} />
-              {isLoggingIn ? 'جاري تسجيل الدخول...' : 'ابدأ رحلة السكون'}
+              <span>⛵</span>
+              <span>الدخول كضيف</span>
             </motion.button>
+
+            <div className="pt-2 text-center">
+              <button 
+                onClick={handleLogin}
+                disabled={isLoggingIn}
+                className="text-xs font-bold text-[#4e635a]/70 hover:text-[#4e635a] hover:underline transition-all cursor-pointer"
+              >
+                {isLoggingIn ? 'جاري الدخول...' : 'أو سجّل الدخول لتكمل مسيرتك وتبدأ في رحلة تغييرك'}
+              </button>
+            </div>
             
             {loginError && (
               <motion.div 
@@ -467,13 +602,55 @@ export default function App() {
               activeTab === 'profile' ? "border-[#4e635a] shadow-[#4e635a]/30 scale-110" : "border-white"
             )}
           >
-            <img 
-              src={user.photoURL || ''} 
-              alt={user.displayName || ''} 
-              className="w-full h-full object-cover" 
-              loading="lazy"
-              referrerPolicy="no-referrer"
-            />
+            {user.uid === 'guest-uid' ? (
+              <svg viewBox="0 0 40 40" className="w-full h-full">
+                <defs>
+                  <linearGradient id="avatarGradNav" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" stopColor="#08100c" />
+                    <stop offset="60%" stopColor="#1a332a" />
+                    <stop offset="100%" stopColor="#ebd6b0" />
+                  </linearGradient>
+                  <radialGradient id="sunGlowNav" cx="50%" cy="50%" r="50%">
+                    <stop offset="0%" stopColor="#fff" stopOpacity="1" />
+                    <stop offset="100%" stopColor="#fad796" stopOpacity="0" />
+                  </radialGradient>
+                  <linearGradient id="hillGradNav" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stopColor="#12271d" />
+                    <stop offset="100%" stopColor="#050a08" />
+                  </linearGradient>
+                </defs>
+                <rect width="100%" height="100%" fill="url(#avatarGradNav)" />
+                
+                {/* Nav Sun */}
+                <circle cx="28" cy="18" r="10" fill="url(#sunGlowNav)" />
+                <circle cx="28" cy="18" r="3.5" fill="#ffffff" />
+                
+                {/* Nav Hills */}
+                <path d="M-5 40 L-5 28 Q10 18 22 28 T45 35 L45 40 Z" fill="url(#hillGradNav)" />
+                
+                {/* Nav Path */}
+                <path d="M2 40 C 8 38, 14 34, 16 31 C 18 28, 22 26, 28 18" 
+                      fill="none" stroke="#fff" strokeWidth="1.5" strokeLinecap="round" opacity="0.9" />
+                      
+                {/* Nav Sprout */}
+                <path d="M6 38 Q5 33 2 32 Q5 33 6 38 Z" fill="#7fd957" />
+                <circle cx="5" cy="31" r="0.6" fill="#ffd700" />
+                
+                {/* Nav Bird */}
+                <path d="M 16,14 Q 18,11 20,14 Q 22,11 24,14 Q 20,12 16,14 Z" fill="#ffffff" opacity="0.9" />
+                
+                <circle cx="10" cy="10" r="0.4" fill="#ffffff" opacity="0.8" />
+                <circle cx="32" cy="8" r="0.5" fill="#ffffff" opacity="0.9" />
+              </svg>
+            ) : (
+              <img 
+                src={user.photoURL || ''} 
+                alt={user.displayName || ''} 
+                className="w-full h-full object-cover" 
+                loading="lazy"
+                referrerPolicy="no-referrer"
+              />
+            )}
           </motion.button>
         </div>
       </header>
@@ -505,7 +682,7 @@ export default function App() {
               exit={{ opacity: 0, rotateY: -90, x: -100, scale: 0.9 }}
               transition={{ type: "spring", stiffness: 100, damping: 20 }}
             >
-              <DhikrView onSessionComplete={() => updateProfileStats(0, true)} />
+              <DhikrView onSessionComplete={(mins) => updateProfileStats(mins, true)} />
             </motion.div>
           )}
           {activeTab === 'journal' && (

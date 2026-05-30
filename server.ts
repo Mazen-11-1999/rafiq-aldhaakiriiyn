@@ -41,11 +41,12 @@ async function startServer() {
 
       if (userContext) {
         const assessment = userContext.assessment;
-        const demo = userContext.demographics || { gender: 'male', maritalStatus: 'single', job: 'student' };
+        const demo = userContext.demographics || {};
+        const gender = demo.gender; // 'male' | 'female' | undefined
         const previousIssue = userContext.previousIssue;
-        const name = userContext.displayName || "صاحبي";
+        const name = userContext.displayName || "رفيق الدرب";
         
-        const genderLabel = demo.gender === 'female' ? "فتاة / امرأة" : "شاب / رجل";
+        const genderLabel = gender === 'female' ? "فتاة / امرأة" : gender === 'male' ? "شاب / رجل" : "غير محدد / زائر جديد";
         const maritalLabel = demo.maritalStatus === 'married' ? "متزوج" : "أعزب / عازب";
         const jobLabel = demo.job === 'student' ? "طالب يدرس" : demo.job === 'employed' ? "موظف" : demo.job === 'unemployed' ? "باحث عن عمل" : "عمل خاص / مستقل";
         
@@ -145,8 +146,9 @@ ${userDataString}
   * إذا هرب في المواعظ العامة والنصوص المثالية دون تحديد خطوة، فواجهه: "كلامك صحيح وما اختلفنا فيه يا شهم.. لكن أحس إنك جالس تكتب لي كلام مثالي عشان تهرب من مواجهة نفسك! التقييم كشف إن عندك ضعف حقيقي في قسم [${lowestCategoryName}]. خلنا من الكلام العام وصارحني الآن: وش أول خطوة عملية بتغيرها في يومك من بكره؟"
 
 قوانين الخطاب الإنساني لـ "سند":
-- إذا كان المستخدم فتاة (حسب الجنس المحدد بالإعدادات): خاطبها بصفات العفة والحياء والحشمة والمواساة كأخت غالية ومصونة (يا أخيتي، يا غالية، يا مصونة).
-- إذا كان شاباً: خاطبه بالنخوة والرجولة والشهامة والهمة الصالحة.
+- إذا كان جنس المستخدم أنثى (حسب الجنس المحدد بالإعدادات): خاطبها بصفات العفة والحياء والحشمة والمواساة كأخت غالية ومصونة (يا أخيتي، يا غالية، يا مصونة، يا رفيقتي).
+- إذا كان جنس المستخدم ذكراً: خاطبه بالنخوة والرجولة والشهامة والهمة الصالحة (يا أخي، يا صاحبي، يا رفيقي).
+- إذا كان الجنس غير محدد أو زائراً جديداً: استخدم المستوى الثاني (العام والمفتوح)؛ وهو لغة عربية فصيحة راقية جداً ومحايدة تماماً، لا تؤنث ولا تذكر بشكل يسبب حرجاً، بل تركز على "الإنسان" والروح التائبة العائدة لله (مثال: "أهلاً برفيق الدرب نحو الحياة الحقيقية..."، "يا مقبلاً على النور بقلب صادق..."، "سفينة النجاة تنتظر عهدك الصادق؛ بادر بنية التغيير وابدأ القراءة الآن...").
 - خاطبه بناءً على مهنته بطريقة حية (فمثلاً شجّع الطالب على دراسته، والموظف أو المستقل على إتقان كسب حلاله والبعد عن ميزانيات ليست من حقه).
 - تحدّث بلهجة عربية بيضاء بسيطة عفوية تفيض بالأخوة ولا تستخدم كلمات آلية جافة.`;
 
@@ -182,6 +184,152 @@ ${userDataString}
     } catch (error) {
       console.error("Gemini API Error:", error);
       res.status(500).json({ error: "Failed to communicate with AI" });
+    }
+  });
+
+// Helper functions to scrape and stream SoundCloud dynamically
+async function getSCClientId(): Promise<string | null> {
+  try {
+    const mainPageRes = await fetch("https://soundcloud.com", {
+      headers: {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+      }
+    });
+    if (!mainPageRes.ok) return null;
+    const mainHtml = await mainPageRes.text();
+    const scriptRegex = /src="(https:\/\/a-v2\.sndcdn\.com\/assets\/[^"]+?\.js)"/g;
+    let match;
+    const scriptUrls: string[] = [];
+    while ((match = scriptRegex.exec(mainHtml)) !== null) {
+      scriptUrls.push(match[1]);
+    }
+    for (const scriptUrl of scriptUrls) {
+      const scriptRes = await fetch(scriptUrl);
+      if (!scriptRes.ok) continue;
+      const scriptText = await scriptRes.text();
+      const idMatch = scriptText.match(/client_id\s*:\s*"([A-Za-z0-9]{32})"/);
+      if (idMatch) return idMatch[1];
+      const idMatch2 = scriptText.match(/client_id\s*=\s*"([A-Za-z0-9]{32})"/);
+      if (idMatch2) return idMatch2[1];
+    }
+  } catch (error) {
+    console.error("Failed to extract raw SoundCloud client_id:", error);
+  }
+  return null;
+}
+
+let cachedClientId: string | null = null;
+
+async function resolveSoundCloudUrl(soundcloudUrl: string): Promise<string | null> {
+  try {
+    if (!cachedClientId) {
+      cachedClientId = await getSCClientId();
+    }
+    if (!cachedClientId) return null;
+
+    const res = await fetch(soundcloudUrl, {
+      headers: {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+      }
+    });
+    if (!res.ok) return null;
+    const html = await res.text();
+    
+    const regexStream = /https?:\/\/api(?:-v2)?\.soundcloud\.com\/media\/[^\s"'`<>]+/g;
+    const streams = html.match(regexStream);
+    if (!streams) return null;
+    const progressive = streams.find(s => s.includes("stream/progressive"));
+    if (!progressive) return null;
+
+    const mediaRes = await fetch(`${progressive}?client_id=${cachedClientId}`);
+    if (!mediaRes.ok) {
+      // client_id may have expired, clearing it to force scrape on next call
+      cachedClientId = null;
+      return null;
+    }
+    const json: any = await mediaRes.json();
+    return json.url || null;
+  } catch (err) {
+    console.error("Error resolving soundcloud URL:", err);
+    return null;
+  }
+}
+
+  // API Route to stream SoundCloud tracks dynamically using 302 redirects
+  app.get("/api/soundcloud-stream", async (req, res) => {
+    try {
+      const trackUrl = req.query.url as string;
+      if (!trackUrl) {
+         return res.status(400).send("SoundCloud URL parameter is required");
+      }
+      console.log(`Redirecting stream for SoundCloud URL: ${trackUrl}`);
+      const resolved = await resolveSoundCloudUrl(trackUrl);
+      if (resolved) {
+         res.redirect(302, resolved);
+      } else {
+         res.redirect(302, trackUrl);
+      }
+    } catch (err) {
+       console.error("Soundcloud stream endpoint error:", err);
+       res.status(500).send("Error streaming soundcloud track");
+    }
+  });
+
+  // API Route for downloading MP3 files directly as attachments (bypassing CORS)
+  app.get("/api/download", async (req, res) => {
+    try {
+      let fileUrl = req.query.url as string;
+      const title = (req.query.title as string) || "nasheed";
+      
+      if (!fileUrl) {
+        return res.status(400).send("URL parameter is required");
+      }
+
+      // If we are downloading a soundcloud track, resolve the stream URL first
+      if (fileUrl.includes("soundcloud.com")) {
+        console.log(`Resolving SoundCloud URL for download proxy: ${fileUrl}`);
+        const resolved = await resolveSoundCloudUrl(fileUrl);
+        if (resolved) {
+          fileUrl = resolved;
+        } else {
+          return res.status(500).send("Failed to resolve SoundCloud track for download");
+        }
+      } else if (fileUrl.startsWith("/api/soundcloud-stream")) {
+        // Handle local proxy URLs that embedded clients may use
+        const originalUrlMatch = fileUrl.match(/[?&]url=([^&]+)/);
+        if (originalUrlMatch) {
+          const scUrl = decodeURIComponent(originalUrlMatch[1]);
+          console.log(`Resolving proxy track URL: ${scUrl}`);
+          const resolved = await resolveSoundCloudUrl(scUrl);
+          if (resolved) {
+            fileUrl = resolved;
+          } else {
+            return res.status(500).send("Failed to resolve SoundCloud proxy track for download");
+          }
+        }
+      }
+
+      console.log(`Downloading MP3 through proxy: ${fileUrl}`);
+      const response = await fetch(fileUrl);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch file from remote server: ${response.statusText}`);
+      }
+
+      const arrayBuffer = await response.arrayBuffer();
+      const buffer = Buffer.from(arrayBuffer);
+      
+      const cleanTitle = encodeURIComponent(title.replace(/[^\w\s\u0600-\u06FF-]/g, ''));
+      res.setHeader("Content-Disposition", `attachment; filename="${cleanTitle}.mp3"; filename*=UTF-8''${cleanTitle}.mp3`);
+      res.setHeader("Content-Type", "audio/mpeg");
+      res.send(buffer);
+    } catch (error) {
+      console.error("Error proxying download:", error);
+      // Fallback: 302 redirect in case backend fetch fails
+      if (req.query.url) {
+        res.redirect(302, req.query.url as string);
+      } else {
+        res.status(500).send("Internal server error during download proxy");
+      }
     }
   });
 

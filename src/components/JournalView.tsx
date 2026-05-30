@@ -124,7 +124,7 @@ export default function JournalView({ userProfile }: { userProfile: UserProfile 
     <div className="p-margin-page space-y-section-gap pb-12">
       <header className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div className="space-y-4">
-          <h2 className="text-3xl font-bold text-[#4e635a] font-serif">المفكرة (مذكرات النور)</h2>
+          <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-[#4e635a] font-serif">المفكرة (مذكرات النور)</h2>
           <p className="text-[#655d51] font-medium opacity-80 leading-relaxed">هنا مساحتك الخاصة.. اكتب بدون قيود، فكل فكرة تسجلها اليوم هي خطوة في طريق وعيك الحقيقي.</p>
         </div>
         <button 

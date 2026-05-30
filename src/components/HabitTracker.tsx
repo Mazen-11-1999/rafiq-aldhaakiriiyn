@@ -239,7 +239,7 @@ export default function HabitTracker({ onActivity }: { onActivity?: () => void }
           <Trophy size={14} />
           <span>مَرجِلة وعزيمة</span>
         </motion.div>
-        <h1 className="text-4xl md:text-5xl font-serif font-black text-[#1b1c1a] leading-tight">
+        <h1 className="text-2xl sm:text-3.5xl md:text-5xl font-serif font-black text-[#1b1c1a] leading-tight">
           لوحة <span className="text-[#4e635a]">الفلاح وبناء الذات</span>
         </h1>
         <p className="text-[#655d51] text-lg max-w-xl mx-auto font-medium">

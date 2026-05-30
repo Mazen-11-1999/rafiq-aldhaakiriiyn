@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { UserProfile, OperationType } from '../types';
 import { handleFirestoreError } from '../lib/firestore-errors';
 import { auth, db } from '../lib/firebase';
+import { radarProphets } from './StoriesView';
 import { doc, updateDoc } from 'firebase/firestore';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
@@ -17,7 +18,7 @@ import { NotificationService } from '../services/notificationService';
 import { jsPDF } from 'jspdf';
 import html2canvas from 'html2canvas';
 import { collection, query, getDocs, orderBy } from 'firebase/firestore';
-import { getLatestAssessment, saveEthicsCommitment } from '../services/recordService';
+import { getLatestAssessment, saveEthicsCommitment, getProphetCommitments, saveProphetCommitment } from '../services/recordService';
 
 export default function ProfileView({ 
   userProfile, 
@@ -134,6 +135,50 @@ export default function ProfileView({
 
   const [agreementToast, setAgreementToast] = useState<string | null>(null);
 
+  const [prophetCommitments, setProphetCommitments] = useState<Record<string, boolean>>(() => {
+    try {
+      const saved = localStorage.getItem('prophet_commitments');
+      return saved ? JSON.parse(saved) : {};
+    } catch {
+      return {};
+    }
+  });
+
+  useEffect(() => {
+    async function loadCloudCommitments() {
+      if (auth.currentUser) {
+        try {
+          const cloud = await getProphetCommitments();
+          const localSaved = localStorage.getItem('prophet_commitments');
+          const localObj = localSaved ? JSON.parse(localSaved) : {};
+          const merged = { ...localObj, ...cloud };
+          setProphetCommitments(merged);
+          localStorage.setItem('prophet_commitments', JSON.stringify(merged));
+        } catch (e) {
+          console.error("Error loading prophet commitments in profile:", e);
+        }
+      } else {
+        try {
+          const saved = localStorage.getItem('prophet_commitments');
+          setProphetCommitments(saved ? JSON.parse(saved) : {});
+        } catch {
+          setProphetCommitments({});
+        }
+      }
+    }
+
+    loadCloudCommitments();
+
+    const handleUpdate = () => {
+      loadCloudCommitments();
+    };
+
+    window.addEventListener('prophet-commitments-updated', handleUpdate);
+    return () => {
+      window.removeEventListener('prophet-commitments-updated', handleUpdate);
+    };
+  }, []);
+
   // Effects to persist states to localStorage
   useEffect(() => {
     async function fetchLatest() {
@@ -191,7 +236,10 @@ export default function ProfileView({
 
   if (!userProfile) return null;
 
-  const isFemale = userProfile.demographics?.gender === 'female';
+  const gender = userProfile.demographics?.gender; // 'male' | 'female' | undefined
+  const isFemale = gender === 'female';
+  const isMale = gender === 'male';
+  const isNeutral = !gender;
 
   const getBehavioralCommitment = () => {
     const hasBrokenPact = pacts.some(p => p.status === 'broken');
@@ -291,7 +339,30 @@ export default function ProfileView({
   };
 
   const updateSettings = async (newSettings: any) => {
-    if (!auth.currentUser) return;
+    if (!auth.currentUser) {
+      if (userProfile && userProfile.uid === 'guest-uid') {
+        const settings = userProfile.settings || {
+          notifications: { enabled: true, dhikrReminders: true, retreatReminders: true },
+          privacy: { publicProfile: false, shareInsights: true },
+          appearance: { language: 'ar', dateFormat: 'arabic' }
+        };
+        const updatedSettings = { ...settings };
+        for (const key in newSettings) {
+          if (typeof newSettings[key] === 'object' && settings[key as keyof typeof settings]) {
+            updatedSettings[key as keyof typeof settings] = {
+              ...(settings[key as keyof typeof settings] as any),
+              ...newSettings[key]
+            };
+          } else {
+            (updatedSettings as any)[key] = newSettings[key];
+          }
+        }
+        const updatedProfile = { ...userProfile, settings: updatedSettings };
+        localStorage.setItem('sanad_guest_profile', JSON.stringify(updatedProfile));
+        window.dispatchEvent(new CustomEvent('update-guest-profile', { detail: updatedProfile }));
+      }
+      return;
+    }
     
     // If enabling notifications, request permission
     if (newSettings.notifications && newSettings.notifications.enabled === true) {
@@ -331,7 +402,25 @@ export default function ProfileView({
   };
 
   const updateDemographics = async (fields: { gender?: 'male' | 'female', maritalStatus?: 'single' | 'married', job?: 'student' | 'employed' | 'unemployed' | 'business' }) => {
-    if (!auth.currentUser) return;
+    if (!auth.currentUser) {
+      if (userProfile && userProfile.uid === 'guest-uid') {
+        const demographics = userProfile.demographics || {
+          gender: 'male',
+          maritalStatus: 'single',
+          job: 'student'
+        };
+        const updatedProfile = {
+          ...userProfile,
+          demographics: {
+            ...demographics,
+            ...fields
+          }
+        };
+        localStorage.setItem('sanad_guest_profile', JSON.stringify(updatedProfile));
+        window.dispatchEvent(new CustomEvent('update-guest-profile', { detail: updatedProfile }));
+      }
+      return;
+    }
     try {
       const userRef = doc(db, 'users', auth.currentUser.uid);
       const demographics = userProfile.demographics || {
@@ -351,7 +440,12 @@ export default function ProfileView({
   };
 
   const handleLogout = () => {
-    auth.signOut();
+    if (!auth.currentUser) {
+      localStorage.removeItem('sanad_guest_active');
+      window.dispatchEvent(new Event('guest-logged-out'));
+    } else {
+      auth.signOut();
+    }
   };
 
   const handleSaveName = async () => {
@@ -361,6 +455,19 @@ export default function ProfileView({
     }
 
     setIsSaving(true);
+    if (!auth.currentUser) {
+      if (userProfile && userProfile.uid === 'guest-uid') {
+        const updatedProfile = {
+          ...userProfile,
+          displayName: newName.trim()
+        };
+        localStorage.setItem('sanad_guest_profile', JSON.stringify(updatedProfile));
+        window.dispatchEvent(new CustomEvent('update-guest-profile', { detail: updatedProfile }));
+        setIsEditingName(false);
+      }
+      setIsSaving(false);
+      return;
+    }
     try {
       const userRef = doc(db, 'users', auth.currentUser!.uid);
       await updateDoc(userRef, {
@@ -398,9 +505,11 @@ export default function ProfileView({
   return (
     <div className="p-margin-page space-y-section-gap perspective-1000 pb-20">
       <header className="space-y-2">
-        <h2 className="text-3xl font-bold text-[#4e635a] font-serif">الملف الشخصي</h2>
+        <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-[#4e635a] font-serif">الملف الشخصي</h2>
         <p className="text-[#424845] font-medium opacity-60">إدارة حسابك وتفضيلاتك في سندك</p>
       </header>
+
+
 
       {/* User Info Card */}
       <motion.div 
@@ -413,11 +522,79 @@ export default function ProfileView({
         <div className="flex flex-col md:flex-row items-center gap-8">
           <div className="relative group">
             <div className="absolute inset-0 bg-[#4e635a] rounded-[40px] blur-xl opacity-20 group-hover:opacity-40 transition-opacity" />
-            <img 
-              src={userProfile.photoURL} 
-              alt={userProfile.displayName} 
-              className="w-32 h-32 rounded-[40px] border-4 border-white shadow-2xl relative z-10 object-cover"
-            />
+            {userProfile?.uid === 'guest-uid' ? (
+              <svg viewBox="0 0 160 160" className="w-32 h-32 rounded-[40px] border-4 border-white shadow-2xl relative z-10 object-cover">
+                <defs>
+                  <linearGradient id="bgGradLarge" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" stopColor="#070f0b" />
+                    <stop offset="40%" stopColor="#11221b" />
+                    <stop offset="75%" stopColor="#2c473c" />
+                    <stop offset="100%" stopColor="#ebd6b0" />
+                  </linearGradient>
+                  <radialGradient id="sunGlow" cx="50%" cy="50%" r="50%">
+                    <stop offset="0%" stopColor="#fffbf0" stopOpacity="1" />
+                    <stop offset="30%" stopColor="#fad796" stopOpacity="0.8" />
+                    <stop offset="100%" stopColor="#fad796" stopOpacity="0" />
+                  </radialGradient>
+                  <linearGradient id="mountain1" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stopColor="#193327" />
+                    <stop offset="100%" stopColor="#0b1712" />
+                  </linearGradient>
+                  <linearGradient id="mountain2" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" stopColor="#264738" />
+                    <stop offset="100%" stopColor="#0e2118" />
+                  </linearGradient>
+                  <linearGradient id="goldPath" x1="0%" y1="100%" x2="100%" y2="0%">
+                    <stop offset="0%" stopColor="#ecc07f" />
+                    <stop offset="100%" stopColor="#ffffff" />
+                  </linearGradient>
+                </defs>
+
+                {/* Sky & Sun */}
+                <rect width="100%" height="100%" fill="url(#bgGradLarge)" />
+                <circle cx="115" cy="65" r="40" fill="url(#sunGlow)" />
+                <circle cx="115" cy="65" r="14" fill="#ffffff" />
+
+                {/* Distant Hills / Mountains */}
+                <path d="M-20 160 L-20 115 Q35 70 85 110 T180 140 L180 160 Z" fill="url(#mountain1)" />
+                <path d="M40 160 Q105 85 180 120 L180 160 Z" fill="url(#mountain2)" opacity="0.9" />
+
+                {/* Winding path of change ascending to the sun */}
+                <path d="M5 160 C 25 152, 45 140, 52 130 C 60 118, 75 112, 85 102 C 95 92, 107 80, 115 65" 
+                      fill="none" stroke="url(#goldPath)" strokeWidth="4.5" strokeLinecap="round" />
+
+                {/* Tiny seedling/sprout blooming beside the path (representing personal growth & change) */}
+                <path d="M22 152 Q18 138 12 135 Q18 138 22 152 Z" fill="#7fd957" />
+                <path d="M22 152 Q26 142 32 140 Q25 144 22 152 Z" fill="#9de67c" />
+                <path d="M22 152 Q22 141 20 132" fill="none" stroke="#5da03c" strokeWidth="1.5" strokeLinecap="round" />
+                {/* A tiny glowing bud of hope on top of sprout */}
+                <circle cx="20" cy="132" r="2.5" fill="#fff5cc" />
+                <circle cx="20" cy="132" r="1.5" fill="#ffd700" />
+
+                {/* Flying birds of hope / freedom heading towards the light */}
+                <path d="M 62,56 Q 66,49 70,56 Q 74,49 78,56 Q 70,53 62,56 Z" fill="#ffffff" opacity="0.85" />
+                <path d="M 85,42 Q 88,36 91,42 Q 94,36 97,42 Q 91,39 85,42 Z" fill="#ffffff" opacity="0.75" />
+                <path d="M 44,68 Q 47,63 50,68 Q 53,63 56,68 Q 50,65 44,68 Z" fill="#ffffff" opacity="0.6" />
+
+                {/* Sparkles / Stars of inspiration in the night sky translating to light */}
+                <circle cx="25" cy="35" r="1" fill="#ffffff" opacity="0.8" />
+                <circle cx="138" cy="30" r="1.2" fill="#ffffff" opacity="0.7" />
+                <circle cx="85" cy="20" r="1.5" fill="#ffffff" opacity="0.9" />
+                <polygon points="135,46 136.5,49 139.5,49.5 137,51 138,54 135,52 132,54 133,51 130.5,49.5 133.5,49" fill="#fff" opacity="0.8" />
+
+                {/* Little sailboat/ark of rescue (سفينة النجاة) floating of the lake at bottom right */}
+                <path d="M124 148 L146 148 L142 154 L128 154 Z" fill="#162920" />
+                <path d="M135 148 L135 135 L125 144 Z" fill="#ffd59a" opacity="0.9" />
+                <path d="M136 148 L136 133 L143 144 Z" fill="#fff" opacity="0.8" />
+              </svg>
+            ) : (
+              <img 
+                src={userProfile?.photoURL} 
+                alt={userProfile?.displayName || ''} 
+                className="w-32 h-32 rounded-[40px] border-4 border-white shadow-2xl relative z-10 object-cover"
+                referrerPolicy="no-referrer"
+              />
+            )}
           </div>
           
           <div className="space-y-4 text-center md:text-right flex-grow">
@@ -539,6 +716,12 @@ export default function ProfileView({
           </div>
           <div>
             <h3 className="text-2xl font-black font-serif text-amber-300">بوصلة الاستقامة</h3>
+            <p className="text-xs text-slate-400 font-bold">«حصاد أيامك: مرآةٌ دافئة لخطواتك اليومية، تعكس عهودك الصادقة وسعيك النبيل نحو حفظ نفسك وخبيئة قلبك غيباً.»</p>
+          </div>
+        </div>
+
+        <div className="space-y-4">
+          <div className="space-y-3">
             {(() => {
               const elements: string[] = [];
 
@@ -549,17 +732,23 @@ export default function ProfileView({
                 const paidNames = paidDebts.map(d => `${d.name}`).join(' و');
                 elements.push(isFemale
                   ? `بفضل الله وفائكِ طاهر؛ لقد سددتِ لـ ${paidNames} ذمتكِ المالية بكل نبل وعفة، لتتحرري تماماً من أوهام المظاهر والديون ليكون عهدكِ نقياً والحمد لله.`
-                  : `بفضل الله وفائكَ طاهر؛ لقد سددتَ لـ ${paidNames} ذمتكَ المالية بكل مروءة ونبل، لتتحرر تماماً من وهن المظاهر والالتزامات العبثية بظهر مفرود.`
+                  : isMale
+                    ? `بفضل الله وفائكَ طاهر؛ لقد سددتَ لـ ${paidNames} ذمتكَ المالية بكل مروءة ونبل، لتتحرر تماماً من وهن المظاهر والالتزامات العبثية بظهر مفرود.`
+                    : `بفضل الله وتوفيقه تم سداد الالتزامات لـ ${paidNames} بكل وفاء وأمانة، لتتحرر النفس تماماً من قيود الديون المظهرية ليكون العهد نقياً.`
                 );
               } else if (activeDebts.length > 0) {
                 elements.push(isFemale
                   ? `أما بخصوص شؤون المعاملات المبرمة في وقفة صدق، فقد قمتِ بحصر التزاماتكِ المالية وترتيب سداد ذمتكِ، لتسعي بنضج وعفة لحفظ كرامتكِ وحقوق العباد غيباً دون هروب.`
-                  : `أما بخصوص شؤون المعاملات المبرمة في وقفة صدق، فقد قمتَ بحصر التزاماتكَ المالية وترتيب سداد ذمتكَ، لتسعى برجولة وشجاعة لمواجهة الدائنين وحفظ حقوق العباد غيباً بفخر.`
+                  : isMale
+                    ? `أما بخصوص شؤون المعاملات المبرمة في وقفة صدق، فقد قمتَ بحصر التزاماتكَ المالية وترتيب سداد ذمتكَ، لتسعى برجولة وشجاعة لمواجهة الدائنين وحفظ حقوق العباد غيباً بفخر.`
+                    : `أما بخصوص شؤون المعاملات في وقفة صدق، فقد جرى حصر الالتزامات المالية وترتيب عهد السداد، سعياً بنضج ووعي لحفظ حقوق العباد غيباً والسمو بالنفس.`
                 );
               } else {
                 elements.push(isFemale
                   ? `والحمد لله، صنتِ يدكِ وحياءكِ من ذل السؤال ومجاراة المظاهر التافهة، مستغنية برزق الله الحلال والبركة فيه.`
-                  : `والحمد لله، صنتَ يدكَ وجيبكَ من ذل السؤال والتكلف لإرضاء الناس والمظاهر الكاذبة، مستغنياً عزيزاً برزق ربك الحلال.`
+                  : isMale
+                    ? `والحمد لله، صنتَ يدكَ وجيبكَ من ذل السؤال والتكلف لإرضاء الناس والمظاهر الكاذبة، مستغنياً عزيزاً برزق ربك الحلال.`
+                    : `والحمد لله، صينت النفس واليد بكرامة من ذل التكلف ومجاراة المظاهر الكاذبة، مستقرة برزق الله الحلال والبركة العظيمة فيه.`
                 );
               }
 
@@ -567,13 +756,17 @@ export default function ProfileView({
               if (qatDays > 0) {
                 elements.push(isFemale
                   ? `صمدتِ في تحدي نقاء الروح متجاوزة تشتت النفس ومناهضةً عوائق الشغف ومضيعات الساعات خلف البثوث ومفسدات الوعي لـ ${qatDays} أيام متتالية متحررة.`
-                  : `صمدتَ شجاعاً بظهر مفرود لـ ${qatDays} أيام متتالية في تحدي نقاء اليوم، متحرراً من فخاخ التشتت الرقمي والملهيات والفتور الذي يوهن سعي الرجال الصادقين.`
+                  : isMale
+                    ? `صمدتَ شجاعاً بظهر مفرود لـ ${qatDays} أيام متتالية في تحدي نقاء اليوم، متحرراً من فخاخ التشتت الرقمي والملهيات والفتور الذي يوهن سعي الرجال الصادقين.`
+                    : `صمود صادق في تحدي نقاء الروح وتجاوز تشتت النفس ومناهضة عوائق الشغف ومضيعات الساعات لـ ${qatDays} أيام متتالية متحررة.`
                 );
               }
               if (noorDays > 0) {
                 elements.push(isFemale
                   ? `وحميتِ بصيرتكِ وخلوتكِ في خلوة النور لـ ${noorDays} ليالٍ طاهرة، عازلةً حواسكِ عن سرقة الشاشات السامة وصخب السوشيال ميديا لتظفري بصدق السَّريرة ونور فجرك وعفتكِ.`
-                  : `وحميتَ وعيكَ وبصيرتكَ في خلوة النور لـ ${noorDays} ليالٍ طاهرة، معافى من استعباد شاشات الهواتف ومتابعة التوافه لتظفر بصدق السَّريرة ونور فجرك وعفتكَ ونقائك.`
+                  : isMale
+                    ? `وحميتَ وعيكَ وبصيرتكَ في خلوة النور لـ ${noorDays} ليالٍ طاهرة، معافى من استعباد شاشات الهواتف ومتابعة التوافه لتظفر بصدق السَّريرة ونور فجرك وعفتكَ ونقائك.`
+                    : `حفظ ووقاية للبصيرة في خلوة النور لـ ${noorDays} ليالٍ طاهرة، بعيداً عن أسر الشاشات السامة وصخب وسائل التواصل الاجتماعي.`
                 );
               }
 
@@ -589,13 +782,17 @@ export default function ProfileView({
               if (gazeActive && gazePact) {
                 elements.push(isFemale
                   ? `وحظيتِ بنقاء الحواس بالوفاء بتعهد غض البصر وحفظ العين منذ ${gazePact.days} أيام صيانةً لحيائكِ وبصيرتكِ المتقدة.`
-                  : `وحظيتَ بنقاء الجوارح في الوفاء بتعهد غض البصر وحفظ العين منذ ${gazePact.days} أيام، حامياً نظراتكَ من السقوط وصائناً لعفتك ونخوتكَ.`
+                  : isMale
+                    ? `وحظيتَ بنقاء الجوارح في الوفاء بتعهد غض البصر وحفظ العين منذ ${gazePact.days} أيام، حامياً نظراتكَ من السقوط وصائناً لعفتك ونخوتكَ.`
+                    : `وحظي المسير بنقاء الجوارح والوفاء بتعهد غض البصر وحفظ العين منذ ${gazePact.days} أيام صيانةً لصنع البصيرة ونقاء الهمة غيباً.`
                 );
               }
               if (heartActive && heartPact) {
                 elements.push(isFemale
                   ? `وتلتزمين بنبل بتعهد طهارة السر والسريرة لمنع المفسدات الرقمية وحراسة قلبكِ سراً لترتقي في مراتب العفة الصالحة.`
-                  : `وتلتزم بصدق بتعهد طهارة السر والسريرة لإفراغ قلبكَ من المفسدات وحسابات الغواية، حارساً لصدركَ في الغيب، تبتغي العفة الواقعية المقرونة بالعمل والصدق مع الله.`
+                  : isMale
+                    ? `وتلتزم بصدق بتعهد طهارة السر والسريرة لإفراغ قلبكَ من المفسدات وحسابات الغواية، حارساً لصدركَ في الغيب، تبتغي العفة الواقعية المقرونة بالعمل والصدق مع الله.`
+                    : `والالتزام الشريف بتعهد طهارة السر والسريرة لإخلاء الباطن من المفسدات وصيانة القلب في خفاء الغيب عفةً واقعية دائمة.`
                 );
               }
 
@@ -612,14 +809,18 @@ export default function ProfileView({
 
                 elements.push(isFemale
                   ? `وبكل عزة ووقار، ثبَتِّ أسبوعاً راسخاً في الوفاء لعهودكِ الشريفة وسجل عهود سند السلوكية (خاصة بـ ${ruleNames})؛ مبرهنةً بفعلكِ وصدقكِ الواقعي على الترفع عن تفاهات السوشيال ميديا وموضات العصر، صائنةً وعيكِ وحيائكِ الناصع وثباتكِ العفيف بظهر مفرود دون سقوط أو تزييف.`
-                  : `وبشهامة ونخوة الرجال الأباة، أكملتَ أسبوعاً متكاملاً من الصمود الواقعي في عهود سند السلوكية (خاصة بـ ${ruleNames})؛ كاسراً موضات العصر وتزييف المظاهر والكلام العقيم، وعامراً خلواتك بظهر مفرود وثبات الرجال القلائل الذين يقرنون الكلمة بالعمل الفعلي، مقتدياً بصدق ونزاهة الأنبياء.`
+                  : isMale
+                    ? `وبشهامة ونخوة الرجال الأباة، أكملتَ أسبوعاً متكاملاً من الصمود الواقعي في عهود سند السلوكية (خاصة بـ ${ruleNames})؛ كاسراً موضات العصر وتزييف المظاهر والكلام العقيم، وعامراً خلواتك بظهر مفرود وثبات الرجال القلائل الذين يقرنون الكلمة بالعمل الفعلي، مقتدياً بصدق ونزاهة الأنبياء.`
+                    : `بكل صدق وثبات راسخ لم يمل، تحقق الصمود لأسبوع كامل في الوفاء بالعهود السلوكية (خاصة بـ ${ruleNames})؛ مبرهناً بالعمل السلوكي الواقعي على الترفع عن تفاهات التواصل وصحب العصر، حفظاً للوعي وثباتاً على العهد.`
                 );
               }
 
               if (gazeBroken || heartBroken) {
                 elements.push(isFemale
                   ? `وإن مالت النفس أو تعثر خطاكِ في المدارج، فإن صدقكِ في الاعتراف والنهوض الآن هو التاج الذي يزين حياءكِ؛ والباب لترميم العهود لا يغلق أبداً.`
-                  : `وإن كبت بكَ فرس الالتزام أو تعثرت خطاك في المدارج، فنهوضكَ فوراً للترميم وتجديد ميثاقك الآن هو الشاهد على مروءتك وعزيمتك الشهمة في طلب الطهر ونقاء الوعي.`
+                  : isMale
+                    ? `وإن كبت بكَ فرس الالتزام أو تعثرت خطاك في المدارج، فنهوضكَ فوراً للترميم وتجديد ميثاقك الآن هو الشاهد على مروءتك وعزيمتك الشهمة في طلب الطهر ونقاء الوعي.`
+                    : `وإن مالت النفس أو كبت همة المسير، فإن صدق الاعتراف والنهوض مجدداً هو النور الذي يُعيد بناء العزيمة؛ فباب التوبة والترميم لا يُغلق أبداً.`
                 );
               }
 
@@ -639,7 +840,9 @@ export default function ProfileView({
                 }
                 elements.push(isFemale
                   ? `وقد وهبتِ لروحكِ مساحة من النقاء بلغت ${timeText} من السكينة وعزل الحواس، مطهرةً مسمعكِ بعبر الأنبياء والصالحات، ومقتديةً بخطاهم كواقع وعمل يحمي قلبكِ من زيف الفتن الآن.`
-                  : `وقد منحتَ روحكَ مساحة من الصفاء بلغت ${timeText} من السكينة وعزل الحواس، مغذياً سمعك وقلبك بعبر الأنبياء، ناقلاً سيرتهم من مجرد قصص تُحفظ في السطور، إلى مواقف حية وتطبيق عملي يكسر الفتن ويقود يومك الآن برضا ربك.`
+                  : isMale
+                    ? `وقد منحتَ روحكَ مساحة من الصفاء بلغت ${timeText} من السكينة وعزل الحواس، مغذياً سمعك وقلبك بعبر الأنبياء، ناقلاً سيرتهم من مجرد قصص تُحفظ في السطور، إلى مواقف حية وتطبيق عملي يكسر الفتن ويقود يومك الآن برضا ربك.`
+                    : `وهب هذا الوقت للنفس مساحة من النقاء بلغت ${timeText} من السكينة وعزل الحواس، متغذياً بعبر الأنبياء والهدى الحقيقي، ومقتدياً بخطاهم كواقع حذر يحمي سريرة القلب.`
                 );
               }
 
@@ -647,12 +850,16 @@ export default function ProfileView({
               if (assessment) {
                 elements.push(isFemale
                   ? `وبكل شجاعة، واجهتِ مرآة ذاتكِ عبر مبادرة وقفة صدق، وكشفتِ بقعتكِ العمياء لتعملي بوعي على رتق الثغرات وتطبيق علاج سند العملي لسد مداخل الغفلة بظهر مفرود وفكر ناضج.`
-                  : `وبكل رجولة ونخوة، واجهتَ ذاتكَ دون تبرير في وقفة صدق الصارمة، لتتعرف على البقعة العمياء وتسير على خطى الأنبياء والرجال العظماء في سد الثلمة وتفكيك الذئب الذي يسرق الساعات.`
+                  : isMale
+                    ? `وبكل رجولة ونخوة، واجهتَ ذاتكَ دون تبرير في وقفة صدق الصارمة، لتتعرف على البقعة العمياء وتسير على خطى الأنبياء والرجال العظماء في سد الثلمة وتفكيك الذئب الذي يسرق الساعات.`
+                    : `بكل شجاعة وعزيمة، جرت مواجهة مرآة الذات عبر مبادرة وقفة صدق وكشف البقعة العمياء بحكمة لترميم الثغور قبل مباغتة الغفلة.`
                 );
               } else {
                 elements.push(isFemale
                   ? `وندعوكِ برفق ومحبة الصادقين أن تبادري الآن بخوض وقفة صدق الصارمة والإجابة على الأسئلة الـ 21 لتكتشفي مواطن البقعة العمياء قبل مباغتة الغفلة والفتور.`
-                  : `وندعوكَ بشهامة الصديق الناصح أن تبادر الآن لتبدأ وقفة صدق الصارمة وتفكك البقعة العمياء بصدق، فما خاب من وزن نفسه بميزان الوقار واليقظة وسد الثغر قبل التسلل.`
+                  : isMale
+                    ? `وندعوكَ بشهامة الصديق الناصح أن تبادر الآن لتبدأ وقفة صدق الصارمة وتفكك البقعة العمياء بصدق، فما خاب من وزن نفسه بميزان الوقار واليقظة وسد الثغر قبل التسلل.`
+                    : `ودعوة من القلب برفق وحب الصادقين للمبادرة الآن بخوض وقفة صدق والإجابة على الأسئلة الـ 21 لتتكشف مواطن البقعة العمياء وسد مداخل الفتور.`
                 );
               }
 
@@ -668,7 +875,9 @@ export default function ProfileView({
           <div className="pt-4 border-t border-white/10 text-xs md:text-sm font-black text-amber-400 font-serif leading-relaxed">
             🌿 {isFemale 
               ? "\"يا رفيقتي، مقامكِ اليوم هو مقام الثبات وصيانة العهد الشريف. صِلِي حبال وصلكِ بربكِ وتجاوزي كدر النفس؛ لتخرجي لواقع الحياة بحياء وعفة مقتدية بأمهات المؤمنين وعزيمة الصالحات الطاهرات.\""
-              : "\"يا صاحبي، مقامك اليوم هو مقام الثبات وصيانة العهد الشريف. صلْ حبال وصلك بربك وتجاوز كدر النفس؛ لتخرج لواقع الحياة بظهر مفرود مقتدياً بالأنبياء وعزيمة الصالحين الطاهرين.\""
+              : isMale
+                ? "\"يا صاحبي، مقامك اليوم هو مقام الثبات وصيانة العهد الشريف. صلْ حبال وصلك بربك وتجاوز كدر النفس؛ لتخرج لواقع الحياة بظهر مفرود مقتدياً بالأنبياء وعزيمة الصالحين الطاهرين.\""
+                : "\"يا رفقاء الدرب، المقام اليوم هو مقام الثبات وصيانة العهد الشريف. صِلوا حبال الوصل بربكم وتجاوزوا كدر النفس؛ لتخرجوا لواقع الحياة بوقار وعفة مقتدين بالأنبياء وعزيمة الصالحين الطاهرين.\""
             }
           </div>
         </div>
@@ -809,6 +1018,121 @@ export default function ProfileView({
             );
           })}
         </div>
+      </motion.div>
+
+      {/* 🚢 عهود سفينة النجاة - تتبع مواثيق الأنبياء المستمرة */}
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        className="glass-3d p-8 rounded-[40px] shadow-2xl border-2 border-emerald-500/10 space-y-6 relative overflow-hidden text-right"
+      >
+        <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 rounded-bl-[100px] -z-10" />
+        
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 bg-emerald-500/10 text-emerald-600 rounded-2xl flex items-center justify-center">
+              <Compass size={26} className="text-emerald-600" />
+            </div>
+            <div>
+              <h3 className="text-2xl font-black text-[#1b1c1a] font-serif">مواثيق وعهود سفينة النجاة</h3>
+              <p className="text-xs text-[#727875] font-bold">عهد الاستقامة على هدي الأنبياء الكرام؛ عهودك محفوظة بملفك الشخصي وتذكرك بواجبك العملي غيباً.</p>
+            </div>
+          </div>
+        </div>
+
+        {(() => {
+          const activeKeys = Object.keys(prophetCommitments).filter(key => prophetCommitments[key] === true);
+          const activeProphets = radarProphets.filter(p => activeKeys.includes(p.id));
+
+          if (activeProphets.length === 0) {
+            return (
+              <div className="bg-emerald-50/20 border border-[#d1e8dd]/50 rounded-[30px] p-8 text-center space-y-4">
+                <div className="text-4xl text-emerald-600 select-none">⛵</div>
+                <div className="space-y-1">
+                  <h4 className="text-xl font-bold text-emerald-950 font-serif">لا يوجد عهود مبرمة بعد</h4>
+                  <p className="text-sm font-medium text-slate-600 max-w-lg mx-auto leading-relaxed">
+                    يا رفيقتي، سفينة النجاة تحمل هدي الأنبياء العظيم. ابدأ بزيارة تبويب "سفينة النجاة"، اقرأ قصصهم العطرة واعقد نيتك وعهدك العملي لتقتدي بهم وتضيء بصيرتك.
+                  </p>
+                </div>
+                {onTabChange && (
+                  <button 
+                    onClick={() => onTabChange('stories')} 
+                    className="px-6 py-3 bg-[#4e635a] hover:bg-[#3d4d46] text-white rounded-2xl text-xs font-black transition-all shadow-md cursor-pointer"
+                  >
+                    الإبحار بسفينة النجاة الآن
+                  </button>
+                )}
+              </div>
+            );
+          }
+
+          return (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
+              {activeProphets.map((p) => (
+                <motion.div 
+                  key={p.id}
+                  whileHover={{ scale: 1.01 }}
+                  className="p-6 bg-gradient-to-br from-white to-emerald-50/20 border-2 border-emerald-500/10 rounded-[35px] shadow-sm relative flex flex-col justify-between overflow-hidden group"
+                >
+                  <div className="absolute top-0 left-0 w-24 h-24 bg-emerald-500/5 rounded-br-full -translate-x-4 -translate-y-4 pointer-events-none" />
+                  
+                  <div className="space-y-4">
+                    <div className="flex justify-between items-center">
+                      <div className="flex items-center gap-3">
+                        <div className="w-12 h-12 rounded-full bg-emerald-500/10 flex items-center justify-center text-xl shadow-xs border border-emerald-500/10">
+                          {p.avatar}
+                        </div>
+                        <div>
+                          <h4 className="text-lg font-black text-emerald-950 font-serif">{p.name}</h4>
+                          <span className="text-[10px] bg-emerald-100 text-emerald-800 font-black px-2 py-0.5 rounded-md">
+                            عهد نشط ✨
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="bg-slate-50/80 p-4 rounded-2xl border border-black/5 text-right space-y-1">
+                      <span className="text-[10px] font-black text-emerald-700 block">🎯 الواجب العملي المنشود:</span>
+                      <p className="text-sm font-bold text-slate-800 leading-relaxed font-serif">
+                        {p.wajib}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between flex-row-reverse">
+                    <span className="text-xs font-black text-emerald-600 flex items-center gap-1">
+                      <Check size={14} />
+                      عهد نشط مستمر
+                    </span>
+                    
+                    <button 
+                      onClick={async () => {
+                        setProphetCommitments(prev => {
+                          const updated = { ...prev, [p.id]: false };
+                          localStorage.setItem('prophet_commitments', JSON.stringify(updated));
+                          
+                          if (auth.currentUser) {
+                            saveProphetCommitment(p.id, p.name, false)
+                              .then(() => {
+                                window.dispatchEvent(new Event('prophet-commitments-updated'));
+                              });
+                          } else {
+                            window.dispatchEvent(new Event('prophet-commitments-updated'));
+                          }
+                          return updated;
+                        });
+                      }}
+                      className="text-[10px] font-black text-[#e53e3e]/70 hover:text-red-600 hover:bg-red-50 px-3 py-1.5 rounded-xl transition-all cursor-pointer"
+                    >
+                      إلغاء التعهد مؤقتاً
+                    </button>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          );
+        })()}
       </motion.div>
 
       {/* 3️⃣ لوحة "تحديات الأمانة وشرف النفس" (Behavioral Challenges Tracker) */}
@@ -1292,7 +1616,7 @@ export default function ProfileView({
                       <h5 className="font-black text-emerald-950 flex items-center gap-1">
                         <span>🔨</span> كسر الفكرة النفعية المادية
                       </h5>
-                      <p className="font-medium text-emerald-900/80 leading-relaxed">
+                      <p className="font-medium text-emerald-950/80 leading-relaxed">
                         عاهد وجدانك ألا تكون نفعياً بارداً؛ امنح زوجتك الحب والتقدير طوال اليوم بالكلمات الطيبة ومشاركة أعباء الحياة عوضاً عن الهرب لعزلة الشاشات.
                       </p>
                     </div>
@@ -1301,7 +1625,7 @@ export default function ProfileView({
                       <h5 className="font-black text-emerald-950 flex items-center gap-1">
                         <span>🕌</span> إقامة عهد وطاعة مشتركة
                       </h5>
-                      <p className="font-medium text-emerald-900/80 leading-relaxed">
+                      <p className="font-medium text-emerald-950/80 leading-relaxed">
                         اعمر بيتك بعبادة جماعية (صلاة ركعتي خفاء، أو تلاوة ورد يومي سوياً، أو جلسة ذكر هادئة تلم شمل القلوب بنور التقوى والهدى).
                       </p>
                     </div>
@@ -1310,7 +1634,7 @@ export default function ProfileView({
                       <h5 className="font-black text-emerald-950 flex items-center gap-1">
                         <span>✨</span> المعاشرة بالمعروف واللطف
                       </h5>
-                      <p className="font-medium text-emerald-900/80 leading-relaxed">
+                      <p className="font-medium text-emerald-950/80 leading-relaxed">
                         السؤال عن تيسير يومها، إعنتها، تقدير تعبها، وغض بصرك عن غيرها صوناً لثنايا البيت؛ لأن الصادقين يحمون كرامتهم بغض طرف قلوبهم أولاً.
                       </p>
                     </div>
@@ -1399,11 +1723,13 @@ export default function ProfileView({
             const recommendationsMap: Record<string, string> = {
               intent: 'انزل لأرض الواقع الآن، واجعل دينك سلوكاً يراه الناس في أمانتك وكفّ أذاك، مقتدياً بنبي الله شعيب الذي بدأ الإصلاح من نفسه وخلوته قبل لسانه.',
               ethics: 'اقطع حبل الدين الاستعراضي؛ واجه واقعك المالي بصدق واستغناء، وسدد ذمتك بعزة النفس التي لا تقبل تزييفاً للمظهر على حساب حقوق العباد وطهارة عهدك.',
-              consistency: 'أنت في زمن فتن وتزييف؛ اعزل حواسك في خلوة النور، واستمسك بعزيمة أولي العزم من الرسل لتصنع لنفسك حياة حقيقية صلبة لا تهزها فتن هذا الزمن.',
-              ego: 'امسح زيف المنصات؛ واجه ربك في خلوتك بذات الحقيقة دون تجميل، واعلم أن عزة الصدّيقين تبدأ من طهارة السر لا من ثناء البشر.',
+              consistency: 'أنت في زمن فتن وتزييف； اعزل حواسك في خلوة النور، واستمسك بعزيمة أولي العزم من الرسل لتصنع لنفسك حياة حقيقية صلبة لا تهزها فتن هذا الزمن.',
+              ego: 'امسح زيف المنصات； واجه ربك في خلوتك بذات الحقيقة دون تجميل، واعلم أن عزة الصدّيقين تبدأ من طهارة السر لا من ثناء البشر.',
               knowledge: isFemale
                 ? 'انفضي غبار الكسل، وتذكري عهد النبوة والشهامة؛ قومي بقوة لبناء فكركِ وعقلكِ الشريف بنبذ الكسل، ومقاومة تميع الشغف، وبناء الوعي والثقافة بظهر مفرود وعقل ناضج، اقتداءً بالصالحات، وبعيداً عن اتكالية المظاهر التافهة ومجاراة الصخب.'
-                : 'اقطع دابر العجز؛ قم وابنِ حياتك وجيبك الشريف بيدك وبظهر مفرود، مقتدياً بنبي الله داوود الذي كان يأكل من كد يده، فالرجال لا تلتفت للخلف.'
+                : isMale
+                  ? 'اقطع دابر العجز؛ قم وابنِ حياتك وجيبك الشريف بيدك وبظهر مفرود، مقتدياً بنبي الله داوود الذي كان يأكل من كد يده، فالرجال لا تلتفت للخلف.'
+                  : 'لنرتقِ فوق الكسل والفتور؛ عهد الاستقامة يدعونا للتطلع والتعلم، واكتساب القوة بالعمل المجد والاجتهاد وتجنب الصخب من أجل بناء الوعي والنقاء الصادق.'
             };
 
             const scores = assessment.scores || {};
@@ -1426,14 +1752,18 @@ export default function ProfileView({
                   <p className="text-xl font-serif font-black leading-relaxed">
                     {isFemale 
                       ? `"يا رفيقتي العفيفة، انتبهي.. تشير نتيجتكِ بتقرير وقفة صدق الأخيرة إلى ثغرة حقيقية وحرجة في فئة: "`
-                      : `"يا صاحبي الشريف، انتبه.. تشير نتيجتكَ بتقرير وقفة صدق الأخيرة إلى ثغرة حقيقية وحرجة في فئة: "`
+                      : isMale
+                        ? `"يا صاحبي الشريف، انتبه.. تشير نتيجتكَ بتقرير وقفة صدق الأخيرة إلى ثغرة حقيقية وحرجة في فئة: "`
+                        : `"أيها الساعي الشهم نحو الصدق، انتبه.. تشير نتيجتك بتقرير وقفة صدق الأخيرة إلى ثغرة حقيقية وحرجة في فئة: "`
                     }
                     <span className="text-yellow-400">{categoriesMap[weakestCategory] || weakestCategory}</span>."
                   </p>
                   <p className="text-xs text-slate-400 font-bold leading-relaxed">
                     {isFemale
                       ? `ذئب المعصية وضعف الهمة يأتيكِ من هنا دائماً ويتسلل لسرقة همتكِ وعزيمتكِ؛ لذا وجهي بصيرتكِ باليقظة وتسلّحي بالعلاج المندرج لتكون نفسكِ شريفة.`
-                      : `ذئب المعصية وضعف الهمة يأتيكَ من هنا دائماً ويتسلل لسرقة همتكَ وعزيمتكَ؛ لذا وجه بصيرتكَ باليقظة وتسلّح بالعلاج وسد الثغرة بظهر مفرود ووقار.`
+                      : isMale
+                        ? `ذئب المعصية وضعف الهمة يأتيكَ من هنا دائماً ويتسلل لسرقة همتكَ وعزيمتكَ؛ لذا وجه بصيرتكَ باليقظة وتسلّح بالعلاج وسد الثغرة بظهر مفرود ووقار.`
+                        : `هنا توجد ثغرة يتسلل منها الفتور والوهن لسرقة العزيمة وصرف النفس عن مسار الطهارة، لذا ينبغي توجيه البصيرة باليقظة وسد الثغرة بعلاج سند العملي.`
                     }
                   </p>
                 </div>
@@ -1450,7 +1780,7 @@ export default function ProfileView({
                     "تجاوز البقعة العمياء يحتاج للصدق المجرّد والوقوف المتيقظ بوجه النفس؛ بادر بالتطبيق رعاك الله."
                   </p>
                   <button
-                    onClick={() => alert(isFemale ? "طوبى لصدقكِ العفيف! تم تدوين وجهتكِ لسد هذا الثغر بوقار وعزيمة 🛡️" : "طوبى لصدقكَ الشريف! تم تدوين وجهتكَ لسد هذا الثغر بنخوة ونبل بظهر مفرود 🛡️")}
+                    onClick={() => alert(isFemale ? "طوبى لصدقكِ العفيف! تم تدوين وجهتكِ لسد هذا الثغر بوقار وعزيمة 🛡️" : isMale ? "طوبى لصدقكَ الشريف! تم تدوين وجهتكَ لسد هذا الثغر بنخوة ونبل بظهر مفرود 🛡️" : "طوبى للصدق والهمة! جرى تدوين التوجه لسد هذا الثغر بجهاد وعزيمة متجددة 🛡️")}
                     className="px-4 py-2 bg-yellow-500 hover:bg-yellow-600 text-slate-950 rounded-xl text-[11px] font-black transition-colors shrink-0 shadow-md cursor-pointer"
                   >
                     عاهدتُ الله على سد الثغر والتطبيق اليوم!
@@ -1508,7 +1838,9 @@ export default function ProfileView({
                       if (ag.consecutiveDays < 7) {
                         const msg = isFemale
                           ? "تمهّلي يا صاحبتي الشريفة؛ لا تقطفي الثمر قبل نضجه. صامدةٌ أنتِ في مدارج المجاهدة، لكن أتمّي أسبوعكِ (7 أيام متتالية) لتثبتي لنفسكِ ولسند أنكِ تجاوزتِ زيف العادة ودخلتِ مرحلة التغيير الحقيقي بصدق."
-                          : "تمهّل يا صاحبي الشريف؛ الرجال لا تقطف الثمار قبل نضجها. صامدٌ أنت في مدارج المجاهدة، لكن أتمم أسبوعك (7 أيام متتالية) لتثبت لنفسك ولسند أنك تجاوزت زيف العادة ودخلت مرحلة التغيير الحقيقي بصدق.";
+                          : isMale
+                            ? "تمهّل يا صاحبي الشريف؛ الرجال لا تقطف الثمار قبل نضجها. صامدٌ أنت في مدارج المجاهدة، لكن أتمم أسبوعك (7 أيام متتالية) لتثبت لنفسك ولسند أنك تجاوزت زيف العادة ودخلت مرحلة التغيير الحقيقي بصدق."
+                            : "لتنضج فضيلة الصبر؛ من الأفضل الصمود في مدارج المجاهدة باستمرار، وإكمال ممارسة الميثاق السلوكي لـ 7 أيام متتالية لتثبت لنفسك جدوى التغيير والصمود الحقيقي.";
                         setAgreementToast(msg);
                         setTimeout(() => {
                           setAgreementToast(null);
@@ -1521,7 +1853,9 @@ export default function ProfileView({
 
                       const successMsg = isFemale
                         ? `طوبى لبيانكِ الصادق وعفتكِ العالية! أسبوع كامل صامد بدون زيف، صائنةً لوعيكِ وطهر قلبكِ ترفُّعاً عن تفاهات الزمن رعاكِ الله 🛡️`
-                        : `طوبى لشهامتكَ الشريفة ومروءتكَ! أكملتَ أسبوعاً كاملاً من الطهر والصمود في الواقع بظهر مفرود وعزم الأنبياء والرجال الصادقين 🛡️`;
+                        : isMale
+                          ? `طوبى لشهامتكَ الشريفة ومروءتكَ! أكملتَ أسبوعاً كاملاً من الطهر والصمود في الواقع بظهر مفرود وعزم الأنبياء والرجال الصادقين 🛡️`
+                          : `مبارك تمام الصبر والأثر الصادق! أسبوع متكامل من الصمود الفعلي في الوفاء والتزكية والترفع العظيم عن فتن وتفاهات الزمن 🛡️`;
                       setAgreementToast(successMsg);
                       setTimeout(() => {
                         setAgreementToast(null);
@@ -1592,7 +1926,11 @@ export default function ProfileView({
                               const updated = agreements.map(it => it.id === ag.id ? { ...it, minutes: currentMinutes + 5 } : it);
                               setAgreements(updated);
                               
-                              const msg = `أضفتَ ٥ دقائق لتصبح خلوتكَ الفجرية ${currentMinutes + 5} دقيقة طاهرة من الذكر والسكينة 🌅`;
+                              const msg = isFemale
+                                ? `أضفتِ ٥ دقائق لتصبح خلوتكِ الفجرية ${currentMinutes + 5} دقيقة طاهرة من الذكر والسكينة 🌅`
+                                : isMale
+                                  ? `أضفتَ ٥ دقائق لتصبح خلوتكَ الفجرية ${currentMinutes + 5} دقيقة طاهرة من الذكر والسكينة 🌅`
+                                  : `جرى إضافة ٥ دقائق لتصبح الخلوة الفجرية ${currentMinutes + 5} دقيقة طاهرة من الذكر والسكينة 🌅`;
                               setAgreementToast(msg);
                               setTimeout(() => setAgreementToast(null), 4000);
                             }}
@@ -1624,7 +1962,9 @@ export default function ProfileView({
 
                         const logMsg = isFemale
                           ? `سُجِّل صمود اليوم بعفة! عفاكِ الله وثبَّتكِ في مدارج الطهر الحقيقي لتنالي التغيير الفعلي (${nextDays}/7)`
-                          : `سُجِّل صمود اليوم بمروءة رجولية! وثَّقنا جهادك بظهر مفرود وقوة حقيقية (${nextDays}/7)`;
+                          : isMale
+                            ? `سُجِّل صمود اليوم بمروءة رجولية! وثَّقنا جهادك بظهر مفرود وقوة حقيقية (${nextDays}/7)`
+                            : `جُسِّد صمود اليوم بوقار! وُثِّقت خطوة الجهاد الفعلية نحو الطهر والصفاء والحرية (${nextDays}/7)`;
                         setAgreementToast(logMsg);
                         setTimeout(() => {
                           setAgreementToast(null);
@@ -1645,7 +1985,9 @@ export default function ProfileView({
                         setAgreements(updated);
                         const resetMsg = isFemale
                           ? `أُعيد تصفير العهد؛ عودي للمجاهدة رعاكِ الله، والترميم باب شريف لا يُغلق.`
-                          : `أُعيد تصفير العهد؛ عُد للمجاهدة بظهر مفرود، فالترميم والنهوض شرف يمحو العثرات.`;
+                          : isMale
+                            ? `أُعيد تصفير العهد؛ عُد للمجاهدة بظهر مفرود، فالترميم والنهوض شرف يمحو العثرات.`
+                            : `أُعيد تصفير العهد بتمام الصدق والشفافية مع الذات ليُبنى على أساس متين؛ باب مجاهدة النفس وترميم المسير مفتوح دوماً.`;
                         setAgreementToast(resetMsg);
                         setTimeout(() => {
                           setAgreementToast(null);

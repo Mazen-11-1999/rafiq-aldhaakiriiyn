@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Play, Pause, SkipBack, SkipForward, Volume2, Music, Search, Heart, Sparkles, Disc, AlertCircle, WifiOff, CloudCheck, Plus, FolderPlus, Trash2, ListMusic, X, CheckCircle2 } from 'lucide-react';
+import { Play, Pause, SkipBack, SkipForward, Volume2, Music, Search, Heart, Sparkles, Disc, AlertCircle, WifiOff, CloudCheck, Plus, FolderPlus, Trash2, ListMusic, X, CheckCircle2, Download } from 'lucide-react';
 import { NASHEEDS } from '../constants';
 import { cn } from '../lib/utils';
 import InsightPanel from './InsightPanel';
@@ -36,7 +36,31 @@ export default function NasheedView() {
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [downloadingIds, setDownloadingIds] = useState<Set<string>>(new Set());
   const [offlineReadyIds, setOfflineReadyIds] = useState<Set<string>>(new Set());
+  const [downloadingFileIds, setDownloadingFileIds] = useState<Set<string>>(new Set());
   const [showOnlyFavorites, setShowOnlyFavorites] = useState(false);
+
+  const handleDownload = async (track: typeof NASHEEDS[0]) => {
+    if (downloadingFileIds.has(track.id)) return;
+    setDownloadingFileIds(prev => new Set(prev).add(track.id));
+    
+    try {
+      const downloadUrl = `/api/download?url=${encodeURIComponent(track.url)}&title=${encodeURIComponent(track.title)}`;
+      const link = document.createElement('a');
+      link.href = downloadUrl;
+      link.setAttribute('download', `${track.title}.mp3`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (err) {
+      console.error("Download failed:", err);
+    } finally {
+      setDownloadingFileIds(prev => {
+        const next = new Set(prev);
+        next.delete(track.id);
+        return next;
+      });
+    }
+  };
   const [selectedPlaylist, setSelectedPlaylist] = useState<string | null>(null);
   const [newPlaylistName, setNewPlaylistName] = useState('');
   const [isPlaylistModalOpen, setIsPlaylistModalOpen] = useState(false);
@@ -283,6 +307,7 @@ export default function NasheedView() {
                   <motion.button 
                     whileTap={{ scale: 0.9 }} 
                     onClick={() => saveForOffline(displayTrack)}
+                    title="حفظ للتشغيل دون اتصال"
                     className={cn("p-3 rounded-2xl transition-all relative overflow-hidden", offlineReadyIds.has(displayTrack.id) ? "bg-emerald-500/10 text-emerald-600" : "text-[#4e635a] bg-[#4e635a]/5 hover:bg-[#4e635a]/10")}
                   >
                     {downloadingIds.has(displayTrack.id) ? (
@@ -291,6 +316,20 @@ export default function NasheedView() {
                       <CloudCheck size={24} />
                     ) : (
                       <CloudCheck size={24} className="opacity-40" />
+                    )}
+                  </motion.button>
+
+                  {/* Real Device Download Button */}
+                  <motion.button 
+                    whileTap={{ scale: 0.9 }} 
+                    onClick={(e) => { e.stopPropagation(); handleDownload(displayTrack); }}
+                    title="تحميل النشيد للجهاز"
+                    className="p-3 rounded-2xl transition-all text-amber-600 bg-amber-500/5 hover:bg-amber-500/10 cursor-pointer"
+                  >
+                    {downloadingFileIds.has(displayTrack.id) ? (
+                      <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1, ease: "linear" }}><Disc size={24} className="text-amber-500 animate-pulse" /></motion.div>
+                    ) : (
+                      <Download size={24} />
                     )}
                   </motion.button>
 
@@ -432,17 +471,36 @@ export default function NasheedView() {
                             )}
                           </div>
                           <div className="px-1 w-full text-right overflow-hidden relative">
-                            <div className="flex items-center justify-between gap-1">
-                              <button 
-                                onClick={(e) => toggleNasheedMenu(e, nasheed.id)}
-                                className={cn(
-                                  "p-1.5 rounded-xl transition-all",
-                                  currentTrack?.id === nasheed.id ? "text-white hover:bg-white/10" : "text-[#4e635a]/40 hover:bg-[#4e635a]/5 hover:text-[#4e635a]"
-                                )}
-                              >
-                                <Plus size={16} />
-                              </button>
-                              <p className={cn("font-black text-sm truncate flex-1", currentTrack?.id === nasheed.id ? "text-white" : "text-[#1b1c1a]")}>{nasheed.title}</p>
+                            <div className="flex items-center justify-between gap-1 w-full">
+                              <div className="flex items-center gap-1">
+                                <button 
+                                  onClick={(e) => toggleNasheedMenu(e, nasheed.id)}
+                                  className={cn(
+                                    "p-1.5 rounded-xl transition-all",
+                                    currentTrack?.id === nasheed.id ? "text-white hover:bg-white/10" : "text-[#4e635a]/40 hover:bg-[#4e635a]/5 hover:text-[#4e635a]"
+                                  )}
+                                  title="إضافة إلى قائمة"
+                                >
+                                  <Plus size={16} />
+                                </button>
+                                <button 
+                                  onClick={(e) => { e.stopPropagation(); handleDownload(nasheed); }}
+                                  className={cn(
+                                    "p-1.5 rounded-xl transition-all",
+                                    currentTrack?.id === nasheed.id ? "text-white hover:bg-white/10" : "text-amber-600 hover:bg-amber-500/10 cursor-pointer"
+                                  )}
+                                  title="تحميل النشيد للجهاز"
+                                >
+                                  {downloadingFileIds.has(nasheed.id) ? (
+                                    <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1, ease: "linear" }}>
+                                      <Disc size={14} className="text-amber-500" />
+                                    </motion.div>
+                                  ) : (
+                                    <Download size={14} />
+                                  )}
+                                </button>
+                              </div>
+                              <p className={cn("font-black text-sm truncate flex-1 text-right", currentTrack?.id === nasheed.id ? "text-white" : "text-[#1b1c1a]")}>{nasheed.title}</p>
                             </div>
                             <p className={cn("text-xs font-bold opacity-60 truncate mt-0.5", currentTrack?.id === nasheed.id ? "text-white/80" : "text-[#4e635a]")}>{nasheed.artist}</p>
                             
@@ -496,15 +554,34 @@ export default function NasheedView() {
                                 <p className="font-black text-base">{nasheed.title}</p>
                                 <p className={cn("text-sm font-bold opacity-60", currentTrack?.id === nasheed.id ? "text-white/80" : "text-[#4e635a]")}>{nasheed.artist}</p>
                               </div>
-                              <button 
-                                onClick={(e) => toggleNasheedMenu(e, nasheed.id)}
-                                className={cn(
-                                  "p-2 rounded-xl transition-all",
-                                  currentTrack?.id === nasheed.id ? "text-white hover:bg-white/10" : "text-[#4e635a]/40 hover:bg-[#4e635a]/5 hover:text-[#4e635a]"
-                                )}
-                              >
-                                <Plus size={18} />
-                              </button>
+                              <div className="flex items-center gap-1">
+                                <button 
+                                  onClick={(e) => { e.stopPropagation(); handleDownload(nasheed); }}
+                                  className={cn(
+                                    "p-2 rounded-xl transition-all",
+                                    currentTrack?.id === nasheed.id ? "text-white hover:bg-white/10" : "text-amber-600 hover:bg-amber-500/10 cursor-pointer"
+                                  )}
+                                  title="تحميل النشيد للجهاز"
+                                >
+                                  {downloadingFileIds.has(nasheed.id) ? (
+                                    <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1, ease: "linear" }}>
+                                      <Disc size={18} className="text-amber-500" />
+                                    </motion.div>
+                                  ) : (
+                                    <Download size={18} />
+                                  )}
+                                </button>
+                                <button 
+                                  onClick={(e) => toggleNasheedMenu(e, nasheed.id)}
+                                  className={cn(
+                                    "p-2 rounded-xl transition-all",
+                                    currentTrack?.id === nasheed.id ? "text-white hover:bg-white/10" : "text-[#4e635a]/40 hover:bg-[#4e635a]/5 hover:text-[#4e635a]"
+                                  )}
+                                  title="إضافة إلى قائمة"
+                                >
+                                  <Plus size={18} />
+                                </button>
+                              </div>
                             </div>
 
                             {/* Playlist Dropdown */}

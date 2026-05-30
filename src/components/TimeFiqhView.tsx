@@ -53,7 +53,7 @@ const TimeFiqhView: React.FC = () => {
           <Clock size={40} />
         </motion.div>
         <div className="space-y-1">
-          <h2 className="text-4xl font-black text-[#4e635a] font-serif tracking-tight">عمرك أغلى</h2>
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-[#4e635a] font-serif tracking-tight">عمرك أغلى</h2>
           <p className="text-[#7a8c82] font-bold text-sm uppercase tracking-[0.3em]">فقه استثمار الزمن</p>
         </div>
       </div>

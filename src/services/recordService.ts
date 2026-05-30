@@ -1,4 +1,6 @@
 import { db, auth } from '../lib/firebase';
+import { handleFirestoreError } from '../lib/firestore-errors';
+import { OperationType } from '../types';
 import { 
   collection, 
   addDoc, 
@@ -137,6 +139,42 @@ export async function getEthicsCommitments() {
   const colRef = collection(db, 'users', userId, 'ethics_commitments');
   const snap = await getDocs(colRef);
   return snap.docs.map(d => ({ id: d.id, ...d.data() }) as EthicsCommitment);
+}
+
+// Prophet / "سفينة النجاة" Commitments
+export async function saveProphetCommitment(prophetId: string, prophetName: string, committed: boolean) {
+  if (!auth.currentUser) return;
+  const userId = auth.currentUser.uid;
+  const docRef = doc(db, 'users', userId, 'prophet_commitments', prophetId);
+  try {
+    await setDoc(docRef, {
+      userId,
+      prophetId,
+      prophetName,
+      committed,
+      updatedAt: serverTimestamp(),
+    });
+  } catch (error) {
+    handleFirestoreError(error, OperationType.UPDATE, `users/${userId}/prophet_commitments/${prophetId}`);
+  }
+}
+
+export async function getProphetCommitments(): Promise<Record<string, boolean>> {
+  if (!auth.currentUser) return {};
+  const userId = auth.currentUser.uid;
+  const colRef = collection(db, 'users', userId, 'prophet_commitments');
+  try {
+    const snap = await getDocs(colRef);
+    const commitments: Record<string, boolean> = {};
+    snap.docs.forEach(docSnap => {
+      const data = docSnap.data();
+      commitments[docSnap.id] = !!data.committed;
+    });
+    return commitments;
+  } catch (error) {
+    handleFirestoreError(error, OperationType.LIST, `users/${userId}/prophet_commitments`);
+    return {};
+  }
 }
 
 export async function getUserContext() {

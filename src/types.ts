@@ -104,3 +104,12 @@ export interface AssessmentQuestion {
   text: string;
   category: 'intent' | 'consistency' | 'ethics' | 'ego' | 'knowledge';
 }
+
+export interface ProphetCommitment {
+  id?: string;
+  userId: string;
+  prophetId: string;
+  prophetName: string;
+  committed: boolean;
+  updatedAt: any;
+}

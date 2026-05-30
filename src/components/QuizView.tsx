@@ -72,7 +72,7 @@ export default function QuizView() {
 
         {/* Score & Reward Message */}
         <div className="space-y-4">
-          <h2 className="text-3xl font-serif font-bold text-[#4e635a]">نور العلم يُضيء بالعمل</h2>
+          <h2 className="text-2xl sm:text-3xl font-serif font-bold text-[#4e635a]">نور العلم يُضيء بالعمل</h2>
           <div className="flex items-center justify-center gap-4 text-[#655d51] mb-2">
              <div className="flex items-center gap-1">
                <Star size={16} className="text-amber-500 fill-amber-500" />

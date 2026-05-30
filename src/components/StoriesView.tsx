@@ -1,10 +1,12 @@
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Book, ChevronLeft, Star, Quote, History, Search, Users, Play, Lightbulb, Heart, Scale, Brain, MessageSquareQuote, Target, Sparkles, CheckCircle2, Check, ClipboardList, EyeOff, ShieldAlert } from 'lucide-react';
 import { prophetStories, type Story } from '../data/stories';
 import InsightPanel from './InsightPanel';
 import { useChallenges } from '../context/ChallengeContext';
 import { cn } from '../lib/utils';
+import { auth } from '../lib/firebase';
+import { saveProphetCommitment, getProphetCommitments } from '../services/recordService';
 
 export interface RadarProphet {
   id: string;
@@ -455,10 +457,60 @@ export default function StoriesView() {
     }
   });
 
-  const toggleCommitment = useCallback((prophetId: string) => {
+  const [loadingCommitments, setLoadingCommitments] = useState(false);
+
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged(async (user) => {
+      if (user) {
+        setLoadingCommitments(true);
+        try {
+          const cloudCommitments = await getProphetCommitments();
+          const savedLocal = localStorage.getItem('prophet_commitments');
+          const localObj = savedLocal ? JSON.parse(savedLocal) : {};
+          const merged = { ...localObj, ...cloudCommitments };
+          
+          setCommitments(merged);
+          localStorage.setItem('prophet_commitments', JSON.stringify(merged));
+          window.dispatchEvent(new Event('prophet-commitments-updated'));
+        } catch (e) {
+          console.error("Error loading prophet commitments from cloud:", e);
+        } finally {
+          setLoadingCommitments(false);
+        }
+      } else {
+        try {
+          const savedLocal = localStorage.getItem('prophet_commitments');
+          setCommitments(savedLocal ? JSON.parse(savedLocal) : {});
+        } catch {
+          setCommitments({});
+        }
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  const toggleCommitment = useCallback(async (prophetId: string) => {
+    const storyMatch = prophetStories.find(s => s.id === prophetId);
+    const prophetName = storyMatch ? storyMatch.name : prophetId;
+
     setCommitments(prev => {
-      const updated = { ...prev, [prophetId]: !prev[prophetId] };
+      const newVal = !prev[prophetId];
+      const updated = { ...prev, [prophetId]: newVal };
       localStorage.setItem('prophet_commitments', JSON.stringify(updated));
+      
+      // Sync with cloud in background if authenticated
+      if (auth.currentUser) {
+        saveProphetCommitment(prophetId, prophetName, newVal)
+          .then(() => {
+            window.dispatchEvent(new Event('prophet-commitments-updated'));
+          })
+          .catch(err => {
+            console.error("Failed to save prophet commitment to cloud:", err);
+          });
+      } else {
+        window.dispatchEvent(new Event('prophet-commitments-updated'));
+      }
       return updated;
     });
   }, []);
@@ -486,7 +538,7 @@ export default function StoriesView() {
             <History size={28} />
           </div>
           <div>
-            <h2 className="text-3xl font-bold text-[#4e635a] font-serif">تعرف كيف سار الأنبياء على الطريق</h2>
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-[#4e635a] font-serif">تعرف كيف سار الأنبياء على الطريق</h2>
             <p className="text-[#8da399] font-bold text-sm tracking-widest uppercase">سنة الله وطريقه في هداية البشر</p>
           </div>
         </div>
@@ -563,7 +615,7 @@ export default function StoriesView() {
 
             <div className="space-y-2">
                <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-                 <h3 className="text-4xl font-serif font-bold text-[#4e635a]">{selectedStory.name}</h3>
+                 <h3 className="text-2xl sm:text-3xl md:text-4xl font-serif font-bold text-[#4e635a]">{selectedStory.name}</h3>
                  <div className="flex flex-wrap gap-3">
                    <motion.button
                      whileHover={{ scale: 1.05 }}

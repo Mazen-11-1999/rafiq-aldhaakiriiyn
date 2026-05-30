@@ -90,6 +90,19 @@
         "updatedAt": { "type": "string", "format": "date-time" }
       },
       "required": ["userId", "ethicId", "createdAt"]
+    },
+    "ProphetCommitment": {
+      "title": "Prophet Commitment",
+      "description": "User pledges or commitments to imitate a specific prophet's quality/duty.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "prophetId": { "type": "string" },
+        "prophetName": { "type": "string" },
+        "committed": { "type": "boolean" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "prophetId", "committed"]
     }
   },
   "firestore": {
@@ -116,6 +129,10 @@
     "/users/{userId}/ethics_commitments/{commId}": {
       "schema": "EthicsCommitment",
       "description": "Active ethical commitments for reform."
+    },
+    "/users/{userId}/prophet_commitments/{commitmentId}": {
+      "schema": "ProphetCommitment",
+      "description": "User specific prophet commitments."
     }
   }
 }
