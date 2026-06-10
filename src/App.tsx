@@ -33,6 +33,7 @@ import { cn } from './lib/utils';
 import { ChatBot } from './components/ChatBot';
 import { MiniPlayer } from './components/MiniPlayer';
 import EmergencyModal from './components/EmergencyModal';
+import SpiritualWelcomeModal from './components/SpiritualWelcomeModal';
 import VigilantLateNightWatcher from './components/VigilantLateNightWatcher';
 
 import PrayerTimesView from './components/PrayerTimesView';
@@ -40,23 +41,7 @@ import notificationSound from './assets/notification.mp3'; // assuming it exists
 
 export default function App() {
   const [firebaseUser, loading, error] = useAuthState(auth);
-  const [guestUser, setGuestUser] = useState<any | null>(() => {
-    try {
-      const saved = localStorage.getItem('sanad_guest_active');
-      if (saved === 'true') {
-        return {
-          uid: 'guest-uid',
-          email: 'guest@sanad.local',
-          displayName: 'رفيق درب كرام',
-          photoURL: 'https://api.dicebear.com/7.x/adventurer/svg?seed=spiritual-companion',
-        };
-      }
-    } catch {
-      // ignore
-    }
-    return null;
-  });
-  const user = firebaseUser || guestUser;
+  const user = firebaseUser;
 
   const [activeTab, setActiveTab] = useState<'retreat' | 'dhikr' | 'stories' | 'habits' | 'ethics' | 'nasheeds' | 'history' | 'journey' | 'quiz' | 'journal' | 'insights' | 'profile' | 'time' | 'spiritual-mirror' | 'spiritual-insights' | 'prayer-times'>('retreat');
   const [isChatOpen, setIsChatOpen] = useState(false);
@@ -137,49 +122,6 @@ export default function App() {
 
   useEffect(() => {
     if (user) {
-      if (user.uid === 'guest-uid') {
-        const savedProfile = localStorage.getItem('sanad_guest_profile');
-        if (savedProfile) {
-          try {
-            setUserProfile(JSON.parse(savedProfile));
-          } catch {
-            // ignore
-          }
-        } else {
-          const guestProfile: UserProfile = {
-            uid: 'guest-uid',
-            email: 'guest@sanad.local',
-            displayName: 'رفيق درب كرام',
-            photoURL: 'https://api.dicebear.com/7.x/adventurer/svg?seed=spiritual-companion',
-            createdAt: new Date().toISOString(),
-            totalMinutes: 0,
-            totalSessions: 0,
-            currentStreak: 1,
-            settings: {
-              notifications: {
-                enabled: true,
-                dhikrReminders: true,
-                retreatReminders: true,
-                prayerTimes: true,
-                ringtone: 'official-prayer',
-              },
-              privacy: {
-                publicProfile: false,
-                shareInsights: false,
-              },
-              appearance: {
-                language: 'ar',
-                dateFormat: 'arabic',
-                darkMode: false,
-              }
-            }
-          };
-          setUserProfile(guestProfile);
-          localStorage.setItem('sanad_guest_profile', JSON.stringify(guestProfile));
-        }
-        return;
-      }
-
       const userRef = doc(db, 'users', user.uid);
       
       const unsubscribe = onSnapshot(userRef, (docSnap) => {
@@ -265,9 +207,17 @@ export default function App() {
           console.log('Redirect sign-in successful', result.user);
         }
       } catch (e: any) {
-        console.error('Redirect result error:', e);
+        console.error('Redirect result error info:', e);
         if (e.code === 'auth/unauthorized-domain') {
           setLoginError('هذا النطاق غير مصرح به في إعدادات Firebase.');
+        } else if (
+          e.code === 'auth/internal-error' || 
+          e.code === 'auth/web-storage-unsupported' || 
+          e.message?.includes('internal-error') ||
+          e.message?.includes('storage-unsupported')
+        ) {
+          // Ignore iframe sandbox blockages / partitioned storage constraints silently
+          console.warn('Redirect flow not supported in sandboxed iframe. Proceeding with Popup authentication mode.');
         } else {
           setLoginError('خطأ أثناء إكمال تسجيل الدخول.');
         }
@@ -294,58 +244,10 @@ export default function App() {
     }
   };
 
-  const handleGuestLogin = () => {
-    localStorage.setItem('sanad_guest_active', 'true');
-    const guestUserObj = {
-      uid: 'guest-uid',
-      email: 'guest@sanad.local',
-      displayName: 'رفيق درب كرام',
-      photoURL: 'https://api.dicebear.com/7.x/adventurer/svg?seed=spiritual-companion',
-    };
-    setGuestUser(guestUserObj);
-  };
-
-  useEffect(() => {
-    const handleGuestProfileUpdate = (e: Event) => {
-      const customEvent = e as CustomEvent;
-      setUserProfile(customEvent.detail);
-    };
-    const handleGuestLogout = () => {
-      setGuestUser(null);
-      setUserProfile(null);
-      setActiveTab('retreat');
-    };
-    window.addEventListener('update-guest-profile', handleGuestProfileUpdate);
-    window.addEventListener('guest-logged-out', handleGuestLogout);
-    return () => {
-      window.removeEventListener('update-guest-profile', handleGuestProfileUpdate);
-      window.removeEventListener('guest-logged-out', handleGuestLogout);
-    };
-  }, []);
-
   const { stats, activeCategory } = useTimeTracking();
 
   const updateProfileStats = async (minutesToAdd: number, isSessionComplete: boolean = false) => {
     if (!user || !userProfile) return;
-
-    if (user.uid === 'guest-uid') {
-      const updatedProfile = { ...userProfile };
-      if (minutesToAdd > 0) {
-        updatedProfile.totalMinutes = (updatedProfile.totalMinutes || 0) + minutesToAdd;
-        if (activeCategory === 'nasheed') updatedProfile.nasheedMinutes = (updatedProfile.nasheedMinutes || 0) + minutesToAdd;
-        else if (activeCategory === 'dhikr') updatedProfile.dhikrMinutes = (updatedProfile.dhikrMinutes || 0) + minutesToAdd;
-        else if (activeCategory === 'retreat') updatedProfile.retreatMinutes = (updatedProfile.retreatMinutes || 0) + minutesToAdd;
-        else if (activeCategory === 'journal') updatedProfile.journalMinutes = (updatedProfile.journalMinutes || 0) + minutesToAdd;
-        else updatedProfile.growthMinutes = (updatedProfile.growthMinutes || 0) + minutesToAdd;
-      }
-      if (isSessionComplete) {
-        updatedProfile.totalSessions = (updatedProfile.totalSessions || 0) + 1;
-      }
-      updatedProfile.lastActiveDate = new Date().toISOString();
-      setUserProfile(updatedProfile);
-      localStorage.setItem('sanad_guest_profile', JSON.stringify(updatedProfile));
-      return;
-    }
 
     const userRef = doc(db, 'users', user.uid);
 
@@ -519,32 +421,54 @@ export default function App() {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
-            className="glass-3d p-8 md:p-12 rounded-[40px] md:rounded-[50px] shadow-[0_30px_60px_rgba(0,0,0,0.1)] space-y-8 border-t border-white/60 border-b-4 border-b-[#4e635a]/10 relative overflow-hidden"
+            className="glass-3d p-6 md:p-10 rounded-[32px] md:rounded-[40px] shadow-[0_30px_60px_rgba(0,0,0,0.1)] space-y-6 border-t border-white/60 border-b-4 border-b-[#4e635a]/10 relative overflow-hidden text-center max-w-md mx-auto"
+            dir="rtl"
           >
-            <div className="space-y-3">
-              <p className="text-2xl md:text-3xl font-serif font-black text-[#1b1c1a]">مرحباً بالرفيق</p>
-              <p className="text-[#424845] font-medium opacity-80">ابدأ يومك بقلب مطمئن.. تفضل بالدخول</p>
+            <div className="space-y-2 py-1">
+              <motion.p 
+                initial={{ opacity: 0, scale: 0.95, y: 15 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                transition={{ 
+                  duration: 0.8, 
+                  ease: "easeOut",
+                  scale: { type: "spring", damping: 15 }
+                }}
+                className="text-2xl md:text-3xl font-serif font-black text-[#1b1c1a]"
+              >
+                مرحباً بك في سندك
+              </motion.p>
+              <motion.div 
+                initial={{ width: 0 }}
+                animate={{ width: "40px" }}
+                transition={{ delay: 0.7, duration: 0.5 }}
+                className="h-0.5 bg-[#4e635a]/40 mx-auto rounded-full"
+              />
             </div>
             
             <motion.button 
-              whileHover={{ scale: 1.02, y: -4 }}
+              whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              onClick={handleGuestLogin}
-              className="w-full flex items-center justify-center gap-3 bg-[#4e635a] text-white py-5 rounded-[22px] font-black text-lg md:text-xl hover:bg-[#3d4d46] transition-all shadow-lg shadow-[#4e635a]/20 cursor-pointer animate-pulse-slow"
+              onClick={handleLogin}
+              disabled={isLoggingIn}
+              className="w-full flex items-center justify-center gap-2.5 bg-[#4e635a] text-white py-3.5 px-5 rounded-xl font-bold text-sm md:text-base hover:bg-[#3d4d46] transition-all shadow-md shadow-[#4e635a]/10 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <span>⛵</span>
-              <span>الدخول كضيف</span>
+              {isLoggingIn ? (
+                <div className="flex items-center gap-2">
+                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  <span>جاري الدخول...</span>
+                </div>
+              ) : (
+                <div className="flex items-center gap-2.5">
+                  <svg className="w-5 h-5 bg-white rounded-full p-0.5" viewBox="0 0 24 24">
+                    <path
+                      fill="#EA4335"
+                      d="M12.24 10.285V14.4h6.887c-.648 2.41-2.519 4.114-5.136 4.114A5.59 5.59 0 0 1 8.4 12.914a5.59 5.59 0 0 1 5.59-5.6c1.478 0 2.82.52 3.865 1.385l3.224-3.224A10.1 10.1 0 0 0 14.0 1.714C8.358 1.714 3.714 6.358 3.714 12s4.644 10.286 10.286 10.286c5.786 0 10.157-4.064 10.157-10.286 0-.58-.064-1.123-.171-1.714H12.24Z"
+                    />
+                  </svg>
+                  <span>تسجيل الدخول باستخدام Google</span>
+                </div>
+              )}
             </motion.button>
-
-            <div className="pt-2 text-center">
-              <button 
-                onClick={handleLogin}
-                disabled={isLoggingIn}
-                className="text-xs font-bold text-[#4e635a]/70 hover:text-[#4e635a] hover:underline transition-all cursor-pointer"
-              >
-                {isLoggingIn ? 'جاري الدخول...' : 'أو سجّل الدخول لتكمل مسيرتك وتبدأ في رحلة تغييرك'}
-              </button>
-            </div>
             
             {loginError && (
               <motion.div 
@@ -839,6 +763,7 @@ export default function App() {
         <PWAPrompt />
         <ChatBot isOpen={isChatOpen} onClose={() => setIsChatOpen(false)} />
         <EmergencyModal isOpen={isEmergencyOpen} onClose={() => setIsEmergencyOpen(false)} />
+        <SpiritualWelcomeModal onUnderstand={() => console.log('Sincere change covenant noticed.')} />
         <VigilantLateNightWatcher noorDays={noorDays} setNoorDays={setNoorDays} />
 
         {/* زر الطوارئ اللحظي لنجدة الشاب في لحظات الضعف أو التشتت */}

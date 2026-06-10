@@ -2,18 +2,18 @@
 export const RINGTONES = [
   { 
     id: 'official-prayer', 
-    name: 'تنبيه الأذان (رنين)', 
-    url: 'https://actions.google.com/sounds/v1/alarms/digital_watch_alarm_long.ogg'
+    name: 'أذان الحرم المكي الشريف (مميز)', 
+    url: 'https://archive.org/download/AdhanMakkah1_201602/Adhan%20Makkah%201.mp3'
   },
   { 
     id: 'spiritual-call', 
-    name: 'نداء الروح (هادئ)', 
-    url: 'https://actions.google.com/sounds/v1/alarms/bugle_tune.ogg' // Ultra stable
+    name: 'أذان بصوت ندي وعذب شجي', 
+    url: 'https://archive.org/download/Azan_627/Azan.mp3'
   },
   { 
     id: 'faith-alert', 
-    name: 'تنبيه إيماني', 
-    url: 'https://actions.google.com/sounds/v1/alarms/mechanical_clock_ringing_long.ogg'
+    name: 'أذان الشيخ عبد الباسط عبد الصمد', 
+    url: 'https://archive.org/download/002Adhan/002Adhan.mp3'
   },
   { 
     id: 'deep-meditation', 
@@ -22,7 +22,7 @@ export const RINGTONES = [
   },
   { 
     id: 'morning-sun', 
-    name: 'ضحى الصباح', 
+    name: 'ضحى الصباح (رنين هادئ)', 
     url: 'https://actions.google.com/sounds/v1/alarms/set_the_alarm.ogg'
   },
   { 

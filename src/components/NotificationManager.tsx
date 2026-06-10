@@ -44,7 +44,7 @@ export default function NotificationManager({ enabled, prayerEnabled = false, co
   useEffect(() => {
     const handleTestAlarm = (event: any) => {
       setAlarmData({
-        name: "الفجر (تجريبي)",
+        name: "تجربة تنبيه الأذان",
         message: PrayerService.getPrayerMessage('fajr'),
         testRingtoneId: event.detail?.ringtoneId
       });

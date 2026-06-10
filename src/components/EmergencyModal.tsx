@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Shield, Sparkles, Heart, RefreshCw, X, ShieldAlert, CheckCircle2, PhoneOff } from 'lucide-react';
+import { Shield, Sparkles, Heart, RefreshCw, X, ShieldAlert, CheckCircle2, Flame, Eye, Lock, Brain } from 'lucide-react';
 import { cn } from '../lib/utils';
 
 interface EmergencyModalProps {
@@ -10,28 +10,90 @@ interface EmergencyModalProps {
 }
 
 export default function EmergencyModal({ isOpen, onClose, onConfirmSuccess }: EmergencyModalProps) {
-  const [step, setStep] = useState<1 | 2 | 3>(1);
-  const [checkedActions, setCheckedActions] = useState<Record<string, boolean>>({
+  const [step, setStep] = useState<1 | 2 | 3 | 4>(1);
+  const [breathPhase, setBreathPhase] = useState<'idle' | 'inhale' | 'hold' | 'exhale'>('idle');
+  const [breathCount, setBreathCount] = useState(0);
+  const [breathTimer, setBreathTimer] = useState(4);
+  const [activeShockMsg, setActiveShockMsg] = useState(0);
+
+  const [checkedActions, setCheckedActions] = useState({
     closePhone: false,
     wudu: false,
     repent: false
   });
 
-  if (!isOpen) return null;
+  const shockMessages = [
+    {
+      title: "الحقيقة العارية",
+      body: "ألهذا الحد هان الله جل جلاله عليك في خلوتك ليكون أهون الناظرين إليك؟! تفكر جيداً، اللذة ستموت في ثوانٍ، وتترك بؤساً ووحشة وظلاماً يُخيم على وجهك وصدرك لأيام."
+    },
+    {
+      title: "فخ التشتيت وفتنة الهواتف",
+      body: "خلف هذه الشاشة الباردة عباقرة وشركات تبذل مليارات الدولارات لشل عقلك وتغفيل عفتك وجعلك عبداً لشهوة عابرة لتسليب عزمك عن صلاة الفجر. أنت لست دمية بأيديهم، بل رجل حر ذو كرامة ورسالة!"
+    },
+    {
+      title: "سؤال المصير",
+      body: "لو دهمك الموت وقبض ملك الموت روحك في هذه اللحظىة، أيسرك أن يُختم لقلبك على تصفح ذنب رخيص أم ترجو أن يراك ربك بطلاً ثابتاً غض بصرة واعتصم لله؟"
+    }
+  ];
 
-  const toggleAction = (key: string) => {
+  const quranVerses = [
+    { text: "أَلَمْ يَعْلَم بِأَنَّ اللَّهَ يَرَى", surah: "سورة العلق - الآية ١٤", meaning: "صفعة وعي تهز الوجدان وتذكر بمكانة الله العظيم الناظر إليك." },
+    { text: "يَعْلَمُ خَائِنَةَ الْأَعْيُنِ وَمَا تُخْفِي الصُّدُورُ", surah: "سورة غافر - الآية ١٩", meaning: "يعلم النظرة العابرة المتململة التي تختلسها عينك وميل قلبك الخبيء." },
+    { text: "إِنَّ السَّمْعَ وَالْبَصَرَ وَالْفُؤَادَ كُلُّ أُولَئِكَ كَانَ عَنْهُ مَسْئُولًا", surah: "سورة الإسراء - الآية ٣٦", meaning: "جوارحك أمانة وقطعة مستعارة، وستشهد عليك يوم السؤال." }
+  ];
+
+  const toggleAction = (key: 'closePhone' | 'wudu' | 'repent') => {
     setCheckedActions(prev => ({
       ...prev,
       [key]: !prev[key]
     }));
   };
 
-  const handleConfirm = () => {
+  // Breathing loop logic
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (step === 3 && breathPhase !== 'idle') {
+      interval = setInterval(() => {
+        setBreathTimer(prev => {
+          if (prev <= 1) {
+            // transition to next phase
+            if (breathPhase === 'inhale') {
+              setBreathPhase('hold');
+              return 4;
+            } else if (breathPhase === 'hold') {
+              setBreathPhase('exhale');
+              return 4;
+            } else if (breathPhase === 'exhale') {
+              setBreathPhase('inhale');
+              setBreathCount(c => c + 1);
+              return 4;
+            }
+            return 4;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    }
+    return () => clearInterval(interval);
+  }, [step, breathPhase]);
+
+  if (!isOpen) return null;
+
+  const handleStartBreathing = () => {
+    setBreathPhase('inhale');
+    setBreathTimer(4);
+    setBreathCount(0);
+  };
+
+  const handleFinish = () => {
     if (onConfirmSuccess) {
       onConfirmSuccess();
     }
-    // Reset state
+    // reset state
     setStep(1);
+    setBreathPhase('idle');
+    setBreathCount(0);
     setCheckedActions({ closePhone: false, wudu: false, repent: false });
     onClose();
   };
@@ -40,222 +102,309 @@ export default function EmergencyModal({ isOpen, onClose, onConfirmSuccess }: Em
 
   return (
     <AnimatePresence>
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-xl" dir="rtl">
+      <div className="fixed inset-0 z-[99] flex items-center justify-center p-3 bg-slate-950/85 backdrop-blur-md overflow-y-auto" dir="rtl">
         {/* Glow Effects */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-1/4 left-1/4 w-[300px] h-[300px] bg-rose-500/10 rounded-full blur-[100px]" />
-          <div className="absolute bottom-1/4 right-1/4 w-[300px] h-[300px] bg-emerald-500/10 rounded-full blur-[100px]" />
+          <div className="absolute top-1/4 left-1/4 w-[250px] h-[250px] bg-red-500/10 rounded-full blur-[100px]" />
+          <div className="absolute bottom-1/4 right-1/4 w-[250px] h-[250px] bg-emerald-500/10 rounded-full blur-[100px]" />
         </div>
 
         <motion.div
-          initial={{ opacity: 0, scale: 0.9, y: 20 }}
+          initial={{ opacity: 0, scale: 0.95, y: 15 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.9, y: 20 }}
-          className="relative w-full max-w-lg bg-slate-900 border border-slate-800 rounded-[3rem] p-8 md:p-10 shadow-2xl shadow-black/80 overflow-hidden text-right text-slate-100"
+          exit={{ opacity: 0, scale: 0.95, y: 15 }}
+          className="relative w-full max-w-sm md:max-w-md bg-slate-900 border border-slate-800 rounded-[2rem] p-5 md:p-6 shadow-2xl overflow-hidden text-right text-slate-100"
         >
-          {/* Close Button */}
+          {/* Close Button - Compact */}
           <button
             onClick={onClose}
-            className="absolute top-6 left-6 p-2 rounded-full bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white transition-all"
+            className="absolute top-4 left-4 p-1.5 rounded-full bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white transition-all cursor-pointer"
           >
-            <X size={20} />
+            <X size={16} />
           </button>
 
-          {/* Step Indicator */}
-          <div className="flex items-center gap-1 mb-8">
-            <div className={cn("h-1.5 rounded-full transition-all duration-300", step >= 1 ? "w-8 bg-rose-500" : "w-2 bg-slate-700")} />
-            <div className={cn("h-1.5 rounded-full transition-all duration-300", step >= 2 ? "w-8 bg-rose-500" : "w-2 bg-slate-700")} />
-            <div className={cn("h-1.5 rounded-full transition-all duration-300", step >= 3 ? "w-8 bg-rose-500" : "w-2 bg-slate-700")} />
+          {/* Core Title */}
+          <div className="flex items-center gap-2 mb-4">
+            <div className="w-8 h-8 bg-red-500/20 rounded-xl flex items-center justify-center text-red-500 shrink-0 animate-pulse">
+              <ShieldAlert size={18} />
+            </div>
+            <div>
+              <span className="text-[9px] font-black text-rose-400 uppercase tracking-wider block">المدد الطارئ وعصمة النفس</span>
+              <h3 className="text-sm font-bold text-white">حصن العفة العاجل</h3>
+            </div>
+          </div>
+
+          {/* Stepper Progress */}
+          <div className="flex items-center gap-1.5 mb-6">
+            <div className={cn("h-1 rounded-full transition-all duration-300 flex-1", step >= 1 ? "bg-red-500" : "bg-slate-800")} />
+            <div className={cn("h-1 rounded-full transition-all duration-300 flex-1", step >= 2 ? "bg-red-500" : "bg-slate-800")} />
+            <div className={cn("h-1 rounded-full transition-all duration-300 flex-1", step >= 3 ? "bg-emerald-500" : "bg-slate-800")} />
+            <div className={cn("h-1 rounded-full transition-all duration-300 flex-1", step >= 4 ? "bg-emerald-500" : "bg-slate-800")} />
           </div>
 
           <AnimatePresence mode="wait">
+            {/* Step 1: Shock Messages */}
             {step === 1 && (
               <motion.div
                 key="step1"
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -20 }}
-                className="space-y-6"
+                className="space-y-4"
               >
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 bg-rose-500/10 rounded-2xl flex items-center justify-center text-rose-500 shadow-lg shadow-rose-500/5">
-                    <ShieldAlert size={24} className="animate-bounce" />
+                <div className="bg-red-950/20 border border-red-500/10 p-4 rounded-2xl relative">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-[10px] bg-red-500/20 text-red-400 font-black px-2 py-0.5 rounded-md">
+                      صدمة الوعي {activeShockMsg + 1} من {shockMessages.length}
+                    </span>
+                    <span className="text-red-500 text-xs gap-1 flex items-center">
+                      <Flame size={14} /> فتنة النفس والنساء
+                    </span>
                   </div>
-                  <div>
-                    <span className="text-xs font-black text-rose-400 block tracking-widest">صدمة الوعي اللحظية</span>
-                    <h3 className="text-xl md:text-2xl font-black font-serif text-white">قف مكانك يا رفيقي ولنلتقط أنفاسنا</h3>
-                  </div>
-                </div>
-
-                <div className="bg-slate-950/60 p-8 rounded-[2.5rem] border border-slate-800/80 text-center space-y-4">
-                  <p className="text-slate-400 text-xs font-black uppercase tracking-wider">سِر الآية التي تهز الجبال</p>
-                  <blockquote className="text-2xl md:text-3xl font-serif font-black text-transparent bg-clip-text bg-gradient-to-r from-rose-200 via-amber-200 to-rose-300 select-none py-2 tracking-wide leading-relaxed">
-                    " أَلَمْ يَعْلَم بِأَنَّ اللَّهَ يَرَى "
-                  </blockquote>
-                  <div className="h-[1px] w-12 bg-rose-500/30 mx-auto" />
-                  <p className="text-sm font-bold text-slate-300 leading-relaxed">
-                    إن الله تبارك وتعالى ينظر بعين الرحمة والحنان إلى قلبك الضعيف الآن، وينتظر منك توبة ووقفة بطولة تكسر بها كيد الشيطان في هذه العتمة.
+                  
+                  <h4 className="text-sm font-black text-white mb-1.5">
+                    {shockMessages[activeShockMsg].title}
+                  </h4>
+                  <p className="text-xs text-slate-300 leading-relaxed font-medium">
+                    {shockMessages[activeShockMsg].body}
                   </p>
                 </div>
 
-                <div className="flex items-center justify-between gap-4 pt-6">
-                  <span className="text-slate-500 text-xs font-bold">تذكر: لست وحدك، وسندك معك دائمًا</span>
+                <div className="flex items-center justify-between gap-1">
+                  <button
+                    onClick={() => setActiveShockMsg((activeShockMsg + 1) % shockMessages.length)}
+                    className="p-2 border border-slate-800 hover:border-slate-700 hover:bg-slate-850 rounded-xl text-xs font-bold text-slate-400 cursor-pointer flex items-center gap-1.5"
+                  >
+                    <RefreshCw size={12} />
+                    <span>رسالة أخرى</span>
+                  </button>
+
                   <button
                     onClick={() => setStep(2)}
-                    className="px-6 py-4 bg-rose-600 hover:bg-rose-500 text-white rounded-2xl font-black text-sm shadow-xl shadow-rose-600/20 transition-all flex items-center gap-2"
+                    className="px-4 py-2.5 bg-rose-600 hover:bg-rose-500 text-white rounded-xl font-bold text-xs shadow-md shadow-rose-600/10 transition-all cursor-pointer flex items-center gap-1"
                   >
-                    <span>أنا معك.. حدّثني من القلب</span>
-                    <Sparkles size={16} />
+                    <span>التالي لقرآن العصمة</span>
+                    <Eye size={12} />
                   </button>
                 </div>
               </motion.div>
             )}
 
+            {/* Step 2: Divine Warnings */}
             {step === 2 && (
               <motion.div
                 key="step2"
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -20 }}
-                className="space-y-6"
+                className="space-y-4"
               >
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 bg-amber-500/10 rounded-2xl flex items-center justify-center text-amber-500">
-                    <Heart size={24} />
+                <div className="bg-slate-950/70 border border-slate-800 p-4 rounded-2xl space-y-3">
+                  <div className="text-center text-[10px] text-slate-500 font-bold tracking-wider">
+                    آيات قرآنية مهلكة ومذلة لشهوة النفس الأمارة بالسوء
                   </div>
-                  <div>
-                    <span className="text-xs font-black text-amber-400 block tracking-widest">رسالة سرّية من أخٍ مخلص</span>
-                    <h3 className="text-xl md:text-2xl font-black font-serif text-white">أنت لست مجرد مُستهلك عابر!</h3>
-                  </div>
+
+                  {quranVerses.map((verse, idx) => (
+                    <div key={idx} className="p-3 bg-slate-900 border border-slate-850 rounded-xl space-y-1.5">
+                      <p className="text-sm font-serif font-black text-transparent bg-clip-text bg-gradient-to-r from-[#fad796] to-white text-center leading-relaxed">
+                        " {verse.text} "
+                      </p>
+                      <div className="flex justify-between items-center text-[9px] text-slate-500">
+                        <span>{verse.surah}</span>
+                        <span className="font-medium text-emerald-500/80">{verse.meaning}</span>
+                      </div>
+                    </div>
+                  ))}
                 </div>
 
-                <div className="space-y-4 text-slate-300 text-sm md:text-base leading-relaxed p-6 bg-slate-950/40 rounded-3xl border border-slate-800 font-medium">
-                  <p className="font-bold text-amber-300">
-                    يا صاحبي، اسمعني بقلبك..
-                  </p>
-                  <p>
-                    خلف هذه الشاشة الباردة، هناك شركات ضخمة تدفع مليارات الدولارات لسبب واحد بس: يسرقوا عينك ووقتك وطاقتك ويشغلوك عن صلاتك. هم لا تهمهم عفتك، ولا مستقبلك، ولا تهمهم صلاة الفجر التي تفرح بها قلب والديك ونبيك!
-                  </p>
-                  <p>
-                    أنت لست سلعة رخيصة في أيدي صناع التفاهة، أنت رجل حر كريم... متعة الذنب تتبخر في ثواني وتترك وراءها ضيق وخنقة وبؤس، لكن متعة الانتصار على النفس بتعطيك هيبة ونور يدوم.
-                  </p>
-                </div>
-
-                <div className="flex items-center justify-between gap-4 pt-4">
+                <div className="flex items-center justify-between pt-1">
                   <button
                     onClick={() => setStep(1)}
-                    className="text-slate-500 hover:text-slate-300 text-xs font-bold transition-colors"
+                    className="text-slate-500 hover:text-slate-300 text-xs font-bold transition-colors cursor-pointer"
                   >
-                    ← العودة لآية الوعي
+                    ← العودة للوعي
                   </button>
                   <button
-                    onClick={() => setStep(3)}
-                    className="px-6 py-4 bg-emerald-600 hover:bg-emerald-500 text-white rounded-2xl font-black text-sm shadow-xl shadow-emerald-600/20 transition-all flex items-center gap-2"
+                    onClick={() => {
+                      setStep(3);
+                      handleStartBreathing();
+                    }}
+                    className="px-4 py-2.5 bg-indigo-650 hover:bg-indigo-600 text-white rounded-xl font-bold text-xs shadow-md shadow-indigo-600/10 transition-all cursor-pointer flex items-center gap-1"
                   >
-                    <span>أرشدني لخطوات النجاة الآن</span>
-                    <Shield size={16} />
+                    <span>البدء بتمرين تنفس العصمة</span>
+                    <Brain size={12} />
                   </button>
                 </div>
               </motion.div>
             )}
 
+            {/* Step 3: Interactive Chest/Mind Breathing Reset */}
             {step === 3 && (
               <motion.div
                 key="step3"
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -20 }}
-                className="space-y-6"
+                className="space-y-4"
               >
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 bg-emerald-500/10 rounded-2xl flex items-center justify-center text-emerald-500">
-                    <Shield size={24} />
+                <div className="bg-slate-950/70 border border-slate-800 p-4 rounded-2xl flex flex-col items-center justify-center text-center space-y-4">
+                  <div className="space-y-1">
+                    <h4 className="text-xs font-black text-[#8da399]">تمرين التنفس العصبي لتبريد الشهوة</h4>
+                    <p className="text-[10px] text-slate-400">تنفس الأحرار يقتل الرغبة الهرمونية ويفصلك عن تشتتك</p>
                   </div>
-                  <div>
-                    <span className="text-xs font-black text-emerald-400 block tracking-widest">ميثاق الأحرار وعوض الله</span>
-                    <h3 className="text-xl md:text-2xl font-black font-serif text-white">الرجولــة شيم وعفــة عيـن</h3>
+
+                  {/* Circle Breathing Ring */}
+                  <div className="relative w-32 h-32 flex items-center justify-center">
+                    {/* Ring Pulse Animation */}
+                    <motion.div 
+                      animate={{
+                        scale: breathPhase === 'inhale' ? [1, 1.4] : breathPhase === 'hold' ? 1.4 : breathPhase === 'exhale' ? [1.4, 1] : 1,
+                      }}
+                      transition={{ duration: 4, ease: "linear" }}
+                      className={cn(
+                        "absolute inset-0 rounded-full border-4 opacity-50",
+                        breathPhase === 'inhale' && "border-emerald-500",
+                        breathPhase === 'hold' && "border-blue-500",
+                        breathPhase === 'exhale' && "border-rose-500",
+                        breathPhase === 'idle' && "border-slate-800"
+                      )}
+                    />
+                    
+                    <div className="text-center z-10 space-y-1">
+                      <span className="text-xs font-black text-white uppercase tracking-widest block">
+                        {breathPhase === 'inhale' && "🌬️ شَهيق ببطء"}
+                        {breathPhase === 'hold' && "🛡️ اِحبس وتأمل ورع"}
+                        {breathPhase === 'exhale' && "🕌 زَفير واستعذ"}
+                        {breathPhase === 'idle' && "نائم"}
+                      </span>
+                      <span className="text-2xl font-black text-white block">{breathTimer}</span>
+                      <span className="text-[8px] text-slate-400 font-bold">دورة: {breathCount} / ٣</span>
+                    </div>
+                  </div>
+
+                  <div className="bg-[#4e635a]/5 border border-[#4e635a]/10 p-2.5 rounded-xl text-center w-full">
+                    {breathPhase === 'inhale' && (
+                      <p className="text-xs font-medium text-emerald-300">أدخل الأوكسجين النقي واشعر بنور عفة عينك وقلبك</p>
+                    )}
+                    {breathPhase === 'hold' && (
+                      <p className="text-xs font-medium text-blue-300">استشعر نظر الجبار ورعايته وحصنك الدفين</p>
+                    )}
+                    {breathPhase === 'exhale' && (
+                      <p className="text-xs font-medium text-rose-300">أخرج الهواء مع قول: "أعوذ بالله من الشيطان الرجيم"</p>
+                    )}
                   </div>
                 </div>
 
-                <div className="p-6 bg-emerald-950/30 border border-emerald-500/10 rounded-3xl text-emerald-200">
-                  <p className="font-black text-center text-lg md:text-xl font-serif">
-                    " اترك الهاتف الآن لله، وسيُعوضك الله نوراً في قلبك ويقينًا تسعد به في الدنيا والآخرة! "
-                  </p>
-                </div>
+                <div className="flex items-center justify-between pt-1">
+                  <button
+                    onClick={() => {
+                      setBreathPhase('idle');
+                      setStep(2);
+                    }}
+                    className="text-slate-500 hover:text-slate-300 text-xs font-bold transition-colors cursor-pointer"
+                  >
+                    ← قرآن العصمة
+                  </button>
 
-                {/* Checklist Actions */}
-                <div className="space-y-3">
-                  <div className="text-xs font-black text-slate-500 block">قم بالخطوات الـ 3 العملية فوراً:</div>
+                  <button
+                    onClick={() => {
+                      setBreathPhase('idle');
+                      setStep(4);
+                    }}
+                    className={cn(
+                      "px-4 py-2.5 rounded-xl font-bold text-xs shadow-md transition-all cursor-pointer flex items-center gap-1",
+                      breathCount >= 3 
+                        ? "bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-600/10"
+                        : "bg-slate-800 text-slate-400 hover:bg-slate-750"
+                    )}
+                  >
+                    <span>ميثاق التعهد العملي</span>
+                    <Lock size={12} />
+                  </button>
+                </div>
+              </motion.div>
+            )}
+
+            {/* Step 4: Pledge Actions Checklist */}
+            {step === 4 && (
+              <motion.div
+                key="step4"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                className="space-y-4"
+              >
+                <div className="space-y-2">
+                  <p className="text-[10px] text-slate-500 font-extrabold">الآن.. انهض كالعنقاء وطبق خطوات الفوز فوراً:</p>
 
                   <button
                     onClick={() => toggleAction('closePhone')}
                     className={cn(
-                      "w-full text-right p-4 rounded-2xl border transition-all flex items-center justify-between gap-3",
+                      "w-full text-right p-3 rounded-xl border transition-all flex items-center justify-between gap-2.5 cursor-pointer",
                       checkedActions.closePhone
-                        ? "bg-emerald-950/20 border-emerald-500/40 text-emerald-400 shadow-inner"
-                        : "bg-slate-900 border-slate-800 text-slate-300 hover:border-slate-700 hover:bg-slate-800/50"
+                        ? "bg-emerald-950/20 border-emerald-500/30 text-emerald-400"
+                        : "bg-slate-900 border-slate-800 text-slate-300 hover:border-slate-700 hover:bg-slate-800/55"
                     )}
                   >
-                    <div className="flex items-center gap-3 text-right">
-                      <span className="text-xl">📱</span>
-                      <span className="text-sm font-bold">قفل الشاشة فوراً واقلب التلفون على وجهه.</span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm">📱</span>
+                      <span className="text-xs font-bold">قفل شاشتك حالاً وضع الهاتف مقلوباً</span>
                     </div>
-                    {checkedActions.closePhone ? <CheckCircle2 size={18} className="text-emerald-400 shrink-0" /> : <div className="w-[18px] h-[18px] border-2 border-slate-700 rounded-full shrink-0" />}
+                    {checkedActions.closePhone ? <CheckCircle2 size={14} className="text-emerald-400 shrink-0" /> : <div className="w-3.5 h-3.5 border-2 border-slate-700 rounded-full shrink-0" />}
                   </button>
 
                   <button
                     onClick={() => toggleAction('wudu')}
                     className={cn(
-                      "w-full text-right p-4 rounded-2xl border transition-all flex items-center justify-between gap-3",
+                      "w-full text-right p-3 rounded-xl border transition-all flex items-center justify-between gap-2.5 cursor-pointer",
                       checkedActions.wudu
-                        ? "bg-emerald-950/20 border-emerald-500/40 text-emerald-400 shadow-inner"
-                        : "bg-slate-900 border-slate-800 text-slate-300 hover:border-slate-700 hover:bg-slate-800/50"
+                        ? "bg-emerald-950/20 border-emerald-500/30 text-emerald-400"
+                        : "bg-slate-900 border-slate-800 text-slate-300 hover:border-slate-700 hover:bg-slate-800/55"
                     )}
                   >
-                    <div className="flex items-center gap-3 text-right">
-                      <span className="text-xl">🧊</span>
-                      <span className="text-sm font-bold">تقوم الآن تتوضأ وتغسل وجهك بماء بارد (عشان تطفئ نار الشهوة).</span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm">🧊</span>
+                      <span className="text-xs font-bold">توضّأ بالماء البارد فوراً لتبريد الشهوات</span>
                     </div>
-                    {checkedActions.wudu ? <CheckCircle2 size={18} className="text-emerald-400 shrink-0" /> : <div className="w-[18px] h-[18px] border-2 border-slate-700 rounded-full shrink-0" />}
+                    {checkedActions.wudu ? <CheckCircle2 size={14} className="text-emerald-400 shrink-0" /> : <div className="w-3.5 h-3.5 border-2 border-slate-700 rounded-full shrink-0" />}
                   </button>
 
                   <button
                     onClick={() => toggleAction('repent')}
                     className={cn(
-                      "w-full text-right p-4 rounded-2xl border transition-all flex items-center justify-between gap-3",
+                      "w-full text-right p-3 rounded-xl border transition-all flex items-center justify-between gap-2.5 cursor-pointer",
                       checkedActions.repent
-                        ? "bg-emerald-950/20 border-emerald-500/40 text-emerald-400 shadow-inner"
-                        : "bg-slate-900 border-slate-800 text-slate-300 hover:border-slate-700 hover:bg-slate-800/50"
+                        ? "bg-emerald-950/20 border-emerald-500/30 text-emerald-400"
+                        : "bg-slate-900 border-slate-800 text-slate-300 hover:border-slate-700 hover:bg-slate-800/55"
                     )}
                   >
-                    <div className="flex items-center gap-3 text-right">
-                      <span className="text-xl">🕌</span>
-                      <span className="text-sm font-bold">اذكر ربك أو صلي ركعتين خاشعتين تكسر بها وسوسة الشيطان تماماً.</span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm">🕌</span>
+                      <span className="text-xs font-bold">صلّ ركعتين خاشعتين في خفاء لكسر الوساوس</span>
                     </div>
-                    {checkedActions.repent ? <CheckCircle2 size={18} className="text-emerald-400 shrink-0" /> : <div className="w-[18px] h-[18px] border-2 border-slate-700 rounded-full shrink-0" />}
+                    {checkedActions.repent ? <CheckCircle2 size={14} className="text-emerald-400 shrink-0" /> : <div className="w-3.5 h-3.5 border-2 border-slate-700 rounded-full shrink-0" />}
                   </button>
                 </div>
 
-                <div className="pt-4 flex items-center justify-between gap-4">
+                <div className="flex items-center justify-between pt-1">
                   <button
-                    onClick={() => setStep(2)}
-                    className="text-slate-500 hover:text-slate-300 text-xs font-bold transition-colors"
+                    onClick={() => setStep(3)}
+                    className="text-slate-500 hover:text-slate-300 text-xs font-bold transition-colors cursor-pointer"
                   >
-                    ← العودة للحديث المخلص
+                    ← تمرين التنفس
                   </button>
 
                   <button
-                    onClick={handleConfirm}
+                    onClick={handleFinish}
                     disabled={!allChecked}
                     className={cn(
-                      "px-8 py-4 rounded-2xl font-black text-sm shadow-xl transition-all flex items-center gap-2",
+                      "px-5 py-2.5 rounded-xl font-bold text-xs shadow-md transition-all cursor-pointer flex items-center gap-1.5",
                       allChecked
-                        ? "bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-500 hover:to-green-500 text-white shadow-emerald-600/30"
+                        ? "bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-500 hover:to-green-500 text-white shadow-emerald-600/20"
                         : "bg-slate-800 text-slate-500 cursor-not-allowed shadow-none"
                     )}
                   >
-                    <PhoneOff size={16} />
-                    <span>عاهدت ربي وأغلقت هاتفي لله</span>
+                    <span>عاهدت ربي وأقفلت هاتفي لله</span>
                   </button>
                 </div>
               </motion.div>

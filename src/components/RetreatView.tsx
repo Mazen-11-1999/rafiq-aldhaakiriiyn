@@ -18,6 +18,19 @@ export default function RetreatView({ userProfile, chatMessages, setChatMessages
   const [isListening, setIsListening] = useState(false);
   const [question, setQuestion] = useState('');
   const scrollRef = useRef<HTMLDivElement>(null);
+  const [isCovenantSigned, setIsCovenantSigned] = useState(false);
+
+  useEffect(() => {
+    const signedDate = localStorage.getItem('signedCovenantDate_v2');
+    if (signedDate === new Date().toDateString()) {
+      setIsCovenantSigned(true);
+    }
+  }, []);
+
+  const handleSignCovenant = () => {
+    localStorage.setItem('signedCovenantDate_v2', new Date().toDateString());
+    setIsCovenantSigned(true);
+  };
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -203,6 +216,37 @@ export default function RetreatView({ userProfile, chatMessages, setChatMessages
                <h3 className="text-3xl font-serif font-bold text-[#4e635a] transform translateZ(20px)">أهلاً بك يا {userProfile?.displayName ? userProfile.displayName.split(' ')[0] : 'رفيق'}</h3>
                <p className="text-[#655d51] mt-4 leading-relaxed font-medium transform translateZ(10px)">أنا "سند"، رفيقك في لحظات الصدق والسكون. تكلم معي عما تشعر به، أو اسألني عما يدور في خاطرك، وسأكون لك مسانداً بإذن الله.</p>
                
+               {/* Morning Covenant (درع العفة وحفظ الوقت) */}
+               <div className="my-6 p-4 bg-slate-50/80 rounded-2xl border border-[#4e635a]/10 max-w-sm mx-auto text-center transform translateZ(15px)" dir="rtl">
+                 {isCovenantSigned ? (
+                   <div className="flex flex-col items-center justify-center space-y-1.5 py-1">
+                     <div className="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-800 border border-emerald-200">
+                       <CheckCircle size={18} />
+                     </div>
+                     <p className="text-xs font-black text-emerald-800">مُتعهّد اليوم لعهد العفة والوقت 🛡️</p>
+                     <p className="text-[10px] text-slate-500 font-semibold leading-relaxed">"عيني أمانة، قلبي أمانة، ووقتي أمانة؛ فاجعلني اليوم يا رب في حفظك وعصمتك."</p>
+                   </div>
+                 ) : (
+                   <div className="space-y-3 text-right">
+                     <div className="flex items-center justify-center gap-1.5 text-[#4e635a] font-all-black text-xs">
+                       <Sparkles size={14} className="animate-pulse shrink-0" />
+                       <span className="font-extrabold text-xs">عهد عفتك ووقتك لليوم 🛡️</span>
+                     </div>
+                     <p className="text-xs text-[#52493d] text-center font-bold leading-relaxed">
+                       "عيني أمانة، قلبي أمانة، ووقتي أمانة؛ فاجعلني اليوم يا رب في حفظك وعصمتك."
+                     </p>
+                     <motion.button
+                       whileHover={{ scale: 1.02 }}
+                       whileTap={{ scale: 0.98 }}
+                       onClick={handleSignCovenant}
+                       className="w-full py-2 px-3 bg-[#4e635a] hover:bg-[#3d4d46] text-white text-[11px] font-black rounded-lg transition-all shadow-sm cursor-pointer text-center"
+                     >
+                       أعاهد ربي وألتزم بعهدي اليوم 🌅
+                     </motion.button>
+                   </div>
+                 )}
+               </div>
+
                <div className="grid grid-cols-4 gap-2 mt-6 transform translateZ(5px)">
                   {moods.map((m) => (
                     <motion.button

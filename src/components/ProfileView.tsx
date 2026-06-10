@@ -522,7 +522,7 @@ export default function ProfileView({
         <div className="flex flex-col md:flex-row items-center gap-8">
           <div className="relative group">
             <div className="absolute inset-0 bg-[#4e635a] rounded-[40px] blur-xl opacity-20 group-hover:opacity-40 transition-opacity" />
-            {userProfile?.uid === 'guest-uid' ? (
+            {!userProfile?.photoURL ? (
               <svg viewBox="0 0 160 160" className="w-32 h-32 rounded-[40px] border-4 border-white shadow-2xl relative z-10 object-cover">
                 <defs>
                   <linearGradient id="bgGradLarge" x1="0%" y1="0%" x2="0%" y2="100%">
