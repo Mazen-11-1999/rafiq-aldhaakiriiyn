@@ -17,6 +17,12 @@ export default function PrayerAlarmOverlay({ prayerName, message, isOpen, onClos
   const [audioError, setAudioError] = useState<string | null>(null);
   const [isBlocked, setIsBlocked] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const synthRef = useRef<{ stop: () => void } | null>(null);
+  const isMutedRef = useRef(isMuted);
+
+  useEffect(() => {
+    isMutedRef.current = isMuted;
+  }, [isMuted]);
 
   useEffect(() => {
     if (isOpen) {
@@ -30,37 +36,114 @@ export default function PrayerAlarmOverlay({ prayerName, message, isOpen, onClos
       audioRef.current = audio;
 
       const fallbacks = [
-        'https://ia800100.us.archive.org/30/items/nasheed_adel/Salawat.mp3',
-        'https://ia800904.us.archive.org/30/items/IslamicRingtones_201306/Spirit.mp3',
-        'https://ia801308.us.archive.org/19/items/Takbeerat_201708/Takbeerat.mp3', // تكبيرات العيد الهادئة والمستقرة
-        'https://ia800100.us.archive.org/30/items/nasheed_adel/Beep.mp3', // جرس هادئ احتياطي
-        'https://ia804703.us.archive.org/4/items/BeautifulAdhan/Beautiful%20Adhan%20-Mukhtar%20Al-Shareef.mp3' // أذان عذب عالي الأمان والاستقرار
+        'https://audio.islamweb.net/audio/download.php?audioid=206930',
+        'https://audio.islamweb.net/audio/download.php?audioid=434647',
+        'https://audio.islamweb.net/audio/download.php?audioid=400474',
+        'https://audio.islamweb.net/audio/download.php?audioid=319938',
+        'https://audio.islamweb.net/audio/download.php?audioid=425434',
+        'https://audio.islamweb.net/audio/download.php?audioid=428892',
+        'https://audio.islamweb.net/audio/download.php?audioid=432210',
+        'https://media.assabile.com/assabile/adhan_3435370/82e70e435a79.mp3',
+        'https://media.assabile.com/assabile/adhan_3435370/495dea4f4ea5.mp3',
+        'https://media.assabile.com/assabile/adhan_3435370/f30b7631d625.mp3'
       ];
 
       let fallbackIndex = 0;
+      let synthContext: AudioContext | null = null;
+
+      const startSynthesizer = () => {
+        if (synthRef.current || !isOpen) return;
+        try {
+          const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+          if (!AudioContextClass) {
+            console.error('Web Audio API not supported');
+            return;
+          }
+          const ctx = new AudioContextClass();
+          synthContext = ctx;
+          let active = true;
+          let intervalId: any = null;
+          
+          const playBeep = () => {
+            if (!active) return;
+            
+            // If context is suspended (autoplay block), try to resume
+            if (ctx.state === 'suspended') {
+              ctx.resume().catch(() => {});
+            }
+
+            const now = ctx.currentTime;
+            
+            // Dual-tone peaceful chime
+            const osc1 = ctx.createOscillator();
+            const osc2 = ctx.createOscillator();
+            const gainNode = ctx.createGain();
+            
+            osc1.type = 'sine';
+            osc1.frequency.setValueAtTime(329.63, now); // E4
+            
+            osc2.type = 'sine';
+            osc2.frequency.setValueAtTime(493.88, now); // B4 (Fifth)
+            
+            const currentVolume = isMutedRef.current ? 0 : 0.15;
+            gainNode.gain.setValueAtTime(currentVolume, now);
+            gainNode.gain.exponentialRampToValueAtTime(0.001, now + 1.8);
+            
+            osc1.connect(gainNode);
+            osc2.connect(gainNode);
+            gainNode.connect(ctx.destination);
+            
+            osc1.start(now);
+            osc2.start(now);
+            osc1.stop(now + 2.0);
+            osc2.stop(now + 2.0);
+            
+            intervalId = setTimeout(playBeep, 2500);
+          };
+          
+          playBeep();
+          
+          synthRef.current = {
+            stop: () => {
+              active = false;
+              if (intervalId) clearTimeout(intervalId);
+              ctx.close().catch(() => {});
+            }
+          };
+          console.log('Spiritual synthesized chime started active fallback.');
+          setAudioError("تم تفعيل المنبه الروحاني الاحتياطي (وضع عدم الاتصال)");
+        } catch (err) {
+          console.error('Failed to start synthesized chime:', err);
+        }
+      };
 
       const handleAudioError = () => {
-        if (!audioRef.current || !isOpen) return;
+        if (!isOpen) return;
 
         if (fallbackIndex < fallbacks.length) {
           const nextFallback = fallbacks[fallbackIndex];
           fallbackIndex++;
           
           console.log(`Trying fallback (${fallbackIndex}/${fallbacks.length}): ${nextFallback}`);
-          audioRef.current.src = nextFallback;
-          audioRef.current.load();
-          
-          // Only attempt play if not blocked, otherwise wait for interaction
-          if (!isBlocked) {
-            audioRef.current.play().catch((err) => {
-               if (err.name === 'NotAllowedError') {
-                 setIsBlocked(true);
-               }
-            });
+          if (audioRef.current) {
+            audioRef.current.src = nextFallback;
+            audioRef.current.load();
+            
+            if (!isBlocked) {
+              audioRef.current.play().catch((err) => {
+                 if (err.name === 'NotAllowedError') {
+                   setIsBlocked(true);
+                 } else {
+                   console.warn('Fallback play failed, attempting next fallback.');
+                   handleAudioError();
+                 }
+              });
+            }
           }
         } else {
-          setAudioError("عذراً، تعذر تحميل صوت التنبيه حالياً");
-          console.error('All audio fallbacks failed');
+          setAudioError("تعذر الاتصال بملفات الأذان الخارجية. تشغيل المنبه المحلي الآمن..");
+          console.error('All remote audio fallbacks failed, initiating synthesizer.');
+          startSynthesizer();
         }
       };
 
@@ -69,7 +152,6 @@ export default function PrayerAlarmOverlay({ prayerName, message, isOpen, onClos
       const attemptPlay = async () => {
         if (!audioRef.current || !isOpen) return;
         try {
-          // Reset state before play
           setIsBlocked(false);
           setAudioError(null);
           await audio.play();
@@ -79,27 +161,42 @@ export default function PrayerAlarmOverlay({ prayerName, message, isOpen, onClos
           } else if (err.name === 'AbortError') {
              console.log('Playback aborted (likely due to track change or component close)');
           } else {
-             // If it failed because of source error, handleAudioError will trigger via listener
-             console.warn('Initial play failed:', err.message);
-             // handleAudioError() is already attached to 'error' event
+             console.warn('Initial play failed, trying fallback:', err.message);
+             handleAudioError();
           }
           
           const playOnInteraction = async () => {
             try {
-              if (audioRef.current && isOpen) {
-                // If it was in error state, try to reload first
-                if (audioRef.current.error || !audioRef.current.src) {
-                   handleAudioError();
+              if (isOpen) {
+                if (synthContext && synthContext.state === 'suspended') {
+                  synthContext.resume().catch(() => {});
                 }
-                await audioRef.current.play();
-                setIsBlocked(false);
-                setAudioError(null);
-                cleanupEvents();
+                if (audioRef.current) {
+                  if (audioRef.current.error || !audioRef.current.src) {
+                     handleAudioError();
+                  } else {
+                     await audioRef.current.play();
+                     setIsBlocked(false);
+                     setAudioError(null);
+                     cleanupEvents();
+                  }
+                } else {
+                  // If audioRef is null but modal is open, attempt synthesizer
+                  startSynthesizer();
+                  setIsBlocked(false);
+                  cleanupEvents();
+                }
               }
             } catch (e: any) {
               if (e.name !== 'NotAllowedError' && e.name !== 'AbortError') {
                 console.error('Playback failed after interaction:', e.message);
-                handleAudioError();
+                if (fallbackIndex < fallbacks.length) {
+                  handleAudioError();
+                } else {
+                  startSynthesizer();
+                  setIsBlocked(false);
+                  cleanupEvents();
+                }
               }
             }
           };
@@ -124,7 +221,10 @@ export default function PrayerAlarmOverlay({ prayerName, message, isOpen, onClos
           audioRef.current.pause();
           audioRef.current = null;
         }
-        window.removeEventListener('click', () => {}); // Just in case
+        if (synthRef.current) {
+          synthRef.current.stop();
+          synthRef.current = null;
+        }
       };
     }
   }, [isOpen, selectedRingtoneId]);
@@ -132,11 +232,15 @@ export default function PrayerAlarmOverlay({ prayerName, message, isOpen, onClos
   const toggleMute = () => {
     if (audioRef.current) {
       audioRef.current.muted = !isMuted;
-      setIsMuted(!isMuted);
     }
+    setIsMuted(!isMuted);
   };
 
   const handleStop = () => {
+    if (synthRef.current) {
+      synthRef.current.stop();
+      synthRef.current = null;
+    }
     try {
       const todayStr = new Date().toISOString().split('T')[0];
       const savedFalah = localStorage.getItem(`falah_completed_${todayStr}`);
@@ -160,7 +264,6 @@ export default function PrayerAlarmOverlay({ prayerName, message, isOpen, onClos
         };
         localStorage.setItem('falah_habits_stats', JSON.stringify(newFalahStats));
 
-        // Dispatch custom event to notify components to reload Falah data
         window.dispatchEvent(new Event('falah-updated'));
       }
     } catch (e) {

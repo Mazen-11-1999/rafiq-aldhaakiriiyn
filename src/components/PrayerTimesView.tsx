@@ -5,7 +5,7 @@ import { PrayerService, PrayerTimeData } from '../services/prayerService';
 import { LocationService, LocationCoords } from '../services/locationService';
 import { cn } from '../lib/utils';
 
-export default function PrayerTimesView({ coords: initialCoords }: { coords: LocationCoords | null }) {
+export default function PrayerTimesView({ coords: initialCoords, calculationMethod }: { coords: LocationCoords | null, calculationMethod?: string }) {
   const [coords, setCoords] = useState<LocationCoords | null>(initialCoords);
   const [prayerTimes, setPrayerTimes] = useState<PrayerTimeData | null>(null);
   const [nextPrayer, setNextPrayer] = useState<{ name: string, time: Date, key: string } | null>(null);
@@ -14,10 +14,10 @@ export default function PrayerTimesView({ coords: initialCoords }: { coords: Loc
 
   useEffect(() => {
     if (coords) {
-      const times = PrayerService.getPrayerTimes(coords.lat, coords.lng);
+      const times = PrayerService.getPrayerTimes(coords.lat, coords.lng, calculationMethod);
       setPrayerTimes(times);
     }
-  }, [coords]);
+  }, [coords, calculationMethod]);
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);

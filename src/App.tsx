@@ -134,7 +134,8 @@ export default function App() {
                 dhikrReminders: true, 
                 retreatReminders: true, 
                 prayerTimes: true, 
-                ringtone: 'official-prayer' 
+                ringtone: 'official-prayer',
+                calculationMethod: 'Yemen'
               },
               privacy: { publicProfile: false, shareInsights: true },
               appearance: { language: 'ar', dateFormat: 'arabic', darkMode: false }
@@ -159,6 +160,7 @@ export default function App() {
                   retreatReminders: true,
                   prayerTimes: true,
                   ringtone: 'official-prayer',
+                  calculationMethod: 'Yemen'
                 },
                 privacy: {
                   publicProfile: false,
@@ -753,7 +755,7 @@ export default function App() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -30 }}
             >
-              <PrayerTimesView coords={coords} />
+              <PrayerTimesView coords={coords} calculationMethod={userProfile?.settings?.notifications?.calculationMethod} />
             </motion.div>
           )}
         </AnimatePresence>

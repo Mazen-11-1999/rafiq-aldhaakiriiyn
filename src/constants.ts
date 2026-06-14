@@ -2,43 +2,53 @@
 export const RINGTONES = [
   { 
     id: 'official-prayer', 
-    name: 'أذان الحرم المكي الشريف (مميز)', 
-    url: 'https://archive.org/download/AdhanMakkah1_201602/Adhan%20Makkah%201.mp3'
+    name: 'الأذان الرسمي للتطبيق (تلقائي)', 
+    url: 'https://audio.islamweb.net/audio/download.php?audioid=206930'
   },
   { 
-    id: 'spiritual-call', 
-    name: 'أذان بصوت ندي وعذب شجي', 
-    url: 'https://archive.org/download/Azan_627/Azan.mp3'
+    id: 'adhan-assabile-82e70e', 
+    name: 'أذان الحرم المكي الشريف', 
+    url: 'https://media.assabile.com/assabile/adhan_3435370/82e70e435a79.mp3'
   },
   { 
-    id: 'faith-alert', 
-    name: 'أذان الشيخ عبد الباسط عبد الصمد', 
-    url: 'https://archive.org/download/002Adhan/002Adhan.mp3'
+    id: 'adhan-vocal-1', 
+    name: 'أذان ندي وعذب شجي', 
+    url: 'https://media.assabile.com/assabile/adhan_3435370/495dea4f4ea5.mp3'
   },
   { 
-    id: 'deep-meditation', 
-    name: 'تأمل ونقاء (صلوات)', 
-    url: 'https://ia800100.us.archive.org/30/items/nasheed_adel/Salawat.mp3'
-  },
-  { 
-    id: 'morning-sun', 
-    name: 'ضحى الصباح (رنين هادئ)', 
-    url: 'https://actions.google.com/sounds/v1/alarms/set_the_alarm.ogg'
-  },
-  { 
-    id: 'sacred-echo', 
-    name: 'صدى الخلود', 
-    url: 'https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg'
-  },
-  { 
-    id: 'spiritual-calm', 
-    name: 'سكينة روحانية (تكبيرات)', 
-    url: 'https://ia801308.us.archive.org/19/items/Takbeerat_201708/Takbeerat.mp3'
+    id: 'adhan-vocal-2', 
+    name: 'أذان روحاني مؤثر خاشع', 
+    url: 'https://media.assabile.com/assabile/adhan_3435370/f30b7631d625.mp3'
   },
   {
-    id: 'classic-beep',
-    name: 'منبه كلاسيكي',
-    url: 'https://actions.google.com/sounds/v1/alarms/beeping_ship_bell.ogg'
+    id: 'adhan-islamweb',
+    name: 'أذان إسلام ويب العذب الشجي',
+    url: 'https://audio.islamweb.net/audio/download.php?audioid=425434'
+  },
+  {
+    id: 'adhan-islamweb-428892',
+    name: 'أذان خاشع ومؤثر جداً (إسلام ويب)',
+    url: 'https://audio.islamweb.net/audio/download.php?audioid=428892'
+  },
+  {
+    id: 'adhan-islamweb-432210',
+    name: 'أذان مكي رائع وخاشع (إسلام ويب)',
+    url: 'https://audio.islamweb.net/audio/download.php?audioid=432210'
+  },
+  {
+    id: 'adhan-islamweb-434647',
+    name: 'أذان بنبرة حزينة ومؤثرة (إسلام ويب)',
+    url: 'https://audio.islamweb.net/audio/download.php?audioid=434647'
+  },
+  {
+    id: 'adhan-islamweb-400474',
+    name: 'أذان بلبل شجي خاشع (إسلام ويب)',
+    url: 'https://audio.islamweb.net/audio/download.php?audioid=400474'
+  },
+  {
+    id: 'adhan-islamweb-319938',
+    name: 'أذان جميل ندي ومميز (إسلام ويب)',
+    url: 'https://audio.islamweb.net/audio/download.php?audioid=319938'
   }
 ];
 
@@ -1321,5 +1331,215 @@ export const NASHEEDS: Nasheed[] = [
     artist: 'سامي يوسف',
     url: 'https://abd.albumaty.com/uploads/songs/abdwap2.com_18422.mp3',
     cover: 'https://i1.sndcdn.com/artworks-000009906912-548wa5-t500x500.jpg'
+  },
+  {
+    id: 'nasheed-186',
+    title: 'يا من يرى ما في الضمير ويسمع',
+    artist: 'عادل القاسمي',
+    url: 'https://download.assabile.com/mp3/nasheed/mp3s/adil-al-kassimi/adil-al-kassimi-738.mp3',
+    cover: 'https://ar.assabile.com/media/person/200x256/adil-al-kassimi.png'
+  },
+  {
+    id: 'nasheed-187',
+    title: 'غريب',
+    artist: 'عادل القاسمي',
+    url: 'https://download.assabile.com/mp3/nasheed/mp3s/adil-al-kassimi/adil-al-kassimi-740.mp3',
+    cover: 'https://ar.assabile.com/media/person/200x256/adil-al-kassimi.png'
+  },
+  {
+    id: 'nasheed-188',
+    title: 'يا نفس توبي',
+    artist: 'عادل القاسمي',
+    url: 'https://download.assabile.com/mp3/nasheed/mp3s/adil-al-kassimi/adil-al-kassimi-741.mp3',
+    cover: 'https://ar.assabile.com/media/person/200x256/adil-al-kassimi.png'
+  },
+  {
+    id: 'nasheed-189',
+    title: 'بك أستجير',
+    artist: 'عادل القاسمي',
+    url: 'https://download.assabile.com/mp3/nasheed/mp3s/adil-al-kassimi/adil-al-kassimi-745.mp3',
+    cover: 'https://ar.assabile.com/media/person/200x256/adil-al-kassimi.png'
+  },
+  {
+    id: 'nasheed-190',
+    title: 'إلهي وجئتك',
+    artist: 'عادل القاسمي',
+    url: 'https://download.assabile.com/mp3/nasheed/mp3s/adil-al-kassimi/adil-al-kassimi-746.mp3',
+    cover: 'https://ar.assabile.com/media/person/200x256/adil-al-kassimi.png'
+  },
+  {
+    id: 'nasheed-191',
+    title: 'يا رجائي',
+    artist: 'عادل القاسمي',
+    url: 'https://download.assabile.com/mp3/nasheed/mp3s/adil-al-kassimi/adil-al-kassimi-749.mp3',
+    cover: 'https://ar.assabile.com/media/person/200x256/adil-al-kassimi.png'
+  },
+  {
+    id: 'nasheed-192',
+    title: 'أمي',
+    artist: 'عادل القاسمي',
+    url: 'https://download.assabile.com/mp3/nasheed/mp3s/adil-al-kassimi/adil-al-kassimi-750.mp3',
+    cover: 'https://ar.assabile.com/media/person/200x256/adil-al-kassimi.png'
+  },
+  {
+    id: 'nasheed-193',
+    title: 'رحمن يا رحمن',
+    artist: 'عادل القاسمي',
+    url: 'https://download.assabile.com/mp3/nasheed/mp3s/adil-al-kassimi/adil-al-kassimi-751.mp3',
+    cover: 'https://ar.assabile.com/media/person/200x256/adil-al-kassimi.png'
+  },
+  {
+    id: 'nasheed-194',
+    title: 'ليس الغريب',
+    artist: 'عادل القاسمي',
+    url: 'https://download.assabile.com/mp3/nasheed/mp3s/adil-al-kassimi/adil-al-kassimi-752.mp3',
+    cover: 'https://ar.assabile.com/media/person/200x256/adil-al-kassimi.png'
+  },
+  {
+    id: 'nasheed-195',
+    title: 'سأقبل يا خالقي من جديد',
+    artist: 'عادل القاسمي',
+    url: 'https://download.assabile.com/mp3/nasheed/mp3s/adil-al-kassimi/adil-al-kassimi-753.mp3',
+    cover: 'https://ar.assabile.com/media/person/200x256/adil-al-kassimi.png'
+  },
+  {
+    id: 'nasheed-196',
+    title: 'فرشي التراب',
+    artist: 'عادل القاسمي',
+    url: 'https://download.assabile.com/mp3/nasheed/mp3s/adil-al-kassimi/adil-al-kassimi-755.mp3',
+    cover: 'https://ar.assabile.com/media/person/200x256/adil-al-kassimi.png'
+  },
+  {
+    id: 'nasheed-197',
+    title: 'يا حمام المدينة سلم على نبينا',
+    artist: 'نور الدين خورشيد',
+    url: '/api/soundcloud-stream?url=https://soundcloud.com/jamal-merrouna/a7dvm4blt77n',
+    cover: 'https://i1.sndcdn.com/artworks-000033933424-sbm2ym-t500x500.jpg'
+  },
+  {
+    id: 'nasheed-198',
+    title: 'سلام الله للهادي',
+    artist: 'ترانيم',
+    url: '/api/soundcloud-stream?url=https://soundcloud.com/taraneem/n0yerv90upqf',
+    cover: 'https://i1.sndcdn.com/artworks-000082763535-898ucc-t500x500.jpg'
+  },
+  {
+    id: 'nasheed-199',
+    title: 'صل يا ربنا',
+    artist: 'فرقة اليرموك الفنية',
+    url: '/api/soundcloud-stream?url=https://soundcloud.com/fahd-asem/mp3-1',
+    cover: 'https://i1.sndcdn.com/avatars-N32u5VQi7CcYmCCb-dD7beQ-t500x500.jpg'
+  },
+  {
+    id: 'nasheed-200',
+    title: 'يا عالي الشان صلِ',
+    artist: 'فرقة اليرموك الفنية',
+    url: '/api/soundcloud-stream?url=https://soundcloud.com/fahd-asem/mp3',
+    cover: 'https://i1.sndcdn.com/avatars-N32u5VQi7CcYmCCb-dD7beQ-t500x500.jpg'
+  },
+  {
+    id: 'nasheed-201',
+    title: 'الصلاة على النبي',
+    artist: 'فرقة اليرموك الفنية',
+    url: '/api/soundcloud-stream?url=https://soundcloud.com/fahd-asem/mp3-4',
+    cover: 'https://i1.sndcdn.com/avatars-N32u5VQi7CcYmCCb-dD7beQ-t500x500.jpg'
+  },
+  {
+    id: 'nasheed-202',
+    title: 'رب صل على النبي',
+    artist: 'فرقة اليرموك الفنية',
+    url: '/api/soundcloud-stream?url=https://soundcloud.com/fahd-asem/mp3-2',
+    cover: 'https://i1.sndcdn.com/avatars-N32u5VQi7CcYmCCb-dD7beQ-t500x500.jpg'
+  },
+  {
+    id: 'nasheed-203',
+    title: 'الأقصى بيجري بدمي',
+    artist: 'كفاح زريقي',
+    url: '/api/soundcloud-stream?url=https://soundcloud.com/khalid-omar-al-bardawil/s5zqawrkroib',
+    cover: 'https://i1.sndcdn.com/artworks-000090265401-w9de93-t500x500.jpg'
+  },
+  {
+    id: 'nasheed-204',
+    title: 'حيهم شباب القدس',
+    artist: 'عبد الفتاح عوينات',
+    url: '/api/soundcloud-stream?url=https://soundcloud.com/nesmamohammad/mnfia2u8gfw4',
+    cover: 'https://i1.sndcdn.com/artworks-V68yYNbl55AyXjzB-diwtbA-t500x500.jpg'
+  },
+  {
+    id: 'nasheed-205',
+    title: 'سلم عليها',
+    artist: 'عبد الفتاح عوينات',
+    url: '/api/soundcloud-stream?url=https://soundcloud.com/laith-al-ramahi/y2utzlmsnd3g',
+    cover: 'https://i1.sndcdn.com/artworks-000130959045-9vq3dq-t500x500.jpg'
+  },
+  {
+    id: 'nasheed-206',
+    title: 'روائع كروان المديح',
+    artist: 'علي أبوالدهب الأسواني',
+    url: '/api/soundcloud-stream?url=https://soundcloud.com/ahmed-esmael-369598319/m4a_128',
+    cover: 'https://i1.sndcdn.com/avatars-Gvqkic6imIThz7aC-0d2Fug-t500x500.jpg'
+  },
+  {
+    id: 'nasheed-207',
+    title: 'رحماك إلهي',
+    artist: 'بلابل الإيمان - سليم الوادعي',
+    url: '/api/soundcloud-stream?url=https://soundcloud.com/saleemwadei/6ut25ivehkp9',
+    cover: 'https://i1.sndcdn.com/artworks-gIn4ygGhGDxENJxY-3Mjufg-t500x500.jpg'
+  },
+  {
+    id: 'nasheed-208',
+    title: 'ألف صلى الله',
+    artist: 'ألبوم عابر سبيل',
+    url: '/api/soundcloud-stream?url=https://soundcloud.com/xda-3arabi-xda/aber-sabail-alf-sal-mp3',
+    cover: 'https://i1.sndcdn.com/artworks-000285030329-uymngk-t500x500.jpg'
+  },
+  {
+    id: 'nasheed-209',
+    title: 'اصنع المعروف',
+    artist: 'ألبوم عابر سبيل',
+    url: '/api/soundcloud-stream?url=https://soundcloud.com/xda-3arabi-xda/aber-sabail-esnaa-e-mp3',
+    cover: 'https://i1.sndcdn.com/artworks-000285033185-dx1aax-t500x500.jpg'
+  },
+  {
+    id: 'nasheed-210',
+    title: 'لا يعرف الحلو',
+    artist: 'ألبوم عابر سبيل',
+    url: '/api/soundcloud-stream?url=https://soundcloud.com/xda-3arabi-xda/aber-sabail-la-yare-mp3',
+    cover: 'https://i1.sndcdn.com/artworks-000285032537-1k3kdf-t500x500.jpg'
+  },
+  {
+    id: 'nasheed-211',
+    title: 'يا إلهي تولنا',
+    artist: 'ألبوم عابر سبيل',
+    url: '/api/soundcloud-stream?url=https://soundcloud.com/xda-3arabi-xda/aber-sabail-ya-elah-mp3',
+    cover: 'https://i1.sndcdn.com/artworks-000285033110-6jq57x-t500x500.jpg'
+  },
+  {
+    id: 'nasheed-212',
+    title: 'يا خفي اللطف',
+    artist: 'ألبوم عابر سبيل',
+    url: '/api/soundcloud-stream?url=https://soundcloud.com/xda-3arabi-xda/aber-sabail-ya-khafi-mp3',
+    cover: 'https://i1.sndcdn.com/artworks-000285032849-3nj7mi-t500x500.jpg'
+  },
+  {
+    id: 'nasheed-213',
+    title: 'يا تواب',
+    artist: 'ألبوم عابر سبيل',
+    url: '/api/soundcloud-stream?url=https://soundcloud.com/xda-3arabi-xda/aber-sabail-ya-towab-ye-mp3',
+    cover: 'https://i1.sndcdn.com/artworks-000285032717-dwqbuc-t500x500.jpg'
+  },
+  {
+    id: 'nasheed-214',
+    title: 'هزتني نسمات الليالي',
+    artist: 'أداء عذب',
+    url: '/api/soundcloud-stream?url=https://soundcloud.com/abderrahim-mesttileire/fscgnfqoi9lv',
+    cover: 'https://i1.sndcdn.com/avatars-000079795028-w032wx-t500x500.jpg'
+  },
+  {
+    id: 'nasheed-215',
+    title: 'أخبارنا أستاذي يوماً',
+    artist: 'يحيى حوى',
+    url: '/api/soundcloud-stream?url=https://soundcloud.com/dodo_soliman/ckdi96hrevgh',
+    cover: 'https://i1.sndcdn.com/artworks-000058926519-h2kq04-t500x500.jpg'
   }
 ];

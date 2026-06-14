@@ -46,6 +46,90 @@ export const MediaProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   });
 
   const audioRef = useRef<HTMLAudioElement>(new Audio());
+  const currentTrackRef = useRef<Nasheed | null>(null);
+  const trackUrlIndexRef = useRef(0);
+
+  useEffect(() => {
+    currentTrackRef.current = currentTrack;
+  }, [currentTrack]);
+
+  const playTrack = (track: Nasheed) => {
+    if (currentTrack?.id === track.id) {
+      togglePlay();
+      return;
+    }
+    trackUrlIndexRef.current = 0;
+    setCurrentTrack(track);
+    setIsLoading(true);
+    const audio = audioRef.current;
+    audio.src = track.url;
+    audio.load();
+    
+    audio.play()
+      .then(() => {
+        setIsPlaying(true);
+        setIsLoading(false);
+      })
+      .catch(e => {
+        console.warn("Playback blocked or failed initially:", e);
+        if (e.name === 'NotAllowedError') {
+          setIsPlaying(true); // show play state and wait for click
+        } else {
+          // If playing initial fails, trigger our error/fallback handler
+          handleTrackPlayError();
+        }
+        setIsLoading(false);
+      });
+  };
+
+  const togglePlay = () => setIsPlaying(!isPlaying);
+
+  const nextTrack = () => {
+    const track = currentTrackRef.current;
+    if (!track) return;
+    const currentIndex = NASHEEDS.findIndex(n => n.id === track.id);
+    const nextIndex = (currentIndex + 1) % NASHEEDS.length;
+    playTrack(NASHEEDS[nextIndex]);
+  };
+
+  const prevTrack = () => {
+    const track = currentTrackRef.current;
+    if (!track) return;
+    const currentIndex = NASHEEDS.findIndex(n => n.id === track.id);
+    const prevIndex = (currentIndex - 1 + NASHEEDS.length) % NASHEEDS.length;
+    playTrack(NASHEEDS[prevIndex]);
+  };
+
+  const handleTrackPlayError = () => {
+    const track = currentTrackRef.current;
+    if (!track) return;
+    const audio = audioRef.current;
+
+    if (track.urls && trackUrlIndexRef.current < track.urls.length) {
+       const nextUrl = track.urls[trackUrlIndexRef.current];
+       trackUrlIndexRef.current += 1;
+       console.warn(`Track url failed, trying fallback (${trackUrlIndexRef.current}/${track.urls.length}): ${nextUrl}`);
+       setIsLoading(true);
+       audio.src = nextUrl;
+       audio.load();
+       audio.play()
+         .then(() => {
+           setIsPlaying(true);
+           setIsLoading(false);
+         })
+         .catch(e => {
+           console.warn("Fallback track play failed, continuing sequence:", e);
+           handleTrackPlayError();
+         });
+    } else {
+       console.error("All URLs/fallbacks for this track failed to play. Navigating to next song.");
+       setIsLoading(false);
+       // Navigate to next track automatically after a short delay
+       setTimeout(() => {
+         nextTrack();
+       }, 2000);
+    }
+  };
 
   useEffect(() => {
     const audio = audioRef.current;
@@ -56,6 +140,9 @@ export const MediaProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     const handleWaiting = () => setIsLoading(true);
     const handlePlaying = () => setIsLoading(false);
     const handleCanPlay = () => setIsLoading(false);
+    const handleError = () => {
+      handleTrackPlayError();
+    };
 
     audio.addEventListener('timeupdate', handleTimeUpdate);
     audio.addEventListener('loadedmetadata', handleLoadedMetadata);
@@ -63,6 +150,7 @@ export const MediaProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     audio.addEventListener('waiting', handleWaiting);
     audio.addEventListener('playing', handlePlaying);
     audio.addEventListener('canplay', handleCanPlay);
+    audio.addEventListener('error', handleError);
 
     return () => {
       audio.removeEventListener('timeupdate', handleTimeUpdate);
@@ -71,6 +159,7 @@ export const MediaProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       audio.removeEventListener('waiting', handleWaiting);
       audio.removeEventListener('playing', handlePlaying);
       audio.removeEventListener('canplay', handleCanPlay);
+      audio.removeEventListener('error', handleError);
     };
   }, []);
 
@@ -156,7 +245,10 @@ export const MediaProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     if (isPlaying) {
       audioRef.current.play().catch(e => {
         console.warn("Playback blocked or failed:", e);
-        setIsPlaying(false);
+        // Do not force false instantly if blocked, so user can click to play
+        if (e.name !== 'NotAllowedError') {
+          setIsPlaying(false);
+        }
       });
       if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'playing';
     } else {
@@ -164,33 +256,6 @@ export const MediaProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'paused';
     }
   }, [isPlaying]);
-
-  const playTrack = (track: Nasheed) => {
-    if (currentTrack?.id === track.id) {
-      togglePlay();
-      return;
-    }
-    setCurrentTrack(track);
-    audioRef.current.src = track.url;
-    audioRef.current.load();
-    setIsPlaying(true);
-  };
-
-  const togglePlay = () => setIsPlaying(!isPlaying);
-
-  const nextTrack = () => {
-    if (!currentTrack) return;
-    const currentIndex = NASHEEDS.findIndex(n => n.id === currentTrack.id);
-    const nextIndex = (currentIndex + 1) % NASHEEDS.length;
-    playTrack(NASHEEDS[nextIndex]);
-  };
-
-  const prevTrack = () => {
-    if (!currentTrack) return;
-    const currentIndex = NASHEEDS.findIndex(n => n.id === currentTrack.id);
-    const prevIndex = (currentIndex - 1 + NASHEEDS.length) % NASHEEDS.length;
-    playTrack(NASHEEDS[prevIndex]);
-  };
 
   const seek = (time: number) => {
     audioRef.current.currentTime = time;

@@ -87,7 +87,8 @@ export default function NotificationManager({ enabled, prayerEnabled = false, co
 
       // Prayer Times (If enabled and coordinates exist)
       if (prayerEnabled && coords) {
-        const prayers = PrayerService.getPrayerTimes(coords.lat, coords.lng);
+        const calculationMethod = userProfile?.settings?.notifications?.calculationMethod;
+        const prayers = PrayerService.getPrayerTimes(coords.lat, coords.lng, calculationMethod);
         const prayerKeys = ['fajr', 'dhuhr', 'asr', 'maghrib', 'isha'];
         
         prayerKeys.forEach(key => {

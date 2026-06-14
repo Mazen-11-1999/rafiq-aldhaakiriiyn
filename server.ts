@@ -19,8 +19,39 @@ async function startServer() {
 
   app.use(express.json());
 
-  // API Route for AI Chat
-  app.post("/api/chat", async (req, res) => {
+  // --- In-Memory Rate Limiter to prevent API abuse/spam ---
+  const rateLimitMap = new Map<string, { count: number, resetTime: number }>();
+  
+  const apiRateLimiter = (req: any, res: any, next: any) => {
+    const ip = (req.headers['x-forwarded-for'] as string) || req.socket.remoteAddress || 'unknown-ip';
+    const currentTime = Date.now();
+    const limitWindowMs = 60 * 1000; // 1 minute window
+    const maxRequestsInWindow = 12;  // Up to 12 chat messages / min per IP
+    
+    let rateData = rateLimitMap.get(ip);
+    
+    if (!rateData || currentTime > rateData.resetTime) {
+      rateLimitMap.set(ip, {
+        count: 1,
+        resetTime: currentTime + limitWindowMs
+      });
+      return next();
+    }
+    
+    rateData.count += 1;
+    
+    if (rateData.count > maxRequestsInWindow) {
+      return res.status(429).json({
+        error: "حماية الخادم: لقد تجاوزت معدل الطلبات المسموح به مؤقتاً لتفادي الضغط العشوائي. يرجى الانتظار دقيقة واحدة ثم إعادة محاولة الحوار مع الرفيق سند."
+      });
+    }
+    
+    rateLimitMap.set(ip, rateData);
+    next();
+  };
+
+  // API Route for AI Chat (Protected by Rate Limiter)
+  app.post("/api/chat", apiRateLimiter, async (req, res) => {
     try {
       const { message, chatHistory, userContext } = req.body;
 

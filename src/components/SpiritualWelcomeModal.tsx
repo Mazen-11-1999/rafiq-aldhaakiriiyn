@@ -16,7 +16,28 @@ export default function SpiritualWelcomeModal({ onUnderstand }: SpiritualWelcome
     }
   }, []);
 
-  const handleClose = () => {
+  const handleClose = async () => {
+    // 1. Play brief peaceful sound to unlock audio autoplay on the browser tab
+    try {
+      const audio = new Audio('https://audio.islamweb.net/audio/download.php?audioid=206930');
+      audio.volume = 0.05;
+      await audio.play();
+      setTimeout(() => {
+        try { audio.pause(); } catch (e) {}
+      }, 500);
+    } catch (e) {
+      console.warn("Audio autoplay unlock failed:", e);
+    }
+
+    // 2. Request notification permissions
+    if (typeof window !== 'undefined' && 'Notification' in window) {
+      try {
+        await Notification.requestPermission();
+      } catch (e) {
+        console.warn("Notification permission request failed:", e);
+      }
+    }
+
     localStorage.setItem('isSpiritualIntroSeen_v2', 'true');
     setIsOpen(false);
     onUnderstand();
@@ -62,8 +83,9 @@ export default function SpiritualWelcomeModal({ onUnderstand }: SpiritualWelcome
               </p>
             </div>
 
-            <div className="text-xs text-[#72857b] font-medium leading-relaxed bg-[#4e635a]/5 p-3.5 rounded-xl border border-[#4e635a]/10">
-              💡 جعلنا هذا التنبيه أول بوابات دخولك حتى يبقى الهدف من مكوثك هنا خالصاً لوجه الله، بعيداً عن زيف الأرقام وبهرج المنافسة الفارغة.
+            <div className="text-xs text-[#72857b] font-medium leading-relaxed bg-[#4e635a]/5 p-3.5 rounded-xl border border-[#4e635a]/10 space-y-1">
+              <p>💡 جعلنا هذا التنبيه أول بوابات دخولك حتى يبقى الهدف من مكوثك هنا خالصاً لوجه الله، بعيداً عن زيف الأرقام وبهرج المنافسة الفارغة.</p>
+              <p className="text-emerald-400 font-bold border-t border-[#4e635a]/10 pt-1">🔔 ملاحظة هامة جداً: بالنقر على الزر أدناه سيمنح متصفحك الإذن الفوري للتطبيق بالوصول للتنبيهات وتشغيل الأصوات بحرية تامة في أوقات الصلاة دون قيود Autoplay.</p>
             </div>
 
             <motion.button
@@ -72,7 +94,7 @@ export default function SpiritualWelcomeModal({ onUnderstand }: SpiritualWelcome
               onClick={handleClose}
               className="w-full py-4 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-bold text-sm shadow-lg shadow-emerald-600/10 transition-all flex items-center justify-center gap-2 cursor-pointer"
             >
-              <span>عاهدت الله واستعنت به لكي أبدأ بصدق 🌅</span>
+              <span>تفعيل الأصوات والأذان والبدء بصدق 🌅🔊</span>
             </motion.button>
           </div>
         </motion.div>

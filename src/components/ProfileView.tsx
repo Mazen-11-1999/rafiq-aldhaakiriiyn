@@ -20,6 +20,20 @@ import html2canvas from 'html2canvas';
 import { collection, query, getDocs, orderBy } from 'firebase/firestore';
 import { getLatestAssessment, saveEthicsCommitment, getProphetCommitments, saveProphetCommitment } from '../services/recordService';
 
+const CALCULATION_METHODS = [
+  { id: 'Yemen', name: 'توقيت وزارة الأوقاف اليمنية (اليمن - تلقائي)' },
+  { id: 'UmmAlQura', name: 'جامعة أم القرى (مكة المكرمة - السعودية)' },
+  { id: 'MuslimWorldLeague', name: 'رابطة العالم الإسلامي (أوروبا، أمريكا، والجزائر)' },
+  { id: 'Egyptian', name: 'الهيئة المصرية العامة للمساحة (مصر، الشام، واليمن)' },
+  { id: 'Karachi', name: 'جامعة العلوم الإسلامية بكراتشي (آسيا)' },
+  { id: 'NorthAmerica', name: 'الجمعية الإسلامية لأمريكا الشمالية (ISNA)' },
+  { id: 'Dubai', name: 'دائرة الشؤون الإسلامية بدبي (الإمارات)' },
+  { id: 'Qatar', name: 'وزارة الأوقاف القطرية' },
+  { id: 'Kuwait', name: 'وزارة الأوقاف الكويتية' },
+  { id: 'Singapore', name: 'المجلس الإسلامي السنغافوري' },
+  { id: 'Turkey', name: 'رئاسة الشؤون الدينية التركية (Diyanet)' }
+];
+
 export default function ProfileView({ 
   userProfile, 
   onTabChange,
@@ -2161,8 +2175,12 @@ export default function ProfileView({
                           if (ringtone) {
                              const audio = new Audio(ringtone.url);
                              audio.volume = 0.5;
-                             audio.play();
-                             setTimeout(() => audio.pause(), 5000);
+                             audio.play().catch(err => {
+                               console.warn("Preview playback was blocked or failed:", err.message);
+                             });
+                             setTimeout(() => {
+                               try { audio.pause(); } catch(e){}
+                             }, 5000);
                           }
                         }}
                         className="text-[10px] font-black text-blue-600 hover:underline"
@@ -2180,8 +2198,12 @@ export default function ProfileView({
                         if (ringtone) {
                           const audio = new Audio(ringtone.url);
                           audio.volume = 0.4;
-                          audio.play();
-                          setTimeout(() => audio.pause(), 3000); // 3 sec preview
+                          audio.play().catch(err => {
+                            console.warn("Preview playback was blocked or failed:", err.message);
+                          });
+                          setTimeout(() => {
+                            try { audio.pause(); } catch(e){}
+                          }, 3000); // 3 sec preview
                         }
                       }}
                       className="w-full bg-white/5 border border-[#4e635a]/20 rounded-xl p-3 text-sm font-bold text-[#1b1c1a] focus:ring-2 focus:ring-[#4e635a]/50 outline-none appearance-none"
@@ -2190,6 +2212,27 @@ export default function ProfileView({
                         <option key={r.id} value={r.id}>{r.name}</option>
                       ))}
                     </select>
+                  </div>
+
+                  <div className="flex flex-col gap-3 pt-2">
+                    <div className="flex items-center gap-2 text-xs font-bold text-[#4e635a]">
+                      <Sparkles size={14} className="text-emerald-600" />
+                      <span>طريقة حساب مواقيت الصلاة</span>
+                    </div>
+                    <select 
+                      value={userProfile.settings?.notifications.calculationMethod || 'Yemen'}
+                      onChange={(e) => {
+                        updateSettings({ notifications: { calculationMethod: e.target.value } });
+                      }}
+                      className="w-full bg-white/5 border border-[#4e635a]/20 rounded-xl p-3 text-sm font-bold text-[#1b1c1a] focus:ring-2 focus:ring-[#4e635a]/50 outline-none appearance-none"
+                    >
+                      {CALCULATION_METHODS.map(m => (
+                        <option key={m.id} value={m.id}>{m.name}</option>
+                      ))}
+                    </select>
+                    <p className="text-[10px] text-[#4e635a]/70 font-semibold leading-relaxed">
+                      * يتيح لك هذا الخيار مواءمة مواقيت الصلاة بدقة مع مسجد حارتك (مثلاً توقيت السعودية "أم القرى" أو التوقيت اليمني الرسمي).
+                    </p>
                   </div>
 
                   <motion.button 
@@ -2219,18 +2262,7 @@ export default function ProfileView({
                 exit={{ opacity: 0, x: -20 }}
                 className="p-4 space-y-4"
               >
-                <Toggle 
-                  label="الملف الشخصي مرئي للعامة" 
-                  enabled={userProfile.settings?.privacy.publicProfile ?? false} 
-                  onChange={(val: boolean) => updateSettings({ privacy: { publicProfile: val } })}
-                />
-                <Toggle 
-                  label="مشاركة إحصائيات الإنجاز" 
-                  enabled={userProfile.settings?.privacy.shareInsights ?? true} 
-                  onChange={(val: boolean) => updateSettings({ privacy: { shareInsights: val } })}
-                />
-                
-                <div className="space-y-4 pt-4 border-t border-[#4e635a]/10">
+                <div className="space-y-4">
                    <motion.button 
                      whileTap={{ scale: 0.95 }}
                      onClick={exportDataAsPDF}

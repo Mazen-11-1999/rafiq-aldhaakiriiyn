@@ -11,6 +11,7 @@ export interface UserSettings {
     retreatReminders: boolean;
     prayerTimes: boolean;
     ringtone: string;
+    calculationMethod?: string;
   };
   privacy: {
     publicProfile: boolean;

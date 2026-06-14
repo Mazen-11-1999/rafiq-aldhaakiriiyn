@@ -12,10 +12,35 @@ export interface PrayerTimeData {
 }
 
 export class PrayerService {
-  static getPrayerTimes(lat: number, lng: number): PrayerTimeData {
+  static getPrayerTimes(lat: number, lng: number, methodKey?: string): PrayerTimeData {
     const coordinates = new Coordinates(lat, lng);
     const date = new Date();
-    const params = CalculationMethod.MuslimWorldLeague(); // Default, can be customized
+    
+    let params;
+    if (methodKey === 'UmmAlQura') {
+      params = CalculationMethod.UmmAlQura();
+    } else if (methodKey === 'Egyptian') {
+      params = CalculationMethod.Egyptian();
+    } else if (methodKey === 'Karachi') {
+      params = CalculationMethod.Karachi();
+    } else if (methodKey === 'NorthAmerica') {
+      params = CalculationMethod.NorthAmerica();
+    } else if (methodKey === 'Dubai') {
+      params = CalculationMethod.Dubai();
+    } else if (methodKey === 'Qatar') {
+      params = CalculationMethod.Qatar();
+    } else if (methodKey === 'Kuwait') {
+      params = CalculationMethod.Kuwait();
+    } else if (methodKey === 'Singapore') {
+      params = CalculationMethod.Singapore();
+    } else if (methodKey === 'Turkey') {
+      params = CalculationMethod.Turkey();
+    } else if (methodKey === 'Yemen' || methodKey === 'Yemeni') {
+      // Yemen (وزارة الأوقاف والإرشاد) officially aligns with the Muslim World League specifications (Fajr 18.0, Isha 17.0)
+      params = CalculationMethod.MuslimWorldLeague();
+    } else {
+      params = CalculationMethod.MuslimWorldLeague(); // Default (Muslim World League)
+    }
     
     const prayerTimes = new PrayerTimes(coordinates, date, params);
     const sunnahTimes = new SunnahTimes(prayerTimes);
