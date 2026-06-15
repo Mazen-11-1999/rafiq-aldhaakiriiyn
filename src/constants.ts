@@ -103,7 +103,7 @@ export const NASHEEDS: Nasheed[] = [
     title: 'يا حامل القرآن',
     artist: 'أحمد بو خاطر',
     url: 'https://www.ashefaa.com/enshad/files/monaw3at/ya_hamel.mp3',
-    cover: 'https://png.pngtree.com/png-vector/20260228/ourmid/pngtree-young-muslim-boy-in-blue-attire-and-cap-reading-quran-on-png-image_18830778.webp'
+    cover: '/images/quran_bearer_cover.jpg'
   },
   {
     id: 'nasheed-4',
@@ -390,7 +390,7 @@ export const NASHEEDS: Nasheed[] = [
     title: 'فرشي التراب',
     artist: 'أبو عبد الملك',
     url: 'https://www.ashefaa.com/enshad/files/Abel-Mallek/600002.mp3',
-    cover: 'https://images.unsplash.com/photo-1507615811603-347cf74e1019?q=80&w=200&auto=format&fit=crop'
+    cover: '/images/dust_earth_cover.jpg'
   },
   {
     id: 'nasheed-45',
@@ -1407,21 +1407,21 @@ export const NASHEEDS: Nasheed[] = [
     title: 'فرشي التراب',
     artist: 'عادل القاسمي',
     url: 'https://download.assabile.com/mp3/nasheed/mp3s/adil-al-kassimi/adil-al-kassimi-755.mp3',
-    cover: 'https://ar.assabile.com/media/person/200x256/adil-al-kassimi.png'
+    cover: '/images/dust_earth_cover.jpg'
   },
   {
     id: 'nasheed-197',
     title: 'يا حمام المدينة سلم على نبينا',
     artist: 'نور الدين خورشيد',
     url: '/api/soundcloud-stream?url=https://soundcloud.com/jamal-merrouna/a7dvm4blt77n',
-    cover: 'https://i1.sndcdn.com/artworks-000033933424-sbm2ym-t500x500.jpg'
+    cover: '/images/medina_dove_cover.jpg'
   },
   {
     id: 'nasheed-198',
     title: 'سلام الله للهادي',
     artist: 'ترانيم',
     url: '/api/soundcloud-stream?url=https://soundcloud.com/taraneem/n0yerv90upqf',
-    cover: 'https://i1.sndcdn.com/artworks-000082763535-898ucc-t500x500.jpg'
+    cover: '/images/medina_dove_cover.jpg'
   },
   {
     id: 'nasheed-199',
@@ -1456,14 +1456,14 @@ export const NASHEEDS: Nasheed[] = [
     title: 'الأقصى بيجري بدمي',
     artist: 'كفاح زريقي',
     url: '/api/soundcloud-stream?url=https://soundcloud.com/khalid-omar-al-bardawil/s5zqawrkroib',
-    cover: 'https://i1.sndcdn.com/artworks-000090265401-w9de93-t500x500.jpg'
+    cover: '/images/alaqsa_dawn_cover.jpg'
   },
   {
     id: 'nasheed-204',
     title: 'حيهم شباب القدس',
     artist: 'عبد الفتاح عوينات',
     url: '/api/soundcloud-stream?url=https://soundcloud.com/nesmamohammad/mnfia2u8gfw4',
-    cover: 'https://i1.sndcdn.com/artworks-V68yYNbl55AyXjzB-diwtbA-t500x500.jpg'
+    cover: '/images/alaqsa_dawn_cover.jpg'
   },
   {
     id: 'nasheed-205',
@@ -1484,7 +1484,7 @@ export const NASHEEDS: Nasheed[] = [
     title: 'رحماك إلهي',
     artist: 'بلابل الإيمان - سليم الوادعي',
     url: '/api/soundcloud-stream?url=https://soundcloud.com/saleemwadei/6ut25ivehkp9',
-    cover: 'https://i1.sndcdn.com/artworks-gIn4ygGhGDxENJxY-3Mjufg-t500x500.jpg'
+    cover: '/images/dua_mercy_cover.jpg'
   },
   {
     id: 'nasheed-208',
@@ -1533,13 +1533,13 @@ export const NASHEEDS: Nasheed[] = [
     title: 'هزتني نسمات الليالي',
     artist: 'أداء عذب',
     url: '/api/soundcloud-stream?url=https://soundcloud.com/abderrahim-mesttileire/fscgnfqoi9lv',
-    cover: 'https://i1.sndcdn.com/avatars-000079795028-w032wx-t500x500.jpg'
+    cover: '/images/night_breeze_cover.jpg'
   },
   {
     id: 'nasheed-215',
     title: 'أخبارنا أستاذي يوماً',
     artist: 'يحيى حوى',
     url: '/api/soundcloud-stream?url=https://soundcloud.com/dodo_soliman/ckdi96hrevgh',
-    cover: 'https://i1.sndcdn.com/artworks-000058926519-h2kq04-t500x500.jpg'
+    cover: '/images/teacher_notes_cover.jpg'
   }
 ];
